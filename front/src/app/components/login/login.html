@@ -1,1 +1,15 @@
-<p>login works!</p>
+
+<div>
+    <header>
+        <h2>Login</h2>
+    </header>
+    <label for="mail">
+        Email:
+        <input id="mail" type="email"  [(ngModel)]="user_email" required>
+    </label>
+    <label for="contrasena">
+        Contrasena:
+        <input id="contrasena" type="password" [(ngModel)]="user_password" required>
+    </label>
+    <input type="button" value="submit" (click)="onSubmit()">
+</div>

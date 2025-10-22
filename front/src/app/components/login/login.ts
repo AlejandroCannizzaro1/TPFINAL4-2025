@@ -9,5 +9,19 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.css'
 })
 export class Login {
+  user_email = '';
+  user_password = '';
+  
 
+  onSubmit(){
+    //verificacion de cont
+    if(this.user_email.trim() == '' || this.user_password.trim() == '' ){
+      alert("Los inputs no pueden estar vacios!");
+      return;
+    }
+    alert("Enviado correctamente");
+
+    //Buscar en base de datos
+    
+  }
 }
