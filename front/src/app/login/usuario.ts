@@ -1,7 +1,7 @@
 export interface Usuario {
     id?: string | number,
-    nombre: string,
+    nombreUsuario: string,
     email: string,
     contrasenia: string,
-    estadoAdmin?: boolean
+    estadoAdmin: boolean
 }

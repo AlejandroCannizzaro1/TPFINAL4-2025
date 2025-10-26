@@ -7,25 +7,25 @@ import { Usuario } from "./usuario";
 })
 export class UsuarioClient {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = '';
+    private readonly baseUrl = 'http://localhost:3000/usuarios';
 
     getUsuarios(){
-        
+        return this.http.get<Usuario[]>(this.baseUrl);
     }
 
-    getUsuarioById(){
-
+    getUsuarioById(id: string | number){
+        return this.http.get<Usuario>(`${this.baseUrl}/${id}`);
     }
 
-    addUsuario(){
-
+    addUsuario(usuario: Usuario){
+        return this.http.post<Usuario>(this.baseUrl, usuario);
     }
 
-    updateUsuario(){
-
+    updateUsuario(usuario: Usuario, id: string | number){
+        return this.http.patch<Usuario>(`${this.baseUrl}/${id}`, usuario);
     }
 
-    deleteUsuario(){
-        
+    deleteUsuario(id: string | number){
+        return this.http.delete(`${this.baseUrl}/${id}`);
     }
 }

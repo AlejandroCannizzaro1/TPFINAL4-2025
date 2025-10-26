@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Usuario } from './usuario';
+import { Usuario } from '../usuario';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,13 +11,14 @@ import { Usuario } from './usuario';
   styleUrl: './login.css'
 })
 export class Login {
-  user_email = '';
+  user_name = '';
   user_password = '';
+  private readonly router = inject(Router);
  
 
   onSubmit(){
     //verificacion de cont
-    if(this.user_email.trim() == '' || this.user_password.trim() == '' ){
+    if(this.user_name.trim() == '' || this.user_password.trim() == '' ){
       alert("Los inputs no pueden estar vacios!");
       return;
     }
@@ -24,6 +26,10 @@ export class Login {
 
     //Buscar en base de datos
     
+  }
+
+  navigateToRegister() {
+    this.router.navigateByUrl(`/register`);
   }
 }
 

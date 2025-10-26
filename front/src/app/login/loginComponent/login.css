@@ -1,0 +1,32 @@
+.login_box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: beige;
+    margin-left: 30%;
+    margin-right: 30%;
+    border-radius: 5%;
+    box-shadow: -5px 5px rgb(214, 214, 191);
+}
+
+.input_field{
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.register_route{
+    margin: 1rem;
+    padding-bottom: 1rem;
+}
+
+.register_link{
+    border-radius: 8%;
+    padding: 10px;
+    color: white;
+    background-color: #3a3a3a;
+    box-shadow: -2px 2px gray;
+}
+
+.register_link:hover{
+    color: rgb(57, 255, 50);
+}
