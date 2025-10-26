@@ -1,13 +1,5 @@
 {
     "usuarios": [
-        {
-            "email" : "admin@gmail.com",
-            "contrasena": "Abc123"
-        },
-        {
-            "email" : "usuario@gmail.com",
-            "contrasena": "Abc123"
-        }
-
+        
     ]
 }
