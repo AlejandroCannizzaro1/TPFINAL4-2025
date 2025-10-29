@@ -4988,6 +4988,11 @@ export {
   PathLocationStrategy,
   Location,
   HashLocationStrategy,
+  NgClass,
+  NgForOf,
+  NgIf,
+  NgStyle,
+  NgTemplateOutlet,
   CommonModule,
   PLATFORM_BROWSER_ID,
   ViewportScroller
@@ -5004,4 +5009,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-A33F5LZT.js.map
+//# sourceMappingURL=chunk-G7IN3SIH.js.map
