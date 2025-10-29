@@ -1,0 +1,8 @@
+<nav class="navbar">
+    <a class="nav-link">Hola</a>
+    <a class="nav-link">Funcion 2</a>
+    <a class="nav-link">Iniciar Sesion</a>
+    @if (this.auth.isLoggedIn()) {
+        <a class="nav-link" (click)="logout()" >Cerrar Sesion</a>
+    }
+</nav>

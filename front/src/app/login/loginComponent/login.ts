@@ -4,6 +4,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { Usuario } from '../usuario';
 import { Router } from '@angular/router';
 import { UsuarioClient } from '../usuarioClient';
+import { AuthService } from '../../auth.service/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,7 @@ export class Login {
   private readonly formBuilder = inject(FormBuilder);
   private readonly client = inject(UsuarioClient);
   private readonly router = inject(Router);
+  protected readonly authService = inject(AuthService);
 
   readonly usuario = input<Usuario>();
 
@@ -52,9 +54,10 @@ export class Login {
           return;
         }
 
-        alert("Usted inicio sesion correctamente!");
-        this.loggedIn = true;
-        
+        else{
+          const token = 'token_' + Math.random().toString(36).substring(2) + usuario.id;
+          this.authService.login(token);
+        }
       }); 
     }
   };

@@ -6,6 +6,12 @@
       "nombreUsuario": "Manolet",
       "contrasenia": "asda",
       "estadoAdmin": true
+    },
+    {
+      "id": "45a7",
+      "email": "manolo@manolo.com",
+      "nombreUsuario": "Manoloooo",
+      "contrasenia": "asda"
     }
   ]
 }

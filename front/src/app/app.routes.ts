@@ -14,4 +14,6 @@ export const routes: Routes = [
     {
         path: 'register', component:Register
     }
+    //A partir de aca hay que usar el isLoggedIn del servicio auth.service para verificar que este logeado
+    //y si no lo esta, mandarlo al login
 ];

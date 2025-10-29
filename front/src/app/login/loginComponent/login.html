@@ -38,6 +38,6 @@
         <a class="register_link" (click)="navigateToRegister()">No tenes cuenta?</a>
     </div>
 </div>
-<h1>Is logged in? {{ loggedIn }}</h1>
+<h1>Is logged in? {{ authService.isLoggedIn() }}</h1>
 <!--  @let movies = this.movies // no se bien porque por algo de signals calculo-->
 <!-- Despues se usa control para verificar que no este vacio y mostrar el formulario o la lista o lo que sea (como en el parcial: cargando tal cosa)-->
