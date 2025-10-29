@@ -1,38 +1,69 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, input } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Usuario } from '../usuario';
 import { Router } from '@angular/router';
+import { UsuarioClient } from '../usuarioClient';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, CommonModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
-  user_name = '';
-  user_password = '';
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly client = inject(UsuarioClient);
   private readonly router = inject(Router);
- 
 
-  onSubmit(){
-    //verificacion de cont
-    if(this.user_name.trim() == '' || this.user_password.trim() == '' ){
-      alert("Los inputs no pueden estar vacios!");
+  readonly usuario = input<Usuario>();
+
+  protected loggedIn = false;
+ 
+  inputType: string = 'text';
+  showPassword: boolean = false;
+
+  protected readonly form = this.formBuilder.nonNullable.group({
+    email: ['', [Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')]],
+    contrasenia: ['', [Validators.required]], //Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')]
+  });
+
+  changeVisual() { //Cambia la password para ver o no
+    this.showPassword = !this.showPassword;
+    this.inputType = this.showPassword ? 'password' : 'text';
+  };
+
+  handleSubmit(){
+    if(this.form.invalid) {
+      alert("El formulario no puede tener caracteres invalidos o vacios!");
       return;
     }
-    alert("Enviado correctamente");
 
-    //Buscar en base de datos
-    
-  }
+    if(confirm('Desea iniciar sesion?')) {
+      //Se crea el objeto usuario con los datos del formulario
+      const usuario = this.form.getRawValue() as Usuario;
+      usuario.email = usuario.email.toLowerCase();
+      
+      this.client.getUsuarios().subscribe((usuarios) => {
+        const encontrado = usuarios.some(us => (us.email === usuario.email) && (us.contrasenia === usuario.contrasenia));
+        
+        if(!encontrado){
+          alert("Los datos ingresados no son correctos, o usted no esta registrado")
+          return;
+        }
+
+        alert("Usted inicio sesion correctamente!");
+        this.loggedIn = true;
+        
+      }); 
+    }
+  };
+
 
   navigateToRegister() {
     this.router.navigateByUrl(`/register`);
   }
 }
-
 //Ejemplo LoginClient (solo hace solicitudes http)
 /**
  *  Habilitar fetch:

@@ -1,5 +1,11 @@
 {
   "usuarios": [
-    
+    {
+      "id": "edbf",
+      "email": "manuelgelpi88@admin.com",
+      "nombreUsuario": "Manolet",
+      "contrasenia": "asda",
+      "estadoAdmin": true
+    }
   ]
 }

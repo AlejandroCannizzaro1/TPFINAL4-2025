@@ -11,10 +11,10 @@
             <label for="email">Correo Electronico</label>
             <input type="email" id="email" formControlName="email" placeholder="Correo Electronico" [email]="true">
             
-            @if (email.invalid && email.touched) {
-                <p class="error">El mail debe ser valido!</p>
-            }
         </div>
+        @if (email.invalid && email.touched) {
+            <p class="error">El mail debe ser valido!</p>
+        }
         
         <div class="form-field">
             @let name= form.controls.nombreUsuario;
@@ -22,22 +22,22 @@
             <label for="nombreUsuario">Nombre</label>
             <input type="text" id="nombreUsuario" formControlName="nombreUsuario" placeholder="Usuario">
 
-            @if (name.invalid && name.touched) {
-                <p class="error">El nombre es obligatorio!</p>
-            }
         </div>
+        @if (name.invalid && name.touched) {
+            <p class="error">El nombre es obligatorio!</p>
+        }
         
         <div class="form-field">
             @let pass = form.controls.contrasenia;
 
             <label for="contrasenia">Contrasenia</label>
-            <input type="password" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia">
-
-            @if (pass.invalid && pass.touched) {
-                <p class="error">Al menos 8 caracteres, 1 minuscula, mayuscula, numero y caracter especial
-                </p>
-            }
+            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia">
+            <button type="button" (click)="changeVisual()" >Ver</button>
         </div>
+        @if (pass.invalid && pass.touched) {
+            <p class="error">Al menos 8 caracteres, 1 minuscula, mayuscula, numero y caracter especial
+            </p>
+        }
         
         <div class="form-actions">
             <button type="reset">Borrar</button>
