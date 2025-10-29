@@ -1,18 +1,5 @@
 {
   "usuarios": [
-    {
-      "id": "2cd8",
-      "email": "manuelgelpi88@gmail.com",
-      "nombreUsuario": "Manolet",
-      "contrasenia": "ABC123",
-      "estadoAdmin": true
-    },
-    {
-      "id": "bc8a",
-      "email": "manuelgelpi88@gmail.com",
-      "nombreUsuario": "asdasd",
-      "contrasenia": "asdasdasd",
-      "estadoAdmin": true
-    }
+    
   ]
 }

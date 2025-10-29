@@ -1,3 +1,16 @@
+.error{
+    color: red;
+}
+
+label {
+    display: block;
+    width: 100%;
+    background-color: red;
+}
+
+input {
+    width: 100%;
+}
 
 .login_box{
     display: flex;
@@ -15,7 +28,6 @@
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     background-color: rgb(110, 110, 75);
-    
 }
 
 .form-field{
@@ -23,6 +35,9 @@
     padding-bottom: 1rem;
     margin-right: 4rem;
     margin-left: 5rem;
+    width: 70%;
+    display: block;
+    justify-content: center;
 }
 
 .form-actions{

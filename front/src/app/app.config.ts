@@ -9,6 +9,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch()) //Lo usamos para el json, es mas rapido y menos complejo
+    //provideHttpClient(withFetch()) //Lo usamos para el json, es mas rapido y menos complejo
   ]
 };

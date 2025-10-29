@@ -26,32 +26,47 @@ export class Register {
   }
   
   protected readonly form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')]],
     nombreUsuario: ['', [Validators.required]],
-    contrasenia: ['', [Validators.required]],
-    estadoAdmin: [false, [Validators.required]]
+    contrasenia: ['', [Validators.required, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')]],
   });
   
   handleSubmit() {
+    //Se verifica que el formulario este correcto
     if(this.form.invalid) {
-      alert("MAL");
+      alert("El formulario no puede tener caracteres invalidos o vacios!");
       return;
     }
 
-    if(confirm('Desea registrarse si que si?')) {
+    if(confirm('Desea registrarse?')) {
+      //Se crea el objeto usuario con los datos del formulario
       const usuario = this.form.getRawValue() as Usuario;
+      usuario.email = usuario.email.toLowerCase();
+
       //verificar que el mail no este en la db
+      this.client.getUsuarios().subscribe((usuarios) => {
+        const encontrado = usuarios.some(us => us.email === usuario.email);
+        if(encontrado){
+          alert("El mail ya tiene una cuenta asignada");
+          return;
+        }
+        //verificamos si es un admin
+        if(usuario.email.includes("admin")) {
+            usuario.estadoAdmin = true;
+        }
+        //anadir usuario
+        this.client.addUsuario(usuario).subscribe(() => {
+          alert("Cuenta creada con exito!");
+          this.form.reset();
+          //this.router.navigateByUrl(`/login`);
+        });
 
-
-
-      //anadir usuario
-      this.client.addUsuario(usuario).subscribe(() => {
-        alert("Lo lograstes amigo");
-        this.form.reset();
-        this.router.navigateByUrl(`/login`);
-      })
+      });
+      
     }
   }
+
+
 
 
 }
