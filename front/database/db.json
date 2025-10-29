@@ -8,10 +8,11 @@
       "estadoAdmin": true
     },
     {
-      "id": "45a7",
-      "email": "manolo@manolo.com",
-      "nombreUsuario": "Manoloooo",
-      "contrasenia": "asda"
+      "id": "bfc9",
+      "email": "usuario@usuario.com",
+      "nombreUsuario": "UsuarioRandom",
+      "contrasenia": "Abc123",
+      "estadoAdmin": false
     }
   ]
 }

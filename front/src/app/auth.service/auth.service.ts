@@ -7,16 +7,19 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   private tokenKey = 'authToken';
+  private userRole = 'userRole';
 
   constructor(private router: Router){}
 
 
-  login(token: string): void{
+  login(token: string, roleStatus: string): void{
     localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem(this.userRole, roleStatus)
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userRole);
   }
 
   isLoggedIn(): boolean {
@@ -25,6 +28,13 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  isAdmin(): boolean {
+    if(localStorage.getItem(this.userRole) == "admin"){
+      return true;
+    }
+    else return false;
   }
 
 }

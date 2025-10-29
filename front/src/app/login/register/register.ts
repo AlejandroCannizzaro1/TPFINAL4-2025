@@ -62,6 +62,8 @@ export class Register {
         if(usuario.email.includes("admin")) {
             usuario.estadoAdmin = true;
         }
+        else{ usuario.estadoAdmin = false };
+        
         //anadir usuario
         this.client.addUsuario(usuario).subscribe(() => {
           alert("Cuenta creada con exito!");

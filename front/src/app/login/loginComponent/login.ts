@@ -5,6 +5,7 @@ import { Usuario } from '../usuario';
 import { Router } from '@angular/router';
 import { UsuarioClient } from '../usuarioClient';
 import { AuthService } from '../../auth.service/auth.service';
+import { map, take } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,7 @@ export class Login {
 
   protected loggedIn = false;
  
-  inputType: string = 'text';
+  inputType: string = 'password';
   showPassword: boolean = false;
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -34,31 +35,39 @@ export class Login {
     this.showPassword = !this.showPassword;
     this.inputType = this.showPassword ? 'password' : 'text';
   };
-
+  
   handleSubmit(){
+
+
+    //Borrar esto
+    
+    
     if(this.form.invalid) {
       alert("El formulario no puede tener caracteres invalidos o vacios!");
       return;
     }
-
+    
     if(confirm('Desea iniciar sesion?')) {
       //Se crea el objeto usuario con los datos del formulario
       const usuario = this.form.getRawValue() as Usuario;
       usuario.email = usuario.email.toLowerCase();
       
-      this.client.getUsuarios().subscribe((usuarios) => {
-        const encontrado = usuarios.some(us => (us.email === usuario.email) && (us.contrasenia === usuario.contrasenia));
-        
-        if(!encontrado){
-          alert("Los datos ingresados no son correctos, o usted no esta registrado")
-          return;
-        }
-
-        else{
-          const token = 'token_' + Math.random().toString(36).substring(2) + usuario.id;
-          this.authService.login(token);
-        }
-      }); 
+      this.client.getUsuarios().pipe(
+        map(users => users.find((user) => (user.email === usuario.email) && (user.contrasenia === usuario.contrasenia))), take(1))
+        .subscribe(user => {
+          if(user){
+            const token = 'token_' + Math.random().toString(36).substring(2) + user.id?.toString();
+            console.log(token);
+            if(user.estadoAdmin) {
+              this.authService.login(token, "admin");
+            }
+            else {
+              this.authService.login(token, "user");
+            }
+            alert("Succesful");
+            this.router.navigate(['/']);
+          }
+        });
     }
   };
 

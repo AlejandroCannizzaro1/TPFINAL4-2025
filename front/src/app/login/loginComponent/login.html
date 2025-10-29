@@ -18,16 +18,14 @@
         
         
         <div class="form-field">
-            @let pass = form.controls.contrasenia;
-
             <label for="contrasenia">Contrasenia</label>
-            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia">
-            <button type="button" (click)="changeVisual()" >Ver</button>
+            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia" autocomplete="off">
+            <button type="button" (click)="changeVisual()" >
+                @if(inputType == 'password') { Ver }
+                @else { Esconder }
+            </button>
         </div>
-        @if (pass.invalid && pass.touched) {
-            <p class="error">Al menos 8 caracteres, 1 minuscula, mayuscula, numero y caracter especial
-            </p>
-        }
+        
         
         <div class="form-actions">
             <button type="reset">Borrar</button>
@@ -39,5 +37,6 @@
     </div>
 </div>
 <h1>Is logged in? {{ authService.isLoggedIn() }}</h1>
+<h1>Is admin? {{ authService.isAdmin() }}</h1>
 <!--  @let movies = this.movies // no se bien porque por algo de signals calculo-->
 <!-- Despues se usa control para verificar que no este vacio y mostrar el formulario o la lista o lo que sea (como en el parcial: cargando tal cosa)-->
