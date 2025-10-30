@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service/auth.service';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 
 @Component({
@@ -10,9 +10,12 @@ import { RouterLink } from "@angular/router";
   styleUrl: './navbar.css'
 })
 export class Navbar {
-  constructor(public auth: AuthService) {}
+  constructor(public auth: AuthService, private router: Router) {}
 
   logout() {
-    this.auth.logout();
+    if(confirm("Desea cerrar sesion?")) {
+      this.auth.logout();
+      this.router.navigateByUrl('/');
+    }
   }
 }

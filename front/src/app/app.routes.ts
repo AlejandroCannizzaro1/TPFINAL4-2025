@@ -9,17 +9,16 @@ import { CalendarComponent } from './calendar-component/calendar-component';
 
 export const routes: Routes = [
     {
-        path: '', component: MainPage
+        path: '', component: MainPage, title: 'Bienvenido'
     },
     {
-        path: 'login', component:Login, canActivate: [NoGuard]
+        path: 'login', component:Login, canActivate: [NoGuard], title: 'Iniciar Sesion'
     },
     {
-        path: 'register', component:Register, canActivate: [NoGuard]
+        path: 'register', component:Register, canActivate: [NoGuard], title: 'Registrarse'
     },
     {
-        path: 'calendario', component:CalendarComponent, canActivate: [AuthGuard]
+        path: 'calendario', component:CalendarComponent, canActivate: [AuthGuard], title: 'Calendario'
     }
-    //A partir de aca hay que usar el isLoggedIn del servicio auth.service para verificar que este logeado
-    //y si no lo esta, mandarlo al login
+    //Ahora usamos los canActivate para restringir paginas. NoGuard: Verifica que el usuario NO este logeado, AuthGuard: usuario SI esta logeado, RoleGuard: usuario ES admin
 ];
