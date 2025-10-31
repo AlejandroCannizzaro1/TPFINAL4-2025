@@ -29,9 +29,9 @@ export class Register {
   // }
   
   protected readonly form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')]],
+    email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]],
     nombreUsuario: ['', [Validators.required]],
-    contrasenia: ['', [Validators.required]], //Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')]
+    contrasenia: ['', [Validators.required,]], //Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')]
   });
   
   changeVisual() { //Cambia la password para ver o no

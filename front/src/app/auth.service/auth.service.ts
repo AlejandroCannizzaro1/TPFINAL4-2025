@@ -8,13 +8,15 @@ export class AuthService {
 
   private tokenKey = 'authToken';
   private userRole = 'userRole';
+  private userName = 'userName';
 
   constructor(private router: Router){}
 
 
-  login(token: string, roleStatus: string): void{
+  login(token: string, roleStatus: string, name: string): void{
     localStorage.setItem(this.tokenKey, token);
     localStorage.setItem(this.userRole, roleStatus)
+    localStorage.setItem(this.userName, name);
   }
 
   logout(): void {
@@ -35,6 +37,10 @@ export class AuthService {
       return true;
     }
     else return false;
+  }
+
+  getName(): string | null {
+    return localStorage.getItem(this.userName);
   }
 
 }

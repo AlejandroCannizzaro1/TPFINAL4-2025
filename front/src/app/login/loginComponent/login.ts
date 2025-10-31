@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Usuario } from '../usuario';
 import { Router } from '@angular/router';
@@ -59,10 +59,10 @@ export class Login {
             const token = 'token_' + Math.random().toString(36).substring(2) + user.id?.toString();
             console.log(token);
             if(user.estadoAdmin) {
-              this.authService.login(token, "admin");
+              this.authService.login(token, "admin", user.nombreUsuario);
             }
             else {
-              this.authService.login(token, "user");
+              this.authService.login(token, "user", user.nombreUsuario);
             }
             alert("Succesful");
             this.router.navigate(['/']);

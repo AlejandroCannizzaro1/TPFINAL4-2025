@@ -13,6 +13,16 @@
       "nombreUsuario": "UsuarioRandom",
       "contrasenia": "Abc123",
       "estadoAdmin": false
+    },
+    {
+      "id": "ee71",
+      "email": "manuelgelpi88@gmail.com",
+      "nombreUsuario": "Manolo",
+      "contrasenia": "asdasd",
+      "estadoAdmin": false
     }
+  ],
+  "eventos": [
+    
   ]
 }

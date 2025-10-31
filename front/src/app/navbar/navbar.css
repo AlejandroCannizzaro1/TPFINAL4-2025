@@ -4,6 +4,11 @@
     flex-direction: row;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
+    
+}
+
+.navbar-right {
+    margin-left: auto;
 }
 
 .nav-link {
@@ -16,10 +21,8 @@
     border-color: black;
 }
 
-.rightmost {
-    position: absolute;
-    right: 0;
-}
+
+
 
 a {
     text-decoration: none;
