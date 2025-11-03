@@ -20,6 +20,17 @@ async function obtenerUsuarios(){
     const data = await res.json();
     return data.records || [];
 }
+//Obtener un Usuario By ID
+async function obtenerUsuarioById(idUsuario){
+    const res = await fetch(`${AIRTABLE_BASE_URL}/?${idUsuario}`,{
+        method:'GET',
+        headers:HEADERS
+    });
+    if(!res.ok) throw new Error(`Error al obtener usuario mediante ID:${idUsuario}:${res.status}`);
+    const data = await res.json();
+    return data;
+}
+
 
 //Crear un usuario 
 async function crearUsuario(usuario){
@@ -81,6 +92,22 @@ async function eliminarUsuario(idDELETE){
         return res.json();
 }
 
+//Nuevas Funciones 
+
+async function obtenerIdAirtablePorIdUsuario(idUsuario){
+  const formula = `filterByFormula=${encodeURIComponent(`{idUsuario}=${idUsuario}`)}`;
+
+  const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, {
+    method:'GET',
+    headers:HEADERS,
+  })
+  if(!res.ok) throw new Error(`Error al obtener el id Interno de airtable mediante el id de usuario:${idUsuario}: ${res.status}`);
+
+  const data = await res.json();
+  return data.records.length > 0 ? data.records[0].id : null;
+}
+
+
 //Exportar funciones del repositorio
 
 module.exports = {
@@ -88,5 +115,8 @@ module.exports = {
     crearUsuario,
     actualizarUsuario,
     editarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    obtenerUsuarioById,
+    obtenerIdAirtablePorIdUsuario,
+    
 }

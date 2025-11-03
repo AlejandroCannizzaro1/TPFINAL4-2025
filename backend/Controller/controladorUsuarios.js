@@ -5,7 +5,9 @@ const {
     crearUsuario,
     actualizarUsuario,
     editarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    obtenerUsuarioById,
+    obtenerIdAirtablePorIdUsuario,
 } = require('../MODEL/DAO-Repository/airtableRepositoryUsuarios');
 
 //Manejar todas las solicitudes relacionadas con los usuarios 
@@ -50,9 +52,24 @@ async function manejarSolicitudesUsuarios(req, res) {
         switch (method) {
             case 'GET':
                 {
-                    const usuarios = await obtenerUsuarios();
+                    const cleanUrl = req.url.split('?')[0].replace(/\/$/, ''); //Limpia la url de barras demas en turnos/ por ejemplo, capaz viene http://localhost:3001/turnos/ y me caga esa ultima barrita
+                   /* "/turnos/5/".replace(/\/$/, '') -> "/turnos/5"(sin la barrita al final)          |         "/turnos/".replace(/\/$/, '') -> "/turnos" */
+                    const idUsuarioEspecifico = getIdFromUrl(cleanUrl);
+                    //Compruebo si la url venia con ID
+                    if (cleanUrl === '/usuarios' || !idUsuarioEspecifico || idUsuarioEspecifico === 'usuarios') {
+                        const usuarios = await obtenerUsuarios();
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(usuarios));
+                        return;
+                    }
+                    const resultado = await obtenerUsuarioById(idUsuarioEspecifico);
+                    if (!resultado) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: `obtenerUsuarioById METHOD ERROR.Usuario con ID ${idUsuarioEspecifico}` }))
+                        return;
+                    }
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(usuarios));
+                    res.end(JSON.stringify(resultado));
                     break;
                 }
             case 'POST':
@@ -61,31 +78,52 @@ async function manejarSolicitudesUsuarios(req, res) {
                     const resultado = await crearUsuario(nuevoUsuario);
                     res.writeHead(201, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
-                    console.log("Usuario creado!!!");
+                    console.log(`Usuario creado!!${JSON.stringify(resultado)}`);
                     break;
                 }
             case 'PUT': {
                 const idPUT = getIdFromUrl(url);
+                const idAirtablePUT = await obtenerIdAirtablePorIdUsuario(idPUT);
+                if (!idAirtablePUT) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: `PUT METHOD.Usuario con ID ${idPUT} NO ENCOTRADO` }))
+                    return;
+                }
                 const nuevosDatos = await getRequestBody(req);
-                const resultado = await actualizarUsuario(idPUT, nuevosDatos);
+                const resultado = await actualizarUsuario(idAirtablePUT, nuevosDatos);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado)); //Respuesta al FRONT-END
+                console.log(`Usuario ${idPUT} actualizado`);
                 break;
             }
             case 'PATCH': {
                 const idPATCH = getIdFromUrl(url);
+                const idAirtablePATCH = await obtenerIdAirtablePorIdUsuario(idPATCH);
+                if (!idAirtablePATCH) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: `PATCH METHOD.Usuario con ID ${idPATCH} NO ENCOTRADO` }))
+                    return;
+                }
                 const cambios = await getRequestBody(req);
-                const resultado = await editarUsuario(idPATCH, cambios);
+                const resultado = await editarUsuario(idAirtablePATCH, cambios);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
+                console.log(`Usuario ${idPATCH} editado parcialmente`);
                 break;
             }
             case 'DELETE':
                 {
                     const idDELETE = getIdFromUrl(url);
-                    const resultado = await eliminarUsuario(idDELETE);
+                    const idAirtableDELETE = await obtenerIdAirtablePorIdUsuario(idDELETE);
+                    if (!idAirtableDELETE) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: `DELETE METHOD.Usuario con ID ${idDELETE} NO ENCOTRADO` }))
+                        return;
+                    }
+                    const resultado = await eliminarUsuario(idAirtableDELETE);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
+                    console.log(`Usuario ${idDELETE} eliminado`);
                     break;
                 }
             default: {

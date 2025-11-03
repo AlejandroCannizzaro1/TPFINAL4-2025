@@ -6,7 +6,7 @@ const AIRTABLE_BASE_URL = `https://api.airtable.com/v0/${process.env.AIRTABLE_BA
     'Content-Type':'application/json'
  };
 
- //Obtener todos los usuarios 
+ //Obtener todos los turnos 
  async function obtenerTurnos(){
     const res = await fetch(`${AIRTABLE_BASE_URL}`,{
         method:'GET',
@@ -20,7 +20,18 @@ const AIRTABLE_BASE_URL = `https://api.airtable.com/v0/${process.env.AIRTABLE_BA
     const data = await res.json(); //ESTO DESCEREALIZA DE JSON A JAVASCRIPT OBJECT
     return data.records || [];
 }
-
+//Obtener un turno especifico 
+//Obtener un trno completo por su ID de Airtable
+async function obtenerTurnoById(idTurno){
+const res = await fetch(`${AIRTABLE_BASE_URL}/${idTurno}`,
+    {
+        method:'GET',
+        headers:HEADERS
+    });
+    if(!res.ok) throw new Error(`Error buscando turno con ID de DEVELOPER:${idTurno}:${res.status} `);
+    const data = await res.json();
+    return data;
+}
 //Crear un turno 
 async function crearTurno(nuevoTurno){
     const res = await fetch(`${AIRTABLE_BASE_URL}`,{
@@ -83,11 +94,33 @@ async function eliminarTurno(idDELETE){
     return data;
 }
 
+//Nuevas funciones 
+
+//Obtener el ID interno que genera airtable a partir de idTurno
+async function obtenerIdAirtablePorIdTurno(idTurno) {
+  const formula = `filterByFormula=${encodeURIComponent(`{idTurno}=${idTurno}`)}`;
+    const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`,
+    {
+            method:'GET',
+            headers:HEADERS
+        });
+        if(!res.ok){
+            throw new Error(`Error buscando turno con ID NORMAL${idTurno}: ${res.status}`);
+        };
+        const data = await res.json(); //Decerealiza de JSON a JS
+        return data.records.length > 0 ? data.records[0].id : null; //Si airtable devuelve al menos un registro, que devuelva el primer elemento de ese registro que es el ID interno de airtable
+}
+
+
+
 //Exportar funciones del repositorio  
 module.exports = {
     obtenerTurnos,
     crearTurno,
     actualizarTurno,
     editarTurno,
-    eliminarTurno
+    eliminarTurno,
+     obtenerTurnoById,
+    obtenerIdAirtablePorIdTurno,
+    
 }
