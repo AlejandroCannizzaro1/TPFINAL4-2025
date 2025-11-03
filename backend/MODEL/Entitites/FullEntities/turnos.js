@@ -1,5 +1,5 @@
 export class Turno {
-//Campos Objeto
+    //Campos Objeto
     static idUltimoTurno = 0;
     idTurno;
     idCliente;
@@ -9,7 +9,19 @@ export class Turno {
     tipoServicio;
     notas;
 
+/* La fecha en airtable : 
+const fecha = new Date().toISOString(); 
+console.log(fecha);
+// → "2025-11-02T18:42:15.123Z"
+Y eso lo podés enviar así:
 
+js
+Copiar código
+{
+  fields: {
+    FechaRegistro: new Date().toISOString()
+  }
+}*/
     //Constructor 
     constructor(fecha, hora, idCliente, tipoServicio, notas) {
         Turno.idUltimoTurno += 1; //Aumentamos ID ultimo turno
@@ -25,50 +37,50 @@ export class Turno {
 
     //Getters
 
-    get getIdTurno(){
+    get getIdTurno() {
         return this.idTurno;
     }
 
-    get getIdCliente(){
+    get getIdCliente() {
         return this.idCliente;
     }
 
-    get getFecha(){
+    get getFecha() {
         return this.fecha;
     }
 
-    get getHora(){
+    get getHora() {
         return this.hora;
     }
 
-    get getServicio(){
+    get getServicio() {
         return this.tipoServicio;
     }
-    get getNotas(){
+    get getNotas() {
         return this.notas;
     }
 
     //Setters
-    set setIdTurno(idTurno){
+    set setIdTurno(idTurno) {
         this.idTurno = idTurno;
     }
-    set setIdCliente(idCliente){
+    set setIdCliente(idCliente) {
         this.idCliente = idCliente;
     }
-    set setFecha(fecha){
+    set setFecha(fecha) {
         this.fecha = fecha;
     }
-    set setHora(hora){
+    set setHora(hora) {
         this.hora = hora;
     }
-    set setTipoServicio(tipoServicio){
+    set setTipoServicio(tipoServicio) {
         this.tipoServicio = tipoServicio;
     }
-    set setNotas(notas){
+    set setNotas(notas) {
         this.notas = notas;
     }
 
-    
+
 
 
 }

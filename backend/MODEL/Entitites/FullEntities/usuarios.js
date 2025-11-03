@@ -1,47 +1,54 @@
- export class Usuario{
-//Campos Objeto 
+export class Usuario {
+    //Campos Objeto 
     static idUltimo = 0;
+    idUsuario;
     nombreUsuario;
     email;
     #contrasenia; //Propiedad privada 
-     #estadoAdmin; //Propiedad privada
+    #estadoAdmin; //Propiedad privada
 
-     //Constructor
-    constructor(email, nombreUsuario, contrasenia){
+    //Constructor
+    constructor(email, nombreUsuario, contrasenia) {
         //El id hay que autogenerarlo y autoincrementarlo en alguna funcion
-        Usuario.idUltimo +=1; //Autoincrementa el ID
-        this.id = Usuario.idUltimo;
+        Usuario.idUltimo += 1; //Autoincrementa el ID
+        this.idUsuario = Usuario.idUltimo;
         this.email = email;
         this.nombreUsuario = nombreUsuario;
         this.#contrasenia = contrasenia; //Propiedad privada
         this.#estadoAdmin = false;
     }
 
-//Getters
-    get getEmail(){
+    //Getters
+    get idUsuario() {
+        return this.idUsuario;
+    }
+    get getEmail() {
         return this.email;
     }
-    get getNombreUsuario(){
+    get getNombreUsuario() {
         return this.nombreUsuario;
     }
-    get getContrasenia(){
+    get getContrasenia() {
         return this.#contrasenia; //Propiedad privada
     }
-    get getEstadoAdmin(){
+    get getEstadoAdmin() {
         return this.#estadoAdmin; //Propiedad privada
     }
 
     //Setters
-    set setEmail(email){
+    set setidUsuario(idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+    set setEmail(email) {
         this.email = email;
     }
-    set setNombreUsuario(nombre){
+    set setNombreUsuario(nombre) {
         this.nombreUsuario = nombre;
     }
-    set setContrasenia(contrasenia){
+    set setContrasenia(contrasenia) {
         this.#contrasenia = contrasenia; //Propiedad privada
     }
-    set setEstadoAdmin(estadoAdmin){
+    set setEstadoAdmin(estadoAdmin) {
         this.#estadoAdmin = estadoAdmin; //Propiedad privada
     }
 
