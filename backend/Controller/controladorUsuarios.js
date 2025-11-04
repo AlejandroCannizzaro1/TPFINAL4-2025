@@ -10,13 +10,15 @@ const {
 } = require('../MODEL/DAO-Repository/airtableRepositoryUsuarios');
 
 const {
-  crearUsuarioService,
-  actualizarUsuarioService,
-  editarUsuarioService,
-  eliminarUsuarioService,
-  ascenderAdminService,
-  asignarPremiumService,
-  limpiarUsuariosInactivosService
+ setUsuarioAdmin, 
+    setUsuarioPremium,
+    validarAdmin,
+    eliminarUsuarioService,
+    actualizarUsuarioService,
+    editarUsuarioService,
+    obtenerUsuarioService, 
+    buscarUsuarioPorEmail,
+    buscarUsuarioPorNombreUsuario
 } = require('../MODEL/Service-LogicaDeNegocios/usuarioService');
 
 // ==================== AUXILIARES ====================
@@ -36,19 +38,35 @@ function getRequestBody(req) {
 }
 
 function getIdFromUrl(url) {
-  // Limpia caracteres raros como %0A y espacios
-  const clean = decodeURIComponent(url).trim().toLowerCase();
-  const parts = clean.split('/').filter(Boolean);
-  const last = parts[parts.length - 1];
-  if (!last || last === 'usuarios') return null;
-  return last;
+  try {
+    const decoded = decodeURIComponent(url).trim();
+    const parts = decoded.split('/').filter(Boolean);
+
+    // Tomar último fragmento
+    const id = parts[parts.length - 1];
+
+    // Si termina en "usuarios", no hay ID
+    if (!id || id.toLowerCase().startsWith('usuarios')) return null;
+
+    // Eliminar posibles saltos de línea o espacios
+    return id.replace(/\s+/g, '').replace(/\n/g, '');
+  } catch {
+    return null;
+  }
 }
 
 // ==================== MAIN CONTROLLER ====================
 async function manejarSolicitudesUsuarios(req, res) {
   const { method } = req;
+  console.log('--- manejarSolicitudesUsuarios START ---');
+console.log('Request method:', method);
+console.log('Raw url:', req.url);
   const cleanUrl = req.url.split('?')[0].replace(/\/$/, '');
+  console.log('cleanUrl:', cleanUrl);
+
   const idUsuario = getIdFromUrl(cleanUrl);
+  console.log('parsed idUsuario:', idUsuario);
+
 
   // --- CORS ---
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,7 +78,6 @@ async function manejarSolicitudesUsuarios(req, res) {
     res.end(JSON.stringify({ message: 'Métodos permitidos: GET, POST, PUT, PATCH, DELETE' }));
     return;
   }
-
   try {
     switch (method) {
       // ==================== GET ====================
@@ -72,13 +89,8 @@ async function manejarSolicitudesUsuarios(req, res) {
           break;
         }
 
-        const usuario = await obtenerUsuarioById(idUsuario);
-        if (!usuario) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Usuario con ID ${idUsuario} no encontrado` }));
-          break;
-        }
-
+        const usuario = await obtenerUsuarioService(idUsuario);
+     
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(usuario));
         break;
@@ -99,7 +111,7 @@ async function manejarSolicitudesUsuarios(req, res) {
 
         if (cleanUrl.includes('/ascender')) {
           const { idUsuarioAdmin } = body;
-          const resultado = await ascenderAdminService(idUsuario, idUsuarioAdmin);
+          const resultado = await setUsuarioAdmin(idUsuario, idUsuarioAdmin);
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(resultado));
           break;
@@ -107,7 +119,7 @@ async function manejarSolicitudesUsuarios(req, res) {
 
         if (cleanUrl.includes('/premium')) {
           const { idUsuarioAdmin } = body;
-          const resultado = await asignarPremiumService(idUsuario, idUsuarioAdmin);
+          const resultado = await asignarPremiumService(idUsuario, booleano);
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(resultado));
           break;
@@ -130,15 +142,10 @@ async function manejarSolicitudesUsuarios(req, res) {
 
       // ==================== PUT ====================
       case 'PUT': {
-        const idAirtablePUT = await obtenerIdAirtablePorIdUsuario(idUsuario);
-        if (!idAirtablePUT) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Usuario con ID ${idUsuario} no encontrado` }));
-          break;
-        }
+        console.log("ID RECIBIDO : " + idUsuario);
 
         const nuevosDatos = await getRequestBody(req);
-        const resultado = await actualizarUsuarioService(idAirtablePUT, nuevosDatos);
+        const resultado = await actualizarUsuarioService(idUsuario, nuevosDatos);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(resultado));
         break;
@@ -146,15 +153,9 @@ async function manejarSolicitudesUsuarios(req, res) {
 
       // ==================== PATCH ====================
       case 'PATCH': {
-        const idAirtablePATCH = await obtenerIdAirtablePorIdUsuario(idUsuario);
-        if (!idAirtablePATCH) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Usuario con ID ${idUsuario} no encontrado` }));
-          break;
-        }
-
+        
         const cambios = await getRequestBody(req);
-        const resultado = await editarUsuarioService(idAirtablePATCH, cambios);
+        const resultado = await editarUsuarioService(idUsuario, cambios);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(resultado));
         break;
@@ -163,12 +164,7 @@ async function manejarSolicitudesUsuarios(req, res) {
       // ==================== DELETE ====================
       case 'DELETE': {
         const idAirtableDELETE = await obtenerIdAirtablePorIdUsuario(idUsuario);
-        if (!idAirtableDELETE) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Usuario con ID ${idUsuario} no encontrado` }));
-          break;
-        }
-
+      
         const body = await getRequestBody(req);
         const { idUsuarioAdmin } = body;
 

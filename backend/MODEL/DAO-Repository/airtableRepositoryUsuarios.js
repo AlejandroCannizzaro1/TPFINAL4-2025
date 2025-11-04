@@ -9,25 +9,40 @@ const HEADERS = {
 //  Obtener todos los usuarios
 async function obtenerUsuarios() {
   const res = await fetch(AIRTABLE_BASE_URL, { headers: HEADERS });
-  if (!res.ok) throw new Error(`Error al obtener usuarios: ${res.status}`);
   const data = await res.json();
   return data.records || [];
 }
 
 // Obtener ID interno de Airtable a partir del idUsuario NORMAL
 async function obtenerIdAirtablePorIdUsuario(idUsuario) {
-  const formula = `filterByFormula=${encodeURIComponent(`{idUsuario}=${idUsuario}`)}`;
-  const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
-  if (!res.ok) throw new Error(`Error buscando ID interno para usuario ${idUsuario}: ${res.status}`);
+  console.log("ID RECIBIDO EN LA FUNCION obtenerIdAirtablePorIdUsuario " + idUsuario);
+
+  if (!idUsuario) {
+    throw new Error('El idUsuario recibido es null o undefined');
+  }
+
+  // Si es numérico, igual buscamos como texto también (por si Airtable lo almacena así)
+  const formula = `filterByFormula=OR({idUsuario}='${idUsuario}', {idUsuario}=${idUsuario})`;
+
+  const res = await fetch(`${AIRTABLE_BASE_URL}?${encodeURI(formula)}`, { headers: HEADERS });
+
+  if (!res.ok) {
+    throw new Error(`Error buscando ID interno para usuario ${idUsuario}: ${res.status}`);
+  }
+
   const data = await res.json();
-  return data.records.length > 0 ? data.records[0].id : null;
+
+  if (!data.records || data.records.length === 0) {
+    throw new Error(`No se encontró ningún registro con idUsuario = ${idUsuario}`);
+  }
+
+  return data.records[0].id; // ID interno tipo recXXXX
 }
 
 // Obtener usuario por ID NORMAL
 async function obtenerUsuarioByIdNormal(idUsuario) {
   const formula = `filterByFormula=${encodeURIComponent(`{idUsuario}=${idUsuario}`)}`;
   const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
-  if (!res.ok) throw new Error(`Error buscando usuario ${idUsuario}: ${res.status}`);
   const data = await res.json();
   return data.records.length > 0 ? data.records[0] : null; // 🔁 devuelve null si no hay resultados
 }
@@ -35,7 +50,6 @@ async function obtenerUsuarioByIdNormal(idUsuario) {
 // Obtener usuario por ID INTERNO de Airtable
 async function obtenerUsuarioByIdAirtable(idAirtableUsuario) {
   const res = await fetch(`${AIRTABLE_BASE_URL}/${idAirtableUsuario}`, { headers: HEADERS });
-  if (!res.ok) throw new Error(`Error buscando usuario (ID interno) ${idAirtableUsuario}: ${res.status}`);
   return res.json();
 }
 
@@ -46,18 +60,19 @@ async function crearUsuario(usuario) {
     headers: HEADERS,
     body: JSON.stringify({ fields: usuario })
   });
-  if (!res.ok) throw new Error(`Error creando usuario: ${res.status}`);
   return res.json();
 }
 
 // Actualizar usuario (PUT)
 async function actualizarUsuario(idPUT, nuevosDatos) {
+      console.log(" [Airtable PUT] id:", idPUT);
+      console.log(" [Airtable PUT] Body enviado:", JSON.stringify({ fields: nuevosDatos }));
+
   const res = await fetch(`${AIRTABLE_BASE_URL}/${idPUT}`, {
     method: 'PUT',
     headers: HEADERS,
     body: JSON.stringify({ fields: nuevosDatos })
   });
-  if (!res.ok) throw new Error(`Error actualizando usuario ${idPUT}: ${res.status}`);
   return res.json();
 }
 
@@ -68,7 +83,6 @@ async function editarUsuario(idPATCH, cambiosParciales) {
     headers: HEADERS,
     body: JSON.stringify({ fields: cambiosParciales })
   });
-  if (!res.ok) throw new Error(`Error editando usuario ${idPATCH}: ${res.status}`);
   return res.json();
 }
 
@@ -78,7 +92,6 @@ async function eliminarUsuario(idDELETE) {
     method: 'DELETE',
     headers: HEADERS
   });
-  if (!res.ok) throw new Error(`Error eliminando usuario ${idDELETE}: ${res.status}`);
   return res.json();
 }
 

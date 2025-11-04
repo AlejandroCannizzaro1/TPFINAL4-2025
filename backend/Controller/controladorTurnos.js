@@ -66,11 +66,6 @@ async function manejarSolicitudesTurnos(req, res) {
         }
 
         const turno = await obtenerTurnoById(idTurno);
-        if (!turno) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Turno con ID ${idTurno} no encontrado` }));
-          break;
-        }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(turno));
@@ -130,14 +125,9 @@ async function manejarSolicitudesTurnos(req, res) {
 
       // ==================== PUT ====================
       case 'PUT': {
-        const idAirtablePUT = await obtenerIdAirtablePorIdTurno(idTurno);
-        if (!idAirtablePUT) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (PUT)` }));
-          break;
-        }
+      
         const nuevoTurno = await getRequestBody(req);
-        const resultado = await actualizarTurno(idAirtablePUT, nuevoTurno);
+        const resultado = await actualizarTurno(idTurno, nuevoTurno);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(resultado));
         break;
@@ -145,14 +135,9 @@ async function manejarSolicitudesTurnos(req, res) {
 
       // ==================== PATCH ====================
       case 'PATCH': {
-        const idAirtablePATCH = await obtenerIdAirtablePorIdTurno(idTurno);
-        if (!idAirtablePATCH) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (PATCH)` }));
-          break;
-        }
+     
         const cambios = await getRequestBody(req);
-        const resultado = await editarTurno(idAirtablePATCH, cambios);
+        const resultado = await editarTurno(idTurno, cambios);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(resultado));
         break;
@@ -160,13 +145,8 @@ async function manejarSolicitudesTurnos(req, res) {
 
       // ==================== DELETE ====================
       case 'DELETE': {
-        const idAirtableDELETE = await obtenerIdAirtablePorIdTurno(idTurno);
-        if (!idAirtableDELETE) {
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (DELETE)` }));
-          break;
-        }
-        const resultado = await eliminarTurno(idAirtableDELETE);
+      
+        const resultado = await eliminarTurno(idTurno);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(resultado));
         break;
