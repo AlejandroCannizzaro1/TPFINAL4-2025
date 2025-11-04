@@ -145,50 +145,50 @@ async function actualizarUsuarioService(idUsuario, nuevosDatos) {
 }
 // Editar usuario parcialmente (PATCH)
 async function editarUsuarioService(idUsuario, cambios) {
-  console.log(`[Service PATCH] Actualizando usuario con idUsuario=${idUsuario}`);
-  console.log("[Service PATCH] Body recibido:", cambios);
+    console.log(`[Service PATCH] Actualizando usuario con idUsuario=${idUsuario}`);
+    console.log("[Service PATCH] Body recibido:", cambios);
 
-  // 1️ Buscar ID interno de Airtable
-  const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
-  if (!idAirtable) {
-    return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
-  }
-
-  // 2️ Validar intento de modificar idUsuario
-  if ("idUsuario" in cambios && Number(cambios.idUsuario) !== Number(idUsuario)) {
-    return { error: `El campo idUsuario es inmutable y no puede ser modificado.` };
-  }
-
-  // 3️ Filtrar solo campos válidos
-  const camposPermitidos = [
-    "nombreUsuario",
-    "email",
-    "contrasenia",
-    "estadoAdmin",
-    "usuarioPremium",
-    "turnosUsuario"
-  ];
-
-  const datosFiltrados = {};
-  for (const campo of camposPermitidos) {
-    if (cambios[campo] !== undefined && cambios[campo] !== null) {
-      datosFiltrados[campo] = cambios[campo];
+    // 1️ Buscar ID interno de Airtable
+    const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if (!idAirtable) {
+        return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
     }
-  }
 
-  // 4️ Verificar si hay algo que actualizar
-  if (Object.keys(datosFiltrados).length === 0) {
-    return { error: `No se proporcionaron campos válidos para actualizar.` };
-  }
+    // 2️ Validar intento de modificar idUsuario
+    if ("idUsuario" in cambios && Number(cambios.idUsuario) !== Number(idUsuario)) {
+        return { error: `El campo idUsuario es inmutable y no puede ser modificado.` };
+    }
 
-  // 5️ Llamar el PATCH del repo
-  const resultado = await editarUsuario(idAirtable, datosFiltrados);
+    // 3️ Filtrar solo campos válidos
+    const camposPermitidos = [
+        "nombreUsuario",
+        "email",
+        "contrasenia",
+        "estadoAdmin",
+        "usuarioPremium",
+        "turnosUsuario"
+    ];
 
-  // 6️ Respuesta uniforme
-  return {
-    message: `Usuario con idUsuario=${idUsuario} actualizado correctamente.`,
-    data: resultado
-  };
+    const datosFiltrados = {};
+    for (const campo of camposPermitidos) {
+        if (cambios[campo] !== undefined && cambios[campo] !== null) {
+            datosFiltrados[campo] = cambios[campo];
+        }
+    }
+
+    // 4️ Verificar si hay algo que actualizar
+    if (Object.keys(datosFiltrados).length === 0) {
+        return { error: `No se proporcionaron campos válidos para actualizar.` };
+    }
+
+    // 5️ Llamar el PATCH del repo
+    const resultado = await editarUsuario(idAirtable, datosFiltrados);
+
+    // 6️ Respuesta uniforme
+    return {
+        message: `Usuario con idUsuario=${idUsuario} actualizado correctamente.`,
+        data: resultado
+    };
 }
 //Eliminar Usuario 
 async function eliminarUsuarioService(idUsuario) {

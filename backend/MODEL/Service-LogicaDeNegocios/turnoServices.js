@@ -7,10 +7,11 @@ const {
     eliminarTurno,
     obtenerTurnoById,
     obtenerTurnoByIdAirtable,
-    obtenerIdAirtablePorIdTurno
+    obtenerIdAirtablePorIdTurno,
+    obtenerTurnosPorUsuarioAirtable
 } = require('../DAO-Repository/airtableRepositoryTurnos');
 
-const { obtenerUsuarioByIdAirtable } = require('../DAO-Repository/airtableRepositoryUsuarios');
+const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('../DAO-Repository/airtableRepositoryUsuarios');
 const { validarAdmin } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
 
@@ -77,44 +78,77 @@ async function crearTurnoService(idUsuarioAdmin, fecha, hora, tipoServicio = '',
 
 //  Reservar un turno
 async function reservarTurnoService(idTurno, idUsuario) {
-    const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
-    if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
+  console.log(` Reservando turno ${idTurno} para usuario ${idUsuario}`);
 
-    const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
-    if (!turno.fields.turnoDisponible) {
-        throw new Error(`El turno ${idTurno} ya está reservado`);
-    }
+  // 1️ Buscar ID interno del turno
+  const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
+  if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
 
-    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
-    if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
+  // 2️ Traer el turno actual para verificar disponibilidad
+  const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
+  if (!turno.fields.turnoDisponible) {
+    throw new Error(`El turno ${idTurno} ya está reservado`);
+  }
 
-    const nuevosDatos = {
-        turnoDisponible: false,
-        idCliente: idUsuario
-    };
+  // 3️ Buscar el record ID del usuario (interno de Airtable)
+  const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+  if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
 
-    return await editarTurno(idAirtableTurno, nuevosDatos);
+  // 4️ Armar los datos para actualizar el turno
+  const nuevosDatos = {
+    turnoDisponible: false,
+    idUsuarioVinculado: [idAirtableUsuario], // relación directa con la tabla Usuarios
+  };
+
+  // 5️ Ejecutar PATCH en Airtable
+  const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
+
+  // 6️ Manejar error de Airtable
+  if (resultado.error) {
+    console.error(" Error en Airtable:", resultado.error);
+    throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
+  }
+
+  console.log(" Turno reservado correctamente:", resultado);
+  return resultado;
 }
 
-//  Cancelar una reserva
+//Cancerlar Reserva 
 async function cancelarReservaService(idTurno, idUsuario) {
-    const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
-    if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
+  console.log(` Cancelando reserva del turno ${idTurno} para usuario ${idUsuario}`);
 
-    const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
+  // 1️ Buscar IDs internos
+  const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
+  const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
 
-    if (turno.fields.idCliente !== idUsuario) {
-        throw new Error(`El turno ${idTurno} no pertenece al usuario ${idUsuario}`);
-    }
+  if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
+  if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
 
-    const nuevosDatos = {
-        turnoDisponible: true,
-        idCliente: null
-    };
+  // 2️ Traer el turno para verificar que le pertenece al usuario
+  const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
 
-    return await editarTurno(idAirtableTurno, nuevosDatos);
+  const usuarioActual = turno.fields.idUsuarioVinculado?.[0];
+  if (usuarioActual !== idAirtableUsuario) {
+    throw new Error(`El turno ${idTurno} no pertenece al usuario ${idUsuario}`);
+  }
+
+  // 3️ Liberar el turno
+  const nuevosDatos = {
+    turnoDisponible: true,
+    idUsuarioVinculado: [], // se desasocia el usuario
+  };
+
+  // 4️ Ejecutar PATCH en Airtable
+  const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
+
+  if (resultado.error) {
+    console.error(" Error en Airtable:", resultado.error);
+    throw new Error(`Error cancelando turno ${idAirtableTurno}: ${resultado.error.message}`);
+  }
+
+  console.log(" Reserva cancelada correctamente:", resultado);
+  return resultado;
 }
-
 //  Limpiar turnos pasados (por ejemplo, llamados por un admin)
 async function limpiarTurnosPasadosService(fechaActual, idUsuarioAdmin) {
     const usuarioAdmin = await obtenerUsuarioByIdAirtable(idUsuarioAdmin);
@@ -147,6 +181,31 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
     return await eliminarTurno(idAirtableTurno);
 }
 
+//Obtener todos los turnos de un usuario (por su ID normal)
+async function obtenerTurnosPorUsuarioService(idUsuario){
+    console.log(`[obtenerTurnosPorUsuarioService] Buscando turnos del usuario ${idUsuario}`);
+
+    //Buscar el record ID interno de Airtable
+    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if(!idAirtableUsuario){
+        throw new Error (`NO se encontro el usuario de ID ${idUsuario}`);
+    }
+    //Obtener los turnos asociados a ese usuario 
+    const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
+
+    const resultado = turnos.map(turno =>({
+        idTurno: t.fields.idTurno,
+        fecha:t.fields.fecha,
+        hora: t.fields.hora,
+        tipoServicio : t.fields.tipoServicio,
+        notas: t.fields.notas,
+    }));
+
+    console.log(`Usuario ${idUsuario} tiene ${resultado.length} turnos reservados`);
+    return resultado;
+}
+
+
 module.exports = {
     getTurnosService,
     getTurnoByIdService,
@@ -154,5 +213,6 @@ module.exports = {
     reservarTurnoService,
     cancelarReservaService,
     limpiarTurnosPasadosService,
-    eliminarTurnoByAdminService, 
+    eliminarTurnoByAdminService,
+    obtenerTurnosPorUsuarioService
 };
