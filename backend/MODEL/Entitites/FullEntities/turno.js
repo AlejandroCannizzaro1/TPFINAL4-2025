@@ -1,6 +1,5 @@
  class Turno {
     //Campos Objeto
-    static idUltimoTurno = 0;
     idTurno;
     usuarioVinculado;
     fecha;
@@ -37,8 +36,6 @@ Copiar código
 
     //Constructor Turno para ADMIN
       constructor(fecha, hora, tipoServicio, notas) {
-        Turno.idUltimoTurno += 1; //Aumentamos ID ultimo turno
-        this.idTurno = Turno.idUltimoTurno;
         this.fecha = fecha;
         this.hora = hora;
         this.tipoServicio = tipoServicio;

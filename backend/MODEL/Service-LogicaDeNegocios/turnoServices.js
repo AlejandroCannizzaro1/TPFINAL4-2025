@@ -15,6 +15,20 @@ const { validarAdmin } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
 
 
+//Obtener proximo id de Turnos de Airtable 
+async function obtenerProximoIdTurno() {
+    const turnos = await obtenerTurnos();
+    if (!turnos.length) return 1;
+
+    const ids = turnos
+        .map(user => user.fields.idTurno)
+        .filter(id => !isNaN(id))
+        .map(number);
+
+
+    const maxId = Math.max(...ids);
+    return maxId + 1;
+}
 //  Obtener todos los turnos
 async function getTurnosService() {
     return await obtenerTurnos();
@@ -40,11 +54,12 @@ async function crearTurnoService(idUsuarioAdmin, fecha, hora, tipoServicio = '',
         return { error: 'Faltan datos obligatorios: fecha u hora' };
     }
 
+    const nuevoId = await obtenerProximoIdTurno();
     const nuevoTurno = new Turno(fecha, hora, tipoServicio, notas);
 
     //Adaptar para Airtable
     const turnoAirtable = {
-        idTurno: nuevoTurno.getIdTurno,
+        idTurno: nuevoId,
         fecha: new Date(nuevoTurno.getFecha).toISOString(),
         tipoServicio: nuevoTurno.getTipoServicio,
         notas: nuevoTurno.getNotas,
