@@ -1,151 +1,189 @@
-//Controlador de turnos 
 const {
-    obtenerTurnos,
-    crearTurno,
-    actualizarTurno,
-    editarTurno,
-    eliminarTurno,
-    obtenerTurnoById,
-    obtenerIdAirtablePorIdTurno,
+  obtenerTurnos,
+  crearTurno,
+  actualizarTurno,
+  editarTurno,
+  eliminarTurno,
+  obtenerTurnoById,
+  obtenerIdAirtablePorIdTurno
 } = require('../MODEL/DAO-Repository/airtableRepositoryTurnos');
 
+const {
+  reservarTurnoService,
+  cancelarReservaService,
+  limpiarTurnosPasadosService,
+  eliminarTurnoByAdminService,
+  crearTurnoService
+} = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
 
+// ==================== AUXILIARES ====================
 function getRequestBody(req) {
-    return new Promise((resolve, reject) => {
-        let body = '';
-        req.on('data', chunk => (body += chunk));
-        req.on('end', () => {
-            try {
-                resolve(body ? JSON.parse(body) : {});
-            } catch (err) {
-                reject(err);
-            }
-        })
-        req.on('error', reject);
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => (body += chunk));
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (err) {
+        reject(err);
+      }
     });
+    req.on('error', reject);
+  });
 }
 
-//Desestructuro el ID de el endpoint de la peticion para los metodos 
 function getIdFromUrl(url) {
-    const urlParts = url.split('/');
-    const id = urlParts[urlParts.length - 1];
-    return id;
+  const parts = url.split('/');
+  return parts[parts.length - 1];
 }
 
+// ==================== MAIN CONTROLLER ====================
 async function manejarSolicitudesTurnos(req, res) {
-    const { method, url } = req; //Desestructuro method y la url de la request del front-end, o sea, el endpoint y el verbo HTTP
+  const { method } = req;
+  const cleanUrl = req.url.split('?')[0].replace(/\/$/, '');
+  const idTurno = getIdFromUrl(cleanUrl);
 
-    //CORS, ya lo tengo en el server, pero por las dudas. Habilita a entidades de dominio diferente al del backend a usar la API
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST, PUT,PATCH,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // --- CORS ---
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    //OPTIONS DEVUELVE LOS METODOS HTTP QUE LE ESTAN PERMITIDOS AL FRONT-END
-    if (method === 'OPTIONS') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Metodos permitidos: GET, POST, PUT, PATCH, DELETE' }));
-        return;
-    }
+  if (method === 'OPTIONS') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Métodos permitidos: GET, POST, PUT, PATCH, DELETE' }));
+    return;
+  }
 
-    try {
-        switch (method) {
-            //METODO GET
-            case 'GET':
-                {
-
-                    const cleanUrl = req.url.split('?')[0].replace(/\/$/, '');
-                    const idTurnoEspecifico = getIdFromUrl(cleanUrl);
-                    //Si no hay ID o la URL termina en /turnos, devuelvo todos
-                    if (cleanUrl === '/turnos' || !idTurnoEspecifico || idTurnoEspecifico === 'turnos') {
-                        const turnos = await obtenerTurnos();
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(turnos));
-                        return;
-                    }
-                    //Si hay ID, busco ese turno 
-                    const resultado = await obtenerTurnoById(idTurnoEspecifico);
-                    if (!resultado) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: `Turno con ID ${idTurnoEspecifico} NO ENCONTRADO` }));
-                        return;
-                    }
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
-                }
-            //METODO POST 
-            case 'POST':
-                {
-                    const nuevoTurno = await getRequestBody(req);
-                    const resultado = await crearTurno(nuevoTurno);
-                    res.writeHead(201, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    console.log(`Turno creado!!${JSON.stringify(resultado)}`);
-                    break;
-                }
-            //METODO PUT 
-            case 'PUT':
-                {
-                    const idPUT = getIdFromUrl(url);
-                    const idAirtablePUT = await obtenerIdAirtablePorIdTurno(idPUT);
-                    if (!idAirtablePUT) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: `PUT METHOD. Turno con ID ${idPUT} NO ENCOTRADO` }))
-                        return;
-                    }
-                    const nuevoTurno = await getRequestBody(req);
-                    const resultado = await actualizarTurno(idAirtablePUT, nuevoTurno);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    console.log(`Turno ${idPUT} actualizado`);
-                    break;
-                }
-            //METODO PATCH
-            case 'PATCH':
-                {
-                    const idPATCH = getIdFromUrl(url);
-                    const idAirtablePATCH = await obtenerIdAirtablePorIdTurno(idPATCH)
-                    if (!idAirtablePATCH) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: `PATCH METHOD.Turno con ID ${idPATCH} NO ENCOTRADO` }))
-                        return;
-                    }
-                    const cambios = await getRequestBody(req);
-                    const resultado = await editarTurno(idAirtablePATCH, cambios);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    console.log(`Turno ${idPATCH} editado parcialmente`);
-
-                    break;
-                }
-            //METODO DELETE
-            case 'DELETE':
-                {
-                    const idDELETE = getIdFromUrl(url);
-                    const idAirtableDELETE = await obtenerIdAirtablePorIdTurno(idDELETE);
-                    if (!idAirtableDELETE) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: `DELETE METHOD.Turno con ID ${idDELETE} NO ENCOTRADO` }))
-                        return;
-                    }
-                    const resultado = await eliminarTurno(idAirtableDELETE);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    console.log(`Turno ${idDELETE} eliminado`);
-
-                    break;
-                }
-            //METODO POR DEFAULT DEVUELVE CODIGO 405
-            default:
-                res.writeHead(405, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Metodo no permitido' }));
+  try {
+    switch (method) {
+      // ==================== GET ====================
+      case 'GET': {
+        if (cleanUrl === '/turnos' || !idTurno || idTurno === 'turnos') {
+          const turnos = await obtenerTurnos();
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(turnos));
+          break;
         }
-    } catch (err) {
-        console.error("Error en manejarSolicituesTurnos method" + err);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Error interno del servidor', detalle: err.message }));
+
+        const turno = await obtenerTurnoById(idTurno);
+        if (!turno) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Turno con ID ${idTurno} no encontrado` }));
+          break;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(turno));
+        break;
+      }
+
+      // ==================== POST ====================
+      case 'POST': {
+        const body = await getRequestBody(req);
+
+        if (cleanUrl.includes('/admin')) {
+          const { datosTurno, idAdmin } = body;
+          const resultado = await crearTurnoService(datosTurno, idAdmin);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(resultado));
+          break;
+        }
+
+        if (cleanUrl.includes('/reservar')) {
+          const { usuario } = body;
+          const resultado = await reservarTurnoService(idTurno, usuario);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(resultado));
+          break;
+        }
+
+        if (cleanUrl.includes('/cancelar')) {
+          const { usuario } = body;
+          const resultado = await cancelarReservaService(idTurno, usuario);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(resultado));
+          break;
+        }
+
+        if (cleanUrl.includes('/limpiar')) {
+          const { idUsuarioAdmin } = body;
+          const resultado = await limpiarTurnosPasadosService(new Date(), idUsuarioAdmin);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(resultado));
+          break;
+        }
+
+        if (cleanUrl.includes('/eliminar')) {
+          const { idUsuarioAdmin } = body;
+          const resultado = await eliminarTurnoByAdminService(idTurno, idUsuarioAdmin);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(resultado));
+          break;
+        }
+
+        // Crear turno normal
+        const resultado = await crearTurnoService(body);
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultado));
+        break;
+      }
+
+      // ==================== PUT ====================
+      case 'PUT': {
+        const idAirtablePUT = await obtenerIdAirtablePorIdTurno(idTurno);
+        if (!idAirtablePUT) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (PUT)` }));
+          break;
+        }
+        const nuevoTurno = await getRequestBody(req);
+        const resultado = await actualizarTurno(idAirtablePUT, nuevoTurno);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultado));
+        break;
+      }
+
+      // ==================== PATCH ====================
+      case 'PATCH': {
+        const idAirtablePATCH = await obtenerIdAirtablePorIdTurno(idTurno);
+        if (!idAirtablePATCH) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (PATCH)` }));
+          break;
+        }
+        const cambios = await getRequestBody(req);
+        const resultado = await editarTurno(idAirtablePATCH, cambios);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultado));
+        break;
+      }
+
+      // ==================== DELETE ====================
+      case 'DELETE': {
+        const idAirtableDELETE = await obtenerIdAirtablePorIdTurno(idTurno);
+        if (!idAirtableDELETE) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Turno ${idTurno} no encontrado (DELETE)` }));
+          break;
+        }
+        const resultado = await eliminarTurno(idAirtableDELETE);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultado));
+        break;
+      }
+
+      // ==================== DEFAULT ====================
+      default: {
+        res.writeHead(405, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Método no permitido' }));
+        break;
+      }
     }
+  } catch (err) {
+    console.error('❌ Error en manejarSolicitudesTurnos:', err);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Error interno del servidor', detalle: err.message }));
+  }
 }
 
 module.exports = { manejarSolicitudesTurnos };

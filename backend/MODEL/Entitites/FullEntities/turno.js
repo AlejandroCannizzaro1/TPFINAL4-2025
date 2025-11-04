@@ -1,13 +1,13 @@
-export class Turno {
+ class Turno {
     //Campos Objeto
     static idUltimoTurno = 0;
     idTurno;
-    idCliente;
+    usuarioVinculado;
     fecha;
     hora;
     turnoDisponible;
-    tipoServicio;
-    notas;
+    tipoServicio; //Esto esta en veremos
+    notas; //Esto tambien 
 
 /* La fecha en airtable : 
 const fecha = new Date().toISOString(); 
@@ -22,17 +22,29 @@ Copiar código
     FechaRegistro: new Date().toISOString()
   }
 }*/
-    //Constructor 
-    constructor(fecha, hora, idCliente, tipoServicio, notas) {
-        Turno.idUltimoTurno += 1; //Aumentamos ID ultimo turno
+    //Constructor turno cuando usuario se vincula al turno 
+    // constructor(fecha, hora, idUsuarioVinculado, tipoServicio, notas) {
+    //     Turno.idUltimoTurno += 1; //Aumentamos ID ultimo turno
 
+    //     this.idTurno = Turno.idUltimoTurno;
+    //     this.idUsuarioVinculado = ;
+    //     this.fecha = fecha;
+    //     this.hora = hora;
+    //     // this.turnoDisponible = false; //Hay que checkearlo esto como se maneja
+    //     this.tipoServicio = tipoServicio;
+    //     this.notas = notas;
+    // }
+
+    //Constructor Turno para ADMIN
+      constructor(fecha, hora, tipoServicio, notas) {
+        Turno.idUltimoTurno += 1; //Aumentamos ID ultimo turno
         this.idTurno = Turno.idUltimoTurno;
-        this.idCliente = idCliente;
         this.fecha = fecha;
         this.hora = hora;
-        // this.turnoDisponible = false; //Hay que checkearlo esto como se maneja
         this.tipoServicio = tipoServicio;
         this.notas = notas;
+        this.turnoDisponible = true;
+      
     }
 
     //Getters
@@ -41,7 +53,7 @@ Copiar código
         return this.idTurno;
     }
 
-    get getIdCliente() {
+    get getUsuarioVinculado() {
         return this.idCliente;
     }
 
@@ -53,19 +65,27 @@ Copiar código
         return this.hora;
     }
 
-    get getServicio() {
+    get getTipoServicio() {
         return this.tipoServicio;
     }
     get getNotas() {
         return this.notas;
     }
 
+    get getTurnoDisponible(){
+        return this.turnoDisponible;
+    }
+
+    get getUsuarioVinculado(){
+        return this.idUsuarioVinculado;
+    }
+
     //Setters
     set setIdTurno(idTurno) {
         this.idTurno = idTurno;
     }
-    set setIdCliente(idCliente) {
-        this.idCliente = idCliente;
+    set setIdUsuarioVinculado(idUsuario) {
+        this.idUsuarioVinculado = idUsuario;
     }
     set setFecha(fecha) {
         this.fecha = fecha;
@@ -76,11 +96,14 @@ Copiar código
     set setTipoServicio(tipoServicio) {
         this.tipoServicio = tipoServicio;
     }
+
+    set setTurnoDisponible(estado){
+        this.setTurnoDisponible = estado;
+    }
     set setNotas(notas) {
         this.notas = notas;
     }
-
-
-
-
 }
+
+//  Exportación CommonJS
+module.exports = { Turno };
