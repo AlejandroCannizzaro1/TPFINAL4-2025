@@ -69,47 +69,37 @@ async function manejarSolicitudesTurnos(req, res) {
                     if (!idUsuario) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ error: 'Falta el parámetro idUsuario en la URL' }));
-                        break;
+                        return;
                     }
 
                     try {
                         const resultado = await obtenerTurnosPorUsuarioService(idUsuario);
-                        const status = resultado?.error ? 404 : 200;
-                        res.writeHead(status, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(resultado));
+
+                        //  Si no tiene turnos → devolver mensaje
+                        if (Array.isArray(resultado) && resultado.length === 0) {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                idUsuario,
+                                turnos: [],
+                                mensaje: `El usuario con ID ${idUsuario} no tiene turnos asignados.`
+                            }));
+                            return;
+                        }
+
+                        //  Caso normal → tiene turnos
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            idUsuario,
+                            turnos: resultado
+                        }));
+
                     } catch (error) {
                         console.error('Error al obtener turnos por usuario:', error.message);
                         res.writeHead(500, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ error: 'Error interno del servidor', detalle: error.message }));
                     }
-                    break;
+                    return;
                 }
-
-                //  GET /turnos/:idTurno (traer un turno por ID normal)
-                if (cleanUrl.match(/^\/turnos\/\d+$/)) {
-                    const idTurno = getIdFromUrl(cleanUrl);
-
-                    try {
-                        const resultado = await getTurnoByIdService(idTurno);
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(resultado));
-                    } catch (error) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: error.message }));
-                    }
-                    break;
-                }
-
-                // GET /turnos (todos los turnos)
-                const turnos = await obtenerTurnos();
-                if (!turnos || turnos.error) {
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: turnos?.error || 'Error al obtener turnos' }));
-                    break;
-                }
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(turnos));
-                break;
             }
 
 
@@ -237,6 +227,14 @@ GET /turnos
 
 Devuelve todos los turnos.
 No lleva body.
+
+GET/turnos/idTurno
+
+Devuelve el turno con el id especifico que se vinculo a la URL 
+No lleva body 
+Ejemplo: 
+
+/turnos/1
 
 GET /turnos/usuario?idUsuario=ID
 
