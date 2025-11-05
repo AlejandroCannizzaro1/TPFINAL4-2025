@@ -141,16 +141,9 @@ async function manejarSolicitudesUsuarios(req, res) {
             case 'POST': {
                 const body = await getRequestBody(req);
 
-                if (cleanUrl.includes('/limpiar')) {
-                    const resultado = await limpiarUsuariosInactivosService(body.idUsuarioAdmin);
-                    const status = resultado?.error ? 400 : 200;
-                    res.writeHead(status, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
-                }
-
                 const resultado = await crearUsuarioService(body);
                 const status = resultado?.error ? 400 : 201;
+
                 res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
