@@ -270,13 +270,7 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
 async function obtenerTurnosPorUsuarioService(idUsuario) {
     console.log(`[obtenerTurnosPorUsuarioService] Buscando turnos del usuario ${idUsuario}`);
 
-    //Buscar el record ID interno de Airtable
-    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
-    if (!idAirtableUsuario) {
-        throw new Error(`NO se encontro el usuario de ID ${idUsuario}`);
-    }
-    //Obtener los turnos asociados a ese usuario 
-    const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
+    const turnos = await obtenerTurnosPorUsuarioAirtable(idUsuario);
 
     const resultado = turnos.map(t => ({
         idTurno: t.fields.idTurno,

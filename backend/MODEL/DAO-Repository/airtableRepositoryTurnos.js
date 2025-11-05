@@ -82,10 +82,10 @@ async function eliminarTurno(idDELETE) {
 }
 
 //Obtener todos los turnos de un usuario especifico
-async function obtenerTurnosPorUsuarioAirtable(idAirtableUsuario) {
-    const formula = `filterByFormula=${encodeURIComponent(`FIND('${idAirtableUsuario}', ARRAYJOIN({idUsuarioVinculado}))`)}`;
-    const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
+async function obtenerTurnosPorUsuarioAirtable(idUsuario) {
+    const formula = `filterByFormula=${encodeURIComponent(`{idUsuarioVinculado}='${idUsuario}'`)}`;
 
+    const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
     const data = await res.json();
     return data.records || [];
 }
