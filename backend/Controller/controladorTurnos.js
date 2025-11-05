@@ -259,32 +259,33 @@ Body:
   }
 }
 
-POST /turnos/{idTurno}/reservar
+POST /turnos/reservar/idTurno
 
 Un usuario reserva un turno.
 Ejemplo:
 
-POST /turnos/15/reservar
+POST /turnos/reservar/2  -> El ID del turno a reservar 
 
 
 Body:
 
 {
-  "idUsuario": 7
+  "idUsuario": 7 -> El ID del turno con que se desea vincular el turno 
 }
 
-POST /turnos/{idTurno}/cancelar
+
+POST /turnos/cancelar/idTurno
 
 Un usuario cancela su reserva.
 Ejemplo:
 
-POST /turnos/15/cancelar
+POST /turnos/cancelar/3 -> ID del turno a cancelar 
 
 
 Body:
 
 {
-  "idUsuario": 7
+  "idUsuario": 7 -> El ID del usuario con el que esta vinculado ese usuario 
 }
 
 POST /turnos/limpiar
