@@ -5,8 +5,8 @@ const {
 
 const {
     setUsuarioAdminService,
-    setUsuarioPremium,
-    validarAdmin,
+    setUsuarioPremiumService,
+    validarAdminService,
     eliminarUsuarioService,
     actualizarUsuarioService,
     editarUsuarioService,
@@ -141,22 +141,6 @@ async function manejarSolicitudesUsuarios(req, res) {
             case 'POST': {
                 const body = await getRequestBody(req);
 
-                if (cleanUrl.includes('/estadoAdmin')) {
-                    const resultado = await setUsuarioAdminService(idUsuario);
-                    const status = resultado?.error ? 400 : 200;
-                    res.writeHead(status, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
-                }
-
-                if (cleanUrl.includes('/estadoPremium')) {
-                    const resultado = await setUsuarioPremium(idUsuario);
-                    const status = resultado?.error ? 400 : 200;
-                    res.writeHead(status, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
-                }
-
                 if (cleanUrl.includes('/limpiar')) {
                     const resultado = await limpiarUsuariosInactivosService(body.idUsuarioAdmin);
                     const status = resultado?.error ? 400 : 200;
@@ -184,12 +168,32 @@ async function manejarSolicitudesUsuarios(req, res) {
 
             // ==================== PATCH ====================
             case 'PATCH': {
+                // Primero detectamos si es un toggle de admin
+                if (cleanUrl.includes('/estadoAdmin')) {
+                    const resultado = await setUsuarioAdminService(idUsuario);
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(resultado));
+                    break;
+                }
+
+                // Luego, toggle de premium
+                if (cleanUrl.includes('/estadoPremium')) {
+                    const resultado = await setUsuarioPremium(idUsuario);
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(resultado));
+                    break;
+                }
+
+                // Si no es ninguno de los toggles, entonces es PATCH general
                 const cambios = await getRequestBody(req);
                 const resultado = await editarUsuarioService(idUsuario, cambios);
                 const status = resultado?.error ? 400 : 200;
                 res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
+
             }
 
             // ==================== DELETE ====================
@@ -221,3 +225,69 @@ async function manejarSolicitudesUsuarios(req, res) {
 }
 
 module.exports = { manejarSolicitudesUsuarios };
+
+
+/*
+==================== ENDPOINTS DISPONIBLES ====================
+
+GET (Obtener Usuarios)
+--------------------------------------------------------------
+1) Obtener todos los usuarios:
+   GET http://localhost:3001/usuarios
+
+2) Obtener usuario por ID:
+   GET http://localhost:3001/usuarios/:idUsuario
+
+3) Buscar usuario por email (query param ?value=):
+   GET http://localhost:3001/usuarios/email?value=example@gmail.com
+
+4) Buscar usuario por nombreUsuario:
+   GET http://localhost:3001/usuarios/nombreUsuario?value=NombreEjemplo
+
+
+POST (Crear Usuario)
+--------------------------------------------------------------
+5) Crear nuevo usuario (con body JSON):
+   POST http://localhost:3001/usuarios
+   Body ejemplo:
+   {
+     "nombreUsuario": "Sauron",
+     "email": "sauron@mordor.com",
+     "estadoAdmin": false
+   }
+
+
+PUT (Reemplazo total)
+--------------------------------------------------------------
+6) Actualizar completamente un usuario (sobrescribe campos):
+   PUT http://localhost:3001/usuarios/:idUsuario
+   Body: objeto completo a reemplazar
+
+
+PATCH (Modificaciones parciales y toggles)
+--------------------------------------------------------------
+7) Editar parcialmente un usuario:
+   PATCH http://localhost:3001/usuarios/:idUsuario
+   Body ejemplo:
+   {
+     "nombreUsuario": "NuevoNombre"
+   }
+
+8) Alternar estadoAdmin (true <-> false):
+   PATCH http://localhost:3001/usuarios/:idUsuario/estadoAdmin
+
+9) Alternar estadoPremium (true <-> false):
+   PATCH http://localhost:3001/usuarios/:idUsuario/estadoPremium
+
+
+DELETE (Eliminar Usuario)
+--------------------------------------------------------------
+10) Eliminar un usuario:
+    DELETE http://localhost:3001/usuarios/:idUsuario
+    Body requerido:
+    {
+      "idUsuarioAdmin": "ID_del_admin_que_elimina"
+    }
+
+================================================================
+*/

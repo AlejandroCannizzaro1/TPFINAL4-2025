@@ -257,7 +257,7 @@ async function eliminarUsuarioService(idUsuario) {
 
 //Validar si el usuario es admin 
 
-async function validarAdmin(idUsuario) {
+async function validarAdminService(idUsuario) {
     // 1. Buscar el ID interno de Airtable a partir del ID lógico
     const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtableUsuario) {
@@ -307,7 +307,7 @@ async function setUsuarioAdminService(idUsuario) {
         data: resultado
     };
 }
-async function setUsuarioPremium(idUsuario) {
+async function setUsuarioPremiumService(idUsuario) {
     // 1️ Buscar ID interno (Airtable)
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
@@ -342,8 +342,8 @@ async function setUsuarioPremium(idUsuario) {
 module.exports = {
     crearUsuarioService,
     setUsuarioAdminService,
-    setUsuarioPremium,
-    validarAdmin,
+    setUsuarioPremiumService,
+    validarAdminService,
     eliminarUsuarioService,
     actualizarUsuarioService,
     editarUsuarioService,
