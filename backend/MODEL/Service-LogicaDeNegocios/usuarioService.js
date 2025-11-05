@@ -1,13 +1,14 @@
 const { Usuario } = require('../Entitites/FullEntities/usuario');
 
 const {
-    obtenerUsarios,
+    obtenerUsuarios,
     crearUsuario,
     actualizarUsuario,
     editarUsuario,
     eliminarUsuario,
-    obtenerUsuarioById, //Esta es obtenerUsuarioByIdNormal, solo que la exporta con este nombre a la funcion
-    obtenerIdAirtablePorIdUsuario
+    obtenerUsuarioByIdNormal, //Esta es obtenerUsuarioByIdNormal, solo que la exporta con este nombre a la funcion
+    obtenerIdAirtablePorIdUsuario,
+    obtenerUsuarioByIdAirtable,
 } = require('../DAO-Repository/airtableRepositoryUsuarios');
 
 
@@ -15,29 +16,79 @@ const {
 
 //Autoincrementa  el idUsuario basado en el mayor existente en Airtable 
 async function obtenerProximoIdUsuario() {
-    const usuarios = await obtenerUsarios();
-    if (!usuarios.length) return 1;
+    const usuarios = await obtenerUsuarios();
+
+    if (!Array.isArray(usuarios) || usuarios.length === 0) {
+        return 1;
+    }
 
     const ids = usuarios
-        .map(user => user.fields.idUsuario)
-        .filter(id => !isNaN(id))
-        .map(number);
+        .map(t => parseInt(t.fields.idUsuario))
+        .filter(id => !isNaN(id));
 
+    if (ids.length === 0) return 1;
 
-    const maxId = Math.max(...ids);
-    return maxId + 1;
+    return Math.max(...ids) + 1;
 }
 
 //Busca Usuario por EMAIL 
-async function buscarUsuarioPorEmail(email) {
-    const usuarios = await obtenerUsarios();
-    return usuarios.find(u => u.email === email) || null;
+async function buscarUsuarioPorEmailService(email) {
+    try {
+        if (!email) {
+            return { error: 'El email es obligatorio' };
+        }
+
+        const usuarios = await obtenerUsuarios();
+
+        if (!Array.isArray(usuarios)) {
+            console.error('Error: obtenerUsuarios() no devolvió un array:', usuarios);
+            return { error: 'Error interno al obtener la lista de usuarios' };
+        }
+
+        const usuarioEncontrado = usuarios.find(
+            (user) => user.fields?.email?.toLowerCase() === email.toLowerCase()
+        );
+
+        if (!usuarioEncontrado) {
+            return { error: `No se encontró ningún usuario con el email ${email}` };
+        }
+
+        return usuarioEncontrado;
+
+    } catch (error) {
+        console.error(`Error al buscar usuario por email (${email}):`, error);
+        return { error: 'Error interno al buscar usuario por email' };
+    }
 }
 
 //Busca Usuario por nombreUsuario
-async function buscarUsuarioPorNombreUsuario(nombreUsuario) {
-    const usuarios = await obtenerUsarios();
-    return usuarios.find(user => user.nombreUsuario === nombreUsuario) || null;
+async function buscarUsuarioPorNombreUsuarioService(nombreUsuario) {
+    try {
+        if (!nombreUsuario) {
+            return { error: 'El nombre de usuario es obligatorio' };
+        }
+
+        const usuarios = await obtenerUsuarios(); // corregido el nombre de la función
+
+        if (!Array.isArray(usuarios)) {
+            console.error('Error: obtenerUsuarios() no devolvió un array:', usuarios);
+            return { error: 'Error interno al obtener la lista de usuarios' };
+        }
+
+        const usuarioEncontrado = usuarios.find(
+            (user) => user.fields?.nombreUsuario?.toLowerCase() === nombreUsuario.toLowerCase()
+        );
+
+        if (!usuarioEncontrado) {
+            return { error: `No se encontró ningún usuario con el nombre de usuario "${nombreUsuario}"` };
+        }
+
+        return usuarioEncontrado;
+
+    } catch (error) {
+        console.error(`Error al buscar usuario por nombreUsuario (${nombreUsuario}):`, error);
+        return { error: 'Error interno al buscar usuario por nombre de usuario' };
+    }
 }
 
 // =========== Funciones de Servicio ================
@@ -45,36 +96,39 @@ async function buscarUsuarioPorNombreUsuario(nombreUsuario) {
 async function crearUsuarioService(datosUsuario) {
     const { email, nombreUsuario, contrasenia } = datosUsuario;
 
-    //Verificar duplicados 
-    const existe = await buscarUsuarioPorEmail(email);
-    if (existe) {
+    // Verificar duplicados 
+    const usuario = await buscarUsuarioPorEmailService(email);
+
+    // Si encontró un usuario (no hay error), significa que el email ya existe
+    if (usuario && !usuario.error) {
         return { error: `El usuario con email ${email} ya existe` };
     }
-    //Generar nuevo ID 
+
+    // Generar nuevo ID 
     const nuevoId = await obtenerProximoIdUsuario();
 
-    //Crear instancia de la clase de usuario 
+    // Crear instancia de la clase Usuario 
     const nuevoUsuario = new Usuario(email, nombreUsuario, contrasenia);
     nuevoUsuario.setidUsuario = nuevoId;
     nuevoUsuario.estadoAdmin = false;
     nuevoUsuario.setUsuarioPremium = false;
 
-    //Guardar en AIRTABLE
+    // Guardar en Airtable
     const resultado = await crearUsuario({
         idUsuario: nuevoUsuario.getIdUsuario,
         email: nuevoUsuario.getEmail,
         nombreUsuario: nuevoUsuario.getNombreUsuario,
         contrasenia: nuevoUsuario.getContrasenia,
         estadoAdmin: false,
-        setUsuarioPremium: false,
-        turnosUsuarios: nuevoUsuario.getTurnosUsuario
+        usuarioPremium: false,
     });
+
     return { message: 'Usuario creado correctamente', data: resultado };
 }
 
 //Obtener usuario por ID NORMAL, GET 
 async function obtenerUsuarioService(idUsuario) {
-    const usuario = await obtenerUsuarioById(idUsuario);
+    const usuario = await obtenerUsuarioByIdNormal(idUsuario);
     if (!usuario) return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
     return usuario;
 }
@@ -202,50 +256,99 @@ async function eliminarUsuarioService(idUsuario) {
 }
 
 //Validar si el usuario es admin 
+
 async function validarAdmin(idUsuario) {
-    const usuarioAdmin = await obtenerUsuarioById(idUsuario);
-    if (!usuarioAdmin) {
-        return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
+    // 1. Buscar el ID interno de Airtable a partir del ID lógico
+    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if (!idAirtableUsuario) {
+        console.error(`No se encontró el usuario con ID normal ${idUsuario}`);
+        return false;
     }
-    return usuario?.fields?.estadoAdmin === true;
+
+    // 2. Obtener el registro completo del usuario
+    const usuarioAdmin = await obtenerUsuarioByIdAirtable(idAirtableUsuario);
+    if (!usuarioAdmin || !usuarioAdmin.fields) {
+        console.error(` No se pudo obtener el usuario en Airtable para ID interno ${idAirtableUsuario}`);
+        return false;
+    }
+
+    // 3. Validar campo booleano
+    return usuarioAdmin.fields.estadoAdmin === true;
 }
 
-async function setUsuarioAdmin(idUsuario, estado) {
+async function setUsuarioAdminService(idUsuario) {
+    // 1️ Buscar el ID interno en Airtable
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} no encontrado` };
     }
-    const resultado = await editarUsuarioService(idAirtable, {
-        estadoAdmin: estado
-    });
-    return {
-        message: `Usuario ${estado ? 'promovido a' : 'removido de'} admin`,
-        data: resultado
-    }
-};
 
-async function setUsuarioPremium(idUsuario, estado) {
+    // 2️ Obtener el usuario actual
+    const usuarioActual = await obtenerUsuarioByIdAirtable(idAirtable);
+    if (!usuarioActual) {
+        return { error: `No se pudo obtener el usuario con ID de Airtable ${idAirtable}` };
+    }
+
+    const estadoActual = usuarioActual.fields.estadoAdmin === true;
+    const nuevoEstado = !estadoActual;
+
+    // 3️ Editar el usuario en Airtable
+    const resultado = await editarUsuarioService(idAirtable, {
+        estadoAdmin: nuevoEstado
+    });
+
+    if (resultado.error) {
+        return { error: `Error al actualizar el estado del usuario: ${resultado.error}` };
+    }
+
+    // 4️ Devolver mensaje informativo
+    return {
+        message: `Usuario ${nuevoEstado ? 'promovido a' : 'removido de'} admin correctamente`,
+        data: resultado
+    };
+}
+async function setUsuarioPremium(idUsuario) {
+    // 1️ Buscar ID interno (Airtable)
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} no encontrado` };
     }
-    const resultado = await editarUsuarioService(idAirtable, {
-        usuarioPremium: estado
-    });
-    return {
-        message: `Usuario de ID ${idUsuario} ${estado ? 'tiene cuenta PREMIUM' : 'tiene cuenta REGULAR'}`,
-        data: resultado
+
+    // 2️ Obtener usuario actual
+    const usuarioActual = await obtenerUsuarioByIdAirtable(idAirtable);
+    if (!usuarioActual) {
+        return { error: `No se pudo obtener el usuario con ID de Airtable ${idAirtable}` };
     }
+
+    const estadoActual = usuarioActual.fields.usuarioPremium === true;
+    const nuevoEstado = !estadoActual;
+
+    // 3️ Actualizar en Airtable
+    const resultado = await editarUsuarioService(idAirtable, {
+        usuarioPremium: nuevoEstado
+    });
+
+    if (resultado.error) {
+        return { error: `Error al actualizar el estado Premium: ${resultado.error}` };
+    }
+
+    // 4️ Respuesta final
+    return {
+        message: `Usuario ${nuevoEstado ? 'ahora es PREMIUM' : 'ya no es PREMIUM'}`,
+        data: resultado
+    };
 }
 
 module.exports = {
-    setUsuarioAdmin,
+    crearUsuarioService,
+    setUsuarioAdminService,
     setUsuarioPremium,
     validarAdmin,
     eliminarUsuarioService,
     actualizarUsuarioService,
     editarUsuarioService,
     obtenerUsuarioService,
-    buscarUsuarioPorEmail,
-    buscarUsuarioPorNombreUsuario
+    buscarUsuarioPorEmailService,
+    buscarUsuarioPorNombreUsuarioService, 
+    
 }

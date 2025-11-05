@@ -59,7 +59,6 @@ async function manejarSolicitudesTurnos(req, res) {
         switch (method) {
             // ==================== GET ====================
             case 'GET': {
-                // 1️ Nuevo endpoint: obtener turnos por usuario (ej: /turnos/usuario?idUsuario=5)
                 if (cleanUrl.startsWith('/turnos/usuario')) {
                     const urlParams = new URL(req.url, `http://${req.headers.host}`);
                     const idUsuario = urlParams.searchParams.get('idUsuario');
@@ -72,7 +71,8 @@ async function manejarSolicitudesTurnos(req, res) {
 
                     try {
                         const resultado = await obtenerTurnosPorUsuarioService(idUsuario);
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        const status = resultado?.error ? 404 : 200;
+                        res.writeHead(status, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(resultado));
                     } catch (error) {
                         console.error('Error al obtener turnos por usuario:', error.message);
@@ -81,6 +81,17 @@ async function manejarSolicitudesTurnos(req, res) {
                     }
                     break;
                 }
+
+                // Si no coincide con ningún endpoint, obtener todos los turnos
+                const turnos = await obtenerTurnos();
+                if (!turnos || turnos.error) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: turnos?.error || 'Error al obtener turnos' }));
+                    break;
+                }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(turnos));
+                break;
             }
 
             // ==================== POST ====================
@@ -89,16 +100,18 @@ async function manejarSolicitudesTurnos(req, res) {
 
                 if (cleanUrl.includes('/admin')) {
                     const { datosTurno, idAdmin } = body;
-                    const resultado = await crearTurnoService(datosTurno, idAdmin);
-                    res.writeHead(201, { 'Content-Type': 'application/json' });
+                    const resultado = await crearTurnoService(idAdmin, datosTurno);
+                    const status = resultado?.error ? 400 : 201;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
                     break;
                 }
 
                 if (cleanUrl.includes('/reservar')) {
-                    const { idUsuario } = body; // recibo solo el idUsuario, no el objeto entero
+                    const { idUsuario } = body;
                     const resultado = await reservarTurnoService(idTurno, idUsuario);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
                     break;
                 }
@@ -106,7 +119,8 @@ async function manejarSolicitudesTurnos(req, res) {
                 if (cleanUrl.includes('/cancelar')) {
                     const { idUsuario } = body;
                     const resultado = await cancelarReservaService(idTurno, idUsuario);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
                     break;
                 }
@@ -114,7 +128,8 @@ async function manejarSolicitudesTurnos(req, res) {
                 if (cleanUrl.includes('/limpiar')) {
                     const { idUsuarioAdmin } = body;
                     const resultado = await limpiarTurnosPasadosService(new Date(), idUsuarioAdmin);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
                     break;
                 }
@@ -122,43 +137,45 @@ async function manejarSolicitudesTurnos(req, res) {
                 if (cleanUrl.includes('/eliminar')) {
                     const { idUsuarioAdmin } = body;
                     const resultado = await eliminarTurnoByAdminService(idTurno, idUsuarioAdmin);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    const status = resultado?.error ? 400 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(resultado));
                     break;
                 }
 
                 // Crear turno normal
                 const resultado = await crearTurnoService(body);
-                res.writeHead(201, { 'Content-Type': 'application/json' });
+                const status = resultado?.error ? 400 : 201;
+                res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
             }
 
             // ==================== PUT ====================
             case 'PUT': {
-
                 const nuevoTurno = await getRequestBody(req);
                 const resultado = await actualizarTurno(idTurno, nuevoTurno);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
+                const status = resultado?.error ? 400 : 200;
+                res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
             }
 
             // ==================== PATCH ====================
             case 'PATCH': {
-
                 const cambios = await getRequestBody(req);
                 const resultado = await editarTurno(idTurno, cambios);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
+                const status = resultado?.error ? 400 : 200;
+                res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
             }
 
             // ==================== DELETE ====================
             case 'DELETE': {
-
                 const resultado = await eliminarTurno(idTurno);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
+                const status = resultado?.error ? 400 : 200;
+                res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
                 break;
             }
@@ -173,7 +190,10 @@ async function manejarSolicitudesTurnos(req, res) {
     } catch (err) {
         console.error(' Error en manejarSolicitudesTurnos:', err);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Error interno del servidor', detalle: err.message }));
+        res.end(JSON.stringify({
+            error: 'Error interno del servidor',
+            detalle: err.message
+        }));
     }
 }
 
