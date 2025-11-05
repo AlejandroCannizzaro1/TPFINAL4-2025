@@ -240,7 +240,7 @@ async function editarUsuarioService(idUsuario, cambios) {
 
     // 6️ Respuesta uniforme
     return {
-        message: `Usuario con idUsuario=${idUsuario} actualizado correctamente.`,
+        message: `Usuario con idUsuario=${idUsuario} editado, de forma parcial,correctamente.`,
         data: resultado
     };
 }

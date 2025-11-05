@@ -12,7 +12,7 @@ const {
 } = require('../DAO-Repository/airtableRepositoryTurnos');
 
 const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('../DAO-Repository/airtableRepositoryUsuarios');
-const { validarAdmin } = require('../Service-LogicaDeNegocios/usuarioService');
+const { validarAdminService } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
 
 
@@ -47,7 +47,7 @@ async function getTurnoByIdService(idTurno) {
 //  Crear un nuevo turno by el admin 
 async function crearTurnoService(idUsuarioAdmin, datosTurno) {
     // 1️ Validar que sea admin
-    const adminValido = await validarAdmin(idUsuarioAdmin);
+    const adminValido = await validarAdminService(idUsuarioAdmin);
     if (!adminValido) {
         throw new Error('No tenés permisos para crear turnos (solo admin)');
     }
@@ -103,26 +103,63 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
     };
 }
 
-//Validar fecha 
-function validarFecha(fecha) {
-    const fechaTurno = new Date(fecha);
-    return !isNaN(fechaTurno.getTime());
+// Modificar un turno (solo admin), si es que el turno no esta reservado, es decir, estadoDisponible === true
+async function editarTurnoByAdminService(idTurno, idUsuarioAdmin, cambios) {
+
+    // 1) Validar admin
+    const adminValido = await validarAdminService(idUsuarioAdmin);
+    if (!adminValido) {
+        throw new Error('No tenés permisos para modificar turnos (solo admin)');
+    }
+
+    // 2) Buscar el turno para saber si está reservado
+    const turno = await obtenerTurnoById(idTurno);
+    if (!turno) {
+        throw new Error(`No se encontró el turno con ID ${idTurno}`);
+    }
+
+    const turnoReservado = turno.fields?.idCliente !== undefined && turno.fields?.idCliente !== null;
+
+    // 3) Si el turno está reservado → prohibir cambio de fecha/hora
+    if (turnoReservado) {
+        if (cambios.fecha !== undefined || cambios.hora !== undefined) {
+            throw new Error("No podés modificar fecha u hora de un turno ya reservado. Debés cancelarlo o reprogramarlo.");
+        }
+    }
+
+    // 4) Obtener ID interno de Airtable
+    const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
+    if (!idAirtableTurno) {
+        throw new Error(`No se encontró ID interno de Airtable para turno ${idTurno}`);
+    }
+
+    // 5) Filtrar campos permitidos
+    const camposPermitidos = ["fecha", "hora", "tipoServicio", "notas"];
+
+    const datosFiltrados = {};
+    for (const campo of camposPermitidos) {
+        if (cambios[campo] !== undefined && cambios[campo] !== null) {
+            datosFiltrados[campo] = cambios[campo];
+        }
+    }
+
+    if (Object.keys(datosFiltrados).length === 0) {
+        throw new Error("No se proporcionaron campos válidos para modificar.");
+    }
+
+    // 6) Ejecutar PATCH en Airtable
+    const resultado = await editarTurno(idAirtableTurno, datosFiltrados);
+
+    if (resultado.error) {
+        throw new Error(`Error editando turno: ${resultado.error.message}`);
+    }
+
+    return {
+        message: `Turno ${idTurno} modificado correctamente`,
+        data: resultado
+    };
 }
 
-//Validar hora 
-function validarHora(hora) {
-    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(hora);
-}
-
-//Checkear si el turno esta duplicado 
-async function esTurnoDuplicado(fecha, hora) {
-    const turnos = await obtenerTurnos();
-    return turnos.some(t => {
-        const f = new Date(t.fields.fecha).toISOString().split('T')[0];
-        const h = t.fields.hora;
-        return f === fecha && h === hora;
-    });
-}
 //  Reservar un turno
 async function reservarTurnoService(idTurno, idUsuario) {
     console.log(` Reservando turno ${idTurno} para usuario ${idUsuario}`);
@@ -252,6 +289,28 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
     return resultado;
 }
 
+//Funciones Auxiliares
+//Validar fecha 
+function validarFecha(fecha) {
+    const fechaTurno = new Date(fecha);
+    return !isNaN(fechaTurno.getTime());
+}
+
+//Validar hora 
+function validarHora(hora) {
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(hora);
+}
+
+//Checkear si el turno esta duplicado 
+async function esTurnoDuplicado(fecha, hora) {
+    const turnos = await obtenerTurnos();
+    return turnos.some(t => {
+        const f = new Date(t.fields.fecha).toISOString().split('T')[0];
+        const h = t.fields.hora;
+        return f === fecha && h === hora;
+    });
+}
+
 
 module.exports = {
     getTurnosService,
@@ -261,7 +320,8 @@ module.exports = {
     cancelarReservaService,
     limpiarTurnosPasadosService,
     eliminarTurnoByAdminService,
-    obtenerTurnosPorUsuarioService
+    obtenerTurnosPorUsuarioService,
+    editarTurnoByAdminService 
 };
 
 //Formato body para mandar a crearTurno :

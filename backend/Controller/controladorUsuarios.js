@@ -284,24 +284,21 @@ PATCH (Modificaciones parciales y toggles)
    PATCH http://localhost:3001/usuarios/estadoAdmin
       Body ejemplo:
    {
-     "idUsuario": "1" //El usuario a setear como admin o desetearlo
+     "idUsuario": "1" //El usuario a setear como admin o desetearlo.Si es true lo vuelve false y viceversa
    }
 
 9) Alternar estadoPremium (true <-> false):
    PATCH http://localhost:3001/usuarios/estadoPremium
       Body ejemplo:
- {
-     "idUsuario": "1" //El usuario a setear como premium o desetearlo
+   {
+     "idUsuario": "1" //El usuario a setear como premium o desetearlo. Si es true lo vuelve false y viceversa
    }
 
 DELETE (Eliminar Usuario)
 --------------------------------------------------------------
 10) Eliminar un usuario:
-    DELETE http://localhost:3001/usuarios/idUsuario
-    Body requerido:
-    {
-      "idUsuarioAdmin": "ID_del_admin_que_elimina"
-    }
+    DELETE http://localhost:3001/usuarios/idUsuario 
+    //Va sin Body
 
 ================================================================
 */

@@ -162,9 +162,18 @@ async function manejarSolicitudesTurnos(req, res) {
             }
 
             // ==================== PATCH ====================
+            //Esto solo lo hace el admin, ya que valida, si es ADMIN, Y solo puede modificar el turno si este no esta reservado aun, es decir, estadoDisponible === true
             case 'PATCH': {
-                const cambios = await getRequestBody(req);
-                const resultado = await editarTurno(idTurno, cambios);
+                const { idUsuarioAdmin, ...cambios } = await getRequestBody(req);
+
+                if (!idUsuarioAdmin) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: "Falta el idUsuarioAdmin en el cuerpo de la solicitud" }));
+                    break;
+                }
+
+                const resultado = await editarTurnoByAdminService(idTurno, idUsuarioAdmin, cambios);
+
                 const status = resultado?.error ? 400 : 200;
                 res.writeHead(status, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(resultado));
@@ -198,3 +207,141 @@ async function manejarSolicitudesTurnos(req, res) {
 }
 
 module.exports = { manejarSolicitudesTurnos };
+
+
+/*
+Endpoints para cada peticion y ejemplos de como debe de ser el body, si es que la misma lleva body, en la request
+
+GET /turnos
+
+Devuelve todos los turnos.
+No lleva body.
+
+GET /turnos/usuario?idUsuario=ID
+
+Devuelve los turnos reservados por un usuario específico.
+No lleva body.
+Ejemplo:
+
+GET /turnos/usuario?idUsuario=3
+
+POST /turnos/admin
+
+Crear un turno como administrador.
+Body:
+
+{
+  "idAdmin": 1,
+  "datosTurno": {
+    "fecha": "2025-11-12",
+    "hora": "10:30",
+    "tipoServicio": "Corte",
+    "notas": "Cliente nuevo"
+  }
+}
+
+POST /turnos/{idTurno}/reservar
+
+Un usuario reserva un turno.
+Ejemplo:
+
+POST /turnos/15/reservar
+
+
+Body:
+
+{
+  "idUsuario": 7
+}
+
+POST /turnos/{idTurno}/cancelar
+
+Un usuario cancela su reserva.
+Ejemplo:
+
+POST /turnos/15/cancelar
+
+
+Body:
+
+{
+  "idUsuario": 7
+}
+
+POST /turnos/limpiar
+
+Limpia los turnos pasados (solo admin).
+Body:
+
+{
+  "idUsuarioAdmin": 1
+}
+
+POST /turnos/{idTurno}/eliminar
+
+Elimina un turno como administrador.
+Ejemplo:
+
+POST /turnos/10/eliminar
+
+
+Body:
+
+{
+  "idUsuarioAdmin": 1
+}
+
+POST /turnos
+
+Crear un turno sin necesidad de ser admin.
+Body:
+
+{
+  "fecha": "2025-11-15",
+  "hora": "18:00",
+  "tipoServicio": "Barba"
+}
+
+PUT /turnos/{idTurno}
+
+Sobrescribe todo el turno completo (no valida permisos).
+Ejemplo:
+
+PUT /turnos/8
+
+
+Body:
+
+{
+  "fecha": "2025-12-01",
+  "hora": "14:00",
+  "tipoServicio": "Corte y Barba",
+  "notas": "Cambió horario"
+}
+
+PATCH /turnos/{idTurno}
+
+Modifica solo algunos campos, pero solo si el turno no está reservado y el usuario es admin.
+Ejemplo:
+
+PATCH /turnos/8
+
+
+Body:
+
+{
+  "idUsuarioAdmin": 1,
+  "fecha": "2025-12-10",
+  "hora": "16:30"
+}
+
+DELETE /turnos/{idTurno}
+
+Elimina el turno directamente (sin validar admin).
+Ejemplo:
+
+DELETE /turnos/9
+
+
+No lleva body.
+*/
