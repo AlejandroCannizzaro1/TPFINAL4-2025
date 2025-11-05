@@ -4,7 +4,7 @@ const {
     actualizarTurno,
     editarTurno,
     eliminarTurno,
-    obtenerTurnoById,
+    obtenerTurnoByIdNormal,
     obtenerIdAirtablePorIdTurno
 } = require('../MODEL/DAO-Repository/airtableRepositoryTurnos');
 
@@ -14,7 +14,8 @@ const {
     limpiarTurnosPasadosService,
     eliminarTurnoByAdminService,
     crearTurnoService,
-    obtenerTurnosPorUsuarioService
+    obtenerTurnosPorUsuarioService,
+    getTurnoByIdService
 } = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
 
 // ==================== AUXILIARES ====================
@@ -59,6 +60,8 @@ async function manejarSolicitudesTurnos(req, res) {
         switch (method) {
             // ==================== GET ====================
             case 'GET': {
+
+                // GET /turnos/usuario?idUsuario=IDUSUARIO
                 if (cleanUrl.startsWith('/turnos/usuario')) {
                     const urlParams = new URL(req.url, `http://${req.headers.host}`);
                     const idUsuario = urlParams.searchParams.get('idUsuario');
@@ -82,7 +85,22 @@ async function manejarSolicitudesTurnos(req, res) {
                     break;
                 }
 
-                // Si no coincide con ningún endpoint, obtener todos los turnos
+                //  GET /turnos/:idTurno (traer un turno por ID normal)
+                if (cleanUrl.match(/^\/turnos\/\d+$/)) {
+                    const idTurno = getIdFromUrl(cleanUrl);
+
+                    try {
+                        const resultado = await getTurnoByIdService(idTurno);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(resultado));
+                    } catch (error) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: error.message }));
+                    }
+                    break;
+                }
+
+                // GET /turnos (todos los turnos)
                 const turnos = await obtenerTurnos();
                 if (!turnos || turnos.error) {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -93,6 +111,7 @@ async function manejarSolicitudesTurnos(req, res) {
                 res.end(JSON.stringify(turnos));
                 break;
             }
+
 
             // ==================== POST ====================
             case 'POST': {
@@ -152,6 +171,7 @@ async function manejarSolicitudesTurnos(req, res) {
             }
 
             // ==================== PUT ====================
+            //Esto esta hecho, pero la realidad es que el PUT NO SE USA, porque modificar un turno entero no es eficiente en nuestra App, tiene datos vinculados de otras entidades, es mas practico el PATCH en este caso
             case 'PUT': {
                 const nuevoTurno = await getRequestBody(req);
                 const resultado = await actualizarTurno(idTurno, nuevoTurno);
@@ -181,6 +201,7 @@ async function manejarSolicitudesTurnos(req, res) {
             }
 
             // ==================== DELETE ====================
+            //Esto esta hecho, pero la realidad es que el DELETE se hace con solicitud POST, para  validar parametros como ID y demas. 
             case 'DELETE': {
                 const resultado = await eliminarTurno(idTurno);
                 const status = resultado?.error ? 400 : 200;

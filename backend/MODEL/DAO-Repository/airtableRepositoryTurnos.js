@@ -101,7 +101,7 @@ module.exports = {
     actualizarTurno,
     editarTurno,
     eliminarTurno,
-    obtenerTurnoById,
+    obtenerTurnoByIdNormal,
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
     obtenerTurnosPorUsuarioAirtable

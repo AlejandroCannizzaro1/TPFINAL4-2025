@@ -5,7 +5,7 @@ const {
     actualizarTurno,
     editarTurno,
     eliminarTurno,
-    obtenerTurnoById,
+    obtenerTurnoByIdNormal,
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
     obtenerTurnosPorUsuarioAirtable,
@@ -17,7 +17,7 @@ const { Turno } = require('../Entitites/FullEntities/turno');
 
 
 //Obtener proximo id de Turnos de Airtable 
-async function obtenerProximoIdTurno() {
+async function obtenerProximoIdTurnoService() {
     const turnos = await obtenerTurnos();
 
     if (!Array.isArray(turnos) || turnos.length === 0) {
@@ -39,7 +39,7 @@ async function getTurnosService() {
 
 //  Obtener un turno por su ID normal
 async function getTurnoByIdService(idTurno) {
-    const turno = await obtenerTurnoById(idTurno);
+    const turno = await obtenerTurnoByIdNormal(idTurno);
     if (!turno) throw new Error(`No se encontró el turno con ID ${idTurno}`);
     return turno;
 }
@@ -60,12 +60,12 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
     }
 
     // 3️ Validar formato de hora
-    if (!validarHora(hora)) {
+    if (!validarHoraService(hora)) {
         throw new Error('Formato de hora inválido. Usa HH:MM (00:00 a 23:59)');
     }
 
     // 4️ Validar fecha
-    if (!validarFecha(fecha)) {
+    if (!validarFechaService(fecha)) {
         throw new Error('Fecha inválida');
     }
 
@@ -76,7 +76,7 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
     }
 
     // 6️ Generar ID
-    const nuevoId = await obtenerProximoIdTurno();
+    const nuevoId = await obtenerProximoIdTurnoService();
 
     // 7️ Crear objeto del turno
     const fechaTurno = new Date(fecha);
@@ -113,14 +113,15 @@ async function editarTurnoByAdminService(idTurno, idUsuarioAdmin, cambios) {
     }
 
     // 2) Buscar el turno para saber si está reservado
-    const turno = await obtenerTurnoById(idTurno);
+    const turno = await obtenerTurnoByIdNormal(idTurno);
     if (!turno) {
         throw new Error(`No se encontró el turno con ID ${idTurno}`);
     }
 
-    const turnoReservado = turno.fields?.idCliente !== undefined && turno.fields?.idCliente !== null;
+    // Si tiene un usuario vinculado, está reservado
+    const turnoReservado = Array.isArray(turno.fields.idUsuarioVinculado)
+        && turno.fields.idUsuarioVinculado.length > 0;
 
-    // 3) Si el turno está reservado → prohibir cambio de fecha/hora
     if (turnoReservado) {
         if (cambios.fecha !== undefined || cambios.hora !== undefined) {
             throw new Error("No podés modificar fecha u hora de un turno ya reservado. Debés cancelarlo o reprogramarlo.");
@@ -277,7 +278,7 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
     //Obtener los turnos asociados a ese usuario 
     const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
 
-    const resultado = turnos.map(turno => ({
+    const resultado = turnos.map(t => ({
         idTurno: t.fields.idTurno,
         fecha: t.fields.fecha,
         hora: t.fields.hora,
@@ -291,13 +292,13 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
 
 //Funciones Auxiliares
 //Validar fecha 
-function validarFecha(fecha) {
+function validarFechaService(fecha) {
     const fechaTurno = new Date(fecha);
     return !isNaN(fechaTurno.getTime());
 }
 
 //Validar hora 
-function validarHora(hora) {
+function validarHoraService(hora) {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(hora);
 }
 
@@ -321,7 +322,7 @@ module.exports = {
     limpiarTurnosPasadosService,
     eliminarTurnoByAdminService,
     obtenerTurnosPorUsuarioService,
-    editarTurnoByAdminService 
+    editarTurnoByAdminService
 };
 
 //Formato body para mandar a crearTurno :
