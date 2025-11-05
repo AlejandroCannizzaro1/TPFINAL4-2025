@@ -276,14 +276,14 @@ async function validarAdminService(idUsuario) {
     return usuarioAdmin.fields.estadoAdmin === true;
 }
 
+
+//Setear a un usuario como Admin o sacarle esta funcionalidad
 async function setUsuarioAdminService(idUsuario) {
-    // 1️ Buscar el ID interno en Airtable
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} no encontrado` };
     }
 
-    // 2️ Obtener el usuario actual
     const usuarioActual = await obtenerUsuarioByIdAirtable(idAirtable);
     if (!usuarioActual) {
         return { error: `No se pudo obtener el usuario con ID de Airtable ${idAirtable}` };
@@ -292,29 +292,23 @@ async function setUsuarioAdminService(idUsuario) {
     const estadoActual = usuarioActual.fields.estadoAdmin === true;
     const nuevoEstado = !estadoActual;
 
-    // 3️ Editar el usuario en Airtable
-    const resultado = await editarUsuarioService(idAirtable, {
+    const resultado = await editarUsuario(idAirtable, {
         estadoAdmin: nuevoEstado
     });
 
-    if (resultado.error) {
-        return { error: `Error al actualizar el estado del usuario: ${resultado.error}` };
-    }
-
-    // 4️ Devolver mensaje informativo
     return {
         message: `Usuario ${nuevoEstado ? 'promovido a' : 'removido de'} admin correctamente`,
         data: resultado
     };
 }
+
+//Setear a un usuario como Premium o sacarle esta funcionalidad
 async function setUsuarioPremiumService(idUsuario) {
-    // 1️ Buscar ID interno (Airtable)
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} no encontrado` };
     }
 
-    // 2️ Obtener usuario actual
     const usuarioActual = await obtenerUsuarioByIdAirtable(idAirtable);
     if (!usuarioActual) {
         return { error: `No se pudo obtener el usuario con ID de Airtable ${idAirtable}` };
@@ -323,21 +317,16 @@ async function setUsuarioPremiumService(idUsuario) {
     const estadoActual = usuarioActual.fields.usuarioPremium === true;
     const nuevoEstado = !estadoActual;
 
-    // 3️ Actualizar en Airtable
-    const resultado = await editarUsuarioService(idAirtable, {
+    const resultado = await editarUsuario(idAirtable, {
         usuarioPremium: nuevoEstado
     });
 
-    if (resultado.error) {
-        return { error: `Error al actualizar el estado Premium: ${resultado.error}` };
-    }
-
-    // 4️ Respuesta final
     return {
         message: `Usuario ${nuevoEstado ? 'ahora es PREMIUM' : 'ya no es PREMIUM'}`,
         data: resultado
     };
 }
+
 
 module.exports = {
     crearUsuarioService,

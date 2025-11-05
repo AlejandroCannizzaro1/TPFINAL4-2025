@@ -13,7 +13,7 @@ const {
     obtenerUsuarioService,
     buscarUsuarioPorEmailService,
     buscarUsuarioPorNombreUsuarioService,
-    crearUsuarioService
+    crearUsuarioService,
 } = require('../MODEL/Service-LogicaDeNegocios/usuarioService');
 
 // ==================== AUXILIARES ====================
@@ -161,33 +161,47 @@ async function manejarSolicitudesUsuarios(req, res) {
 
             // ==================== PATCH ====================
             case 'PATCH': {
-                // Primero detectamos si es un toggle de admin
-                if (cleanUrl.includes('/estadoAdmin')) {
+                const body = await getRequestBody(req);
+
+                // PATCH /usuarios/estadoAdmin
+                if (cleanUrl === '/usuarios/estadoAdmin') {
+                    const { idUsuario } = body;
+
+                    if (!idUsuario) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        return res.end(JSON.stringify({ error: 'Falta idUsuario en el body' }));
+                    }
+
                     const resultado = await setUsuarioAdminService(idUsuario);
                     const status = resultado?.error ? 400 : 200;
                     res.writeHead(status, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
+                    return res.end(JSON.stringify(resultado));
                 }
 
-                // Luego, toggle de premium
-                if (cleanUrl.includes('/estadoPremium')) {
-                    const resultado = await setUsuarioPremium(idUsuario);
+                // PATCH /usuarios/estadoPremium
+                if (cleanUrl === '/usuarios/estadoPremium') {
+                    const { idUsuario } = body;
+
+                    if (!idUsuario) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        return res.end(JSON.stringify({ error: 'Falta idUsuario en el body' }));
+                    }
+
+                    const resultado = await setUsuarioPremiumService(idUsuario);
                     const status = resultado?.error ? 400 : 200;
                     res.writeHead(status, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(resultado));
-                    break;
+                    return res.end(JSON.stringify(resultado));
                 }
 
-                // Si no es ninguno de los toggles, entonces es PATCH general
-                const cambios = await getRequestBody(req);
+                // PATCH normal para modificar campos sueltos → NO tocar
+                const idUsuario = cleanUrl.split('/')[2];
+                const cambios = body;
                 const resultado = await editarUsuarioService(idUsuario, cambios);
                 const status = resultado?.error ? 400 : 200;
                 res.writeHead(status, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(resultado));
-                break;
-
+                return res.end(JSON.stringify(resultado));
             }
+
 
             // ==================== DELETE ====================
             case 'DELETE': {
@@ -253,30 +267,37 @@ POST (Crear Usuario)
 PUT (Reemplazo total)
 --------------------------------------------------------------
 6) Actualizar completamente un usuario (sobrescribe campos):
-   PUT http://localhost:3001/usuarios/:idUsuario
+   PUT http://localhost:3001/usuarios/idUsuario
    Body: objeto completo a reemplazar
 
 
 PATCH (Modificaciones parciales y toggles)
 --------------------------------------------------------------
 7) Editar parcialmente un usuario:
-   PATCH http://localhost:3001/usuarios/:idUsuario
+   PATCH http://localhost:3001/usuarios/idUsuario
    Body ejemplo:
    {
      "nombreUsuario": "NuevoNombre"
    }
 
 8) Alternar estadoAdmin (true <-> false):
-   PATCH http://localhost:3001/usuarios/:idUsuario/estadoAdmin
+   PATCH http://localhost:3001/usuarios/estadoAdmin
+      Body ejemplo:
+   {
+     "idUsuario": "1" //El usuario a setear como admin o desetearlo
+   }
 
 9) Alternar estadoPremium (true <-> false):
-   PATCH http://localhost:3001/usuarios/:idUsuario/estadoPremium
-
+   PATCH http://localhost:3001/usuarios/estadoPremium
+      Body ejemplo:
+ {
+     "idUsuario": "1" //El usuario a setear como premium o desetearlo
+   }
 
 DELETE (Eliminar Usuario)
 --------------------------------------------------------------
 10) Eliminar un usuario:
-    DELETE http://localhost:3001/usuarios/:idUsuario
+    DELETE http://localhost:3001/usuarios/idUsuario
     Body requerido:
     {
       "idUsuarioAdmin": "ID_del_admin_que_elimina"
