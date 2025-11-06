@@ -279,7 +279,7 @@ POST (Crear Usuario)
    {
      "nombreUsuario": "Sauron",
      "email": "sauron@mordor.com",
-     "estadoAdmin": false
+     
    }
 
 
