@@ -270,8 +270,27 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
 async function obtenerTurnosPorUsuarioService(idUsuario) {
     console.log(`[obtenerTurnosPorUsuarioService] Buscando turnos del usuario ${idUsuario}`);
 
+    //  Verificar si existe el usuario en Airtable
+    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+
+    if (!idAirtableUsuario) {
+        return {
+            error: `No existe un usuario con el ID ${idUsuario}`
+        };
+    }
+
+    //  Buscar turnos que tengan ese idUsuarioVinculado
     const turnos = await obtenerTurnosPorUsuarioAirtable(idUsuario);
 
+    if (!turnos || turnos.length === 0) {
+        return {
+            idUsuario,
+            turnos: [],
+            mensaje: `El usuario con ID ${idUsuario} no tiene turnos asignados.`
+        };
+    }
+
+    //  Si tiene turnos, los devolvemos formateados
     const resultado = turnos.map(t => ({
         idTurno: t.fields.idTurno,
         fecha: t.fields.fecha,
@@ -280,9 +299,13 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
         notas: t.fields.notas,
     }));
 
-    console.log(`Usuario ${idUsuario} tiene ${resultado.length} turnos reservados`);
-    return resultado;
+    return {
+        idUsuario,
+        cantidad: resultado.length,
+        turnos: resultado
+    };
 }
+
 
 //Funciones Auxiliares
 //Validar fecha 
