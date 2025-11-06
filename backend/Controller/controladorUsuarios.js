@@ -16,6 +16,7 @@ const {
     crearUsuarioService,
 } = require('../MODEL/Service-LogicaDeNegocios/usuarioService');
 
+const { obtenerTurnosPorUsuarioService } = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
 // ==================== AUXILIARES ====================
 function getRequestBody(req) {
     return new Promise((resolve, reject) => {
@@ -205,12 +206,30 @@ async function manejarSolicitudesUsuarios(req, res) {
 
             // ==================== DELETE ====================
             case 'DELETE': {
-                const body = await getRequestBody(req);
-                const { idUsuarioAdmin } = body;
-                const resultado = await eliminarUsuarioService(idUsuario, idUsuarioAdmin);
-                const status = resultado?.error ? 400 : 200;
-                res.writeHead(status, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(resultado));
+                if (cleanUrl.match(/^\/usuarios\/\d+$/)) {
+
+                    const idUsuario = cleanUrl.split('/')[2];
+                    console.log("parsed idUsuario:", idUsuario);
+
+                    //  1) Verificar turnos antes de eliminar
+                    const turnosUsuario = await obtenerTurnosPorUsuarioService(idUsuario);
+
+                    if (!turnosUsuario.error && turnosUsuario.turnos && turnosUsuario.turnos.length > 0) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        return res.end(JSON.stringify({
+                            error: `No se puede eliminar el usuario ${idUsuario} porque tiene turnos asignados.`,
+                            turnosAsignados: turnosUsuario.turnos
+                        }));
+                    }
+
+                    //  2) Si no tiene turnos → eliminar usuario
+                    const resultado = await eliminarUsuarioService(idUsuario);
+
+                    const status = resultado.error ? 404 : 200;
+                    res.writeHead(status, { 'Content-Type': 'application/json' });
+                    return res.end(JSON.stringify(resultado));
+                }
+
                 break;
             }
 

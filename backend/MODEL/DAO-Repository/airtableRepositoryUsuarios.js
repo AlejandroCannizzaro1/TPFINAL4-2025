@@ -45,19 +45,19 @@ async function obtenerUsuarioByIdNormal(idUsuario) {
     const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
     const data = await res.json();
     return data.records.length > 0 ? data.records[0] : null; //  devuelve null si no hay resultados
-} 
+}
 async function obtenerUsuarioByEmail(email) {
     const formula = `filterByFormula=${encodeURIComponent(`{email}=${email}`)}`;
     const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
     const data = await res.json();
     return data.records.length > 0 ? data.records[0] : null; // devuelve null si no hay resultados
-} 
+}
 async function obtenerUsuarioByNombreUsuario(nombreUsuario) {
     const formula = `filterByFormula=${encodeURIComponent(`{nombreUsuario}=${nombreUsuario}`)}`;
     const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
     const data = await res.json();
     return data.records.length > 0 ? data.records[0] : null; // devuelve null si no hay resultados
-} 
+}
 
 // Obtener usuario por ID INTERNO de Airtable
 async function obtenerUsuarioByIdAirtable(idAirtableUsuario) {
@@ -119,5 +119,5 @@ module.exports = {
     eliminarUsuario,
     obtenerUsuarioByIdNormal,
     obtenerUsuarioByIdAirtable,
-    obtenerIdAirtablePorIdUsuario, 
+    obtenerIdAirtablePorIdUsuario,
 };

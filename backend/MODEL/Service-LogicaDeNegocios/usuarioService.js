@@ -1,5 +1,8 @@
 const { Usuario } = require('../Entitites/FullEntities/usuario');
 
+const { obtenerTurnosPorUsuarioAirtable } = require('../DAO-Repository/airtableRepositoryTurnos');
+
+
 const {
     obtenerUsuarios,
     crearUsuario,
@@ -246,14 +249,26 @@ async function editarUsuarioService(idUsuario, cambios) {
 }
 //Eliminar Usuario 
 async function eliminarUsuarioService(idUsuario) {
-    const idUsuarioAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
-    if (!idUsuarioAirtable) {
-        return { error: `Usuario de ID ${idUsuario} NO ENCONTRADO` };
+    console.log(`[eliminarUsuarioService] Eliminando usuario con ID NORMAL: ${idUsuario}`);
+
+    // 1) Obtener ID interno de Airtable
+    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario)
+        .catch(() => null); // si da error, devolvemos null
+
+    if (!idAirtableUsuario) {
+        return { error: `No existe usuario con ID ${idUsuario}` };
     }
 
-    const resultado = await eliminarUsuario(idUsuarioAirtable);
-    return { message: `Usuario de ID ${idUsuario} eliminado`, data: resultado };
+    // 2) Eliminar el usuario en Airtable
+    const resultado = await eliminarUsuario(idAirtableUsuario);
+
+    return {
+        message: `Usuario ${idUsuario} eliminado correctamente.`,
+        airtableIdEliminado: idAirtableUsuario,
+        resultado
+    };
 }
+
 
 //Validar si el usuario es admin 
 
@@ -338,6 +353,6 @@ module.exports = {
     editarUsuarioService,
     obtenerUsuarioService,
     buscarUsuarioPorEmailService,
-    buscarUsuarioPorNombreUsuarioService, 
-    
+    buscarUsuarioPorNombreUsuarioService,
+
 }
