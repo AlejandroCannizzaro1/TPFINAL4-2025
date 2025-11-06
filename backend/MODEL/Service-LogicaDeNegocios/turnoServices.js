@@ -69,10 +69,16 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
         throw new Error('Fecha inválida');
     }
 
-    // 5️ Evitar duplicados
+    // 5️-a Evitar duplicados
     const existeTurno = await esTurnoDuplicado(fecha, hora);
     if (existeTurno) {
         throw new Error(`Ya existe un turno en la fecha ${fecha} a la hora ${hora}`);
+    }
+
+    // 5-b Nueva validación para evitar turnos con menos de 1 hora de diferencia
+    const conflicto = await hayConflictoDeHorario(fecha, hora);
+    if (conflicto) {
+        throw new Error(`No se puede crear el turno. Debe haber al menos 1 hora entre turnos en la misma fecha.`);
     }
 
     // 6️ Generar ID
@@ -329,6 +335,28 @@ async function esTurnoDuplicado(fecha, hora) {
     });
 }
 
+// Verificar que no haya otro turno dentro de 1 hora
+async function hayConflictoDeHorario(fecha, hora) {
+    const turnos = await obtenerTurnos();
+
+    const nuevaHora = convertirHoraAMinutos(hora);
+
+    return turnos.some(t => {
+        const mismaFecha = new Date(t.fields.fecha).toISOString().split('T')[0] === fecha;
+        if (!mismaFecha) return false;
+
+        const horaExistente = convertirHoraAMinutos(t.fields.hora);
+        const diferencia = Math.abs(nuevaHora - horaExistente);
+
+        return diferencia < 60; // menos de 60 min → conflicto
+    });
+}
+
+// Convierte HH:MM → minutos totales
+function convertirHoraAMinutos(hora) {
+    const [h, m] = hora.split(':').map(Number);
+    return h * 60 + m;
+}
 
 module.exports = {
     getTurnosService,
