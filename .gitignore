@@ -1,5 +1,5 @@
-#Modulos a ignorar
-#========================================
+# Módulos a ignorar
+# ========================================
 /backend/node_modules/
 /front/node_modules/
 
