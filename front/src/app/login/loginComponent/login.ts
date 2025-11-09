@@ -22,7 +22,7 @@ export class Login {
   readonly usuario = input<Usuario>();
 
   protected loggedIn = false;
- 
+
   inputType: string = 'password';
   showPassword: boolean = false;
 
@@ -33,41 +33,44 @@ export class Login {
 
   changeVisual() { //Cambia la password para ver o no
     this.showPassword = !this.showPassword;
-    this.inputType = this.showPassword ? 'password' : 'text';
+    this.inputType = this.showPassword ? 'text' : 'password';
   };
-  
-  handleSubmit(){
+
+  handleSubmit() {
 
 
     //Borrar esto
-    
-    
-    if(this.form.invalid) {
+
+
+    if (this.form.invalid) {
       alert("El formulario no puede tener caracteres invalidos o vacios!");
       return;
     }
-    
-    if(confirm('Desea iniciar sesion?')) {
+
+    if (confirm('Desea iniciar sesion?')) {
       //Se crea el objeto usuario con los datos del formulario
       const usuario = this.form.getRawValue() as Usuario;
       usuario.email = usuario.email.toLowerCase();
-      
+
       this.client.getUsuarios().pipe(
         map(users => users.find((user) => (user.email === usuario.email) && (user.contrasenia === usuario.contrasenia))), take(1))
         .subscribe(user => {
-          if(user){
-            const token = 'token_' + Math.random().toString(36).substring(2) + user.id?.toString();
-            console.log(token);
-            if(user.estadoAdmin) {
+          if (user) {
+            const token = 'token_' + Math.random().toString(36).substring(2) + user.idUsuario?.toString();
+
+            if (user.estadoAdmin) {
               this.authService.login(token, "admin", user.nombreUsuario);
-            }
-            else {
+            } else {
               this.authService.login(token, "user", user.nombreUsuario);
             }
-            alert("Succesful");
+
+            alert("Sesión iniciada con éxito");
             this.router.navigate(['/']);
+          } else {
+            alert("Email o contraseña incorrectos.");
           }
         });
+
     }
   };
 

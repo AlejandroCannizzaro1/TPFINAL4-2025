@@ -21,8 +21,11 @@ export class UsuarioClient {
     return this.http.post<Usuario>(this.baseUrl, usuario);
   }
 
-  updateUsuario(idUsuario: number, cambios: Partial<Usuario>) {
+  updatePatchUsuario(idUsuario: number, cambios: Partial<Usuario>) {
     return this.http.patch<Usuario>(`${this.baseUrl}/${idUsuario}`, cambios); // <-- patch correcto
+  }
+  updatePutUsuario(idUsuario: number, cambios: Partial<Usuario>) {
+    return this.http.put<Usuario>(`${this.baseUrl}/${idUsuario}`, cambios); // <-- patch correcto
   }
 
   deleteUsuario(idUsuario: number) {

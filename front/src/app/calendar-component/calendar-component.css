@@ -1,5 +1,15 @@
 .calendar-div {
-    margin-left: 27%;
-    margin-right: 27%;
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 10px;
 }
 
+.fc .fc-daygrid-day.fc-day-disabled {
+  background-color: #ececec;
+}
+
+.fc-event {
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 2px 4px;
+}
