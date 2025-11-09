@@ -18,6 +18,7 @@ const {
     getTurnoByIdService
 } = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
 
+
 // ==================== AUXILIARES ====================
 function getRequestBody(req) {
     return new Promise((resolve, reject) => {
@@ -61,7 +62,23 @@ async function manejarSolicitudesTurnos(req, res) {
             // ==================== GET ====================
             case 'GET': {
 
-                // GET /turnos/usuario?idUsuario=IDUSUARIO
+                // GET /turnos (Trae todos los turnos)
+                if (cleanUrl === '/turnos') {
+                    const turnos = await obtenerTurnos(); // <- ESTA función ya la importaste
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(turnos));
+                    return;
+                }
+
+                // GET /turnos/:idTurno (Trae un turno específico)
+                if (cleanUrl.startsWith('/turnos/') && idTurno && !cleanUrl.includes('/usuario')) {
+                    const turno = await obtenerTurnoByIdNormal(idTurno);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(turno));
+                    return;
+                }
+
+                // GET /turnos/usuario?idUsuario=...
                 if (cleanUrl.startsWith('/turnos/usuario')) {
                     const urlParams = new URL(req.url, `http://${req.headers.host}`);
                     const idUsuario = urlParams.searchParams.get('idUsuario');
@@ -72,34 +89,13 @@ async function manejarSolicitudesTurnos(req, res) {
                         return;
                     }
 
-                    try {
-                        const resultado = await obtenerTurnosPorUsuarioService(idUsuario);
-
-                        //  Si no tiene turnos → devolver mensaje
-                        if (Array.isArray(resultado) && resultado.length === 0) {
-                            res.writeHead(200, { 'Content-Type': 'application/json' });
-                            res.end(JSON.stringify({
-                                idUsuario,
-                                turnos: [],
-                                mensaje: `El usuario con ID ${idUsuario} no tiene turnos asignados.`
-                            }));
-                            return;
-                        }
-
-                        //  Caso normal → tiene turnos
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({
-                            idUsuario,
-                            turnos: resultado
-                        }));
-
-                    } catch (error) {
-                        console.error('Error al obtener turnos por usuario:', error.message);
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Error interno del servidor', detalle: error.message }));
-                    }
+                    const resultado = await obtenerTurnosPorUsuarioService(idUsuario);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(resultado));
                     return;
                 }
+
+                break;
             }
 
 
@@ -364,4 +360,33 @@ DELETE /turnos/9
 
 
 No lleva body.
+*/
+
+
+/*
+BASE URL
+http://localhost:3001/turnos
+
+GET
+Acción	Método	Endpoint	Body	Respuesta
+Obtener todos los turnos	GET	http://localhost:3001/turnos	No	Lista completa de turnos
+Obtener un turno por ID	GET	http://localhost:3001/turnos/:idTurno	No	Turno específico
+Obtener turnos de un usuario	GET	http://localhost:3001/turnos/usuario?idUsuario=ID	No	Turnos reservados por ese usuario
+POST
+Acción	Método	Endpoint	Body
+Crear turno como usuario común	POST	http://localhost:3001/turnos	{ fecha, hora, tipoServicio?, notas? }
+Crear turno como admin	POST	http://localhost:3001/turnos/admin	{ idAdmin, datosTurno: { fecha, hora, tipoServicio, notas } }
+Reservar un turno	POST	http://localhost:3001/turnos/reservar/:idTurno	{ idUsuario }
+Cancelar reserva	POST	http://localhost:3001/turnos/cancelar/:idTurno	{ idUsuario }
+Limpiar turnos pasados (Admin)	POST	http://localhost:3001/turnos/limpiar	{ idUsuarioAdmin }
+Eliminar turno (Admin)	POST	http://localhost:3001/turnos/:idTurno/eliminar	{ idUsuarioAdmin }
+PUT (no lo vas a usar pero existe)
+Acción	Método	Endpoint	Body
+Sobrescribir turno completo	PUT	http://localhost:3001/turnos/:idTurno	turno entero completo
+PATCH
+Acción	Método	Endpoint	Body
+Editar turno (solo si no está reservado y sos Admin)	PATCH	http://localhost:3001/turnos/:idTurno	{ idUsuarioAdmin, camposQueQuierasModificar }
+DELETE
+Acción	Método	Endpoint
+Eliminar turno sin validar admin (no recomendado)	DELETE	http://localhost:3001/turnos/:idTurno
 */
