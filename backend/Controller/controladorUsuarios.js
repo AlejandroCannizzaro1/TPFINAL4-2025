@@ -17,6 +17,8 @@ const {
 } = require('../MODEL/Service-LogicaDeNegocios/usuarioService');
 
 const { obtenerTurnosPorUsuarioService } = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
+
+
 // ==================== AUXILIARES ====================
 function getRequestBody(req) {
     return new Promise((resolve, reject) => {
