@@ -75,16 +75,17 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
         throw new Error(`Ya existe un turno en la fecha ${fecha} a la hora ${hora}`);
     }
 
-    // 5-b Nueva validación para evitar turnos con menos de 1 hora de diferencia
+    // 6 Nueva validación para evitar turnos con menos de 1 hora de diferencia
+    //compara contra todos los turnos del día, y determina si cualquiera está a menos de 59 minutos
     const conflicto = await hayConflictoDeHorario(fecha, hora);
     if (conflicto) {
         throw new Error(`No se puede crear el turno. Debe haber al menos 1 hora entre turnos en la misma fecha.`);
     }
 
-    // 6️ Generar ID
+    // 7 Generar ID
     const nuevoId = await obtenerProximoIdTurnoService();
 
-    // 7️ Crear objeto del turno
+    // 7 Crear objeto del turno
     const fechaTurno = new Date(fecha);
     const nuevoTurno = {
         idTurno: nuevoId,
@@ -96,7 +97,7 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
         idUsuarioVinculado: []
     };
 
-    // 8️ Guardar en Airtable
+    // 9 Guardar en Airtable
     const resultado = await crearTurno(nuevoTurno);
 
     if (resultado.error) {
@@ -348,7 +349,7 @@ async function hayConflictoDeHorario(fecha, hora) {
         const horaExistente = convertirHoraAMinutos(t.fields.hora);
         const diferencia = Math.abs(nuevaHora - horaExistente);
 
-        return diferencia < 60; // menos de 60 min → conflicto
+        return diferencia < 59; // menos de 59 min → conflicto
     });
 }
 
