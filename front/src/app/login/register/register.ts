@@ -1,7 +1,7 @@
 import { Component, effect, inject, input } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsuarioClient } from '../usuarioClient';
-import { Usuario } from '../usuario';
+import { UsuarioClient } from '../../services/usuarioService';
+import { Usuario } from '../../entities/usuario';
 import { Router } from '@angular/router';
 
 @Component({

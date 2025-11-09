@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Usuario } from '../usuario';
+import { Usuario } from '../../entities/usuario';
 import { Router } from '@angular/router';
-import { UsuarioClient } from '../usuarioClient';
+import { UsuarioClient } from '../../services/usuarioService';
 import { AuthService } from '../../auth.service/auth.service';
 import { map, take } from 'rxjs';
 
