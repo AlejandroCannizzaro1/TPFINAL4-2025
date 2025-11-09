@@ -1,0 +1,28 @@
+{
+  "usuarios": [
+    {
+      "id": "edbf",
+      "email": "manuelgelpi88@admin.com",
+      "nombreUsuario": "Manolet",
+      "contrasenia": "asda",
+      "estadoAdmin": true
+    },
+    {
+      "id": "bfc9",
+      "email": "usuario@usuario.com",
+      "nombreUsuario": "UsuarioRandom",
+      "contrasenia": "Abc123",
+      "estadoAdmin": false
+    },
+    {
+      "id": "ee71",
+      "email": "manuelgelpi88@gmail.com",
+      "nombreUsuario": "Manolo",
+      "contrasenia": "asdasd",
+      "estadoAdmin": false
+    }
+  ],
+  "eventos": [
+    
+  ]
+}

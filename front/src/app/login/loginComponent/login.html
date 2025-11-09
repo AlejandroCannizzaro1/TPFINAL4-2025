@@ -1,0 +1,42 @@
+
+<div class="login_box">
+    
+    <h2>Iniciar sesion</h2>
+    <form [formGroup]="form" (ngSubmit)="handleSubmit()">
+        
+        
+        <div class="form-field">
+            @let email= form.controls.email;
+
+            <label for="email">Correo Electronico</label>
+            <input type="email" id="email" formControlName="email" placeholder="Correo Electronico" [email]="true">
+            
+        </div>
+        @if (email.invalid && email.touched) {
+            <p class="error">El mail debe ser valido!</p>
+        }
+        
+        
+        <div class="form-field">
+            <label for="contrasenia">Contrasenia</label>
+            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia" autocomplete="off">
+            <button type="button" (click)="changeVisual()" >
+                @if(inputType == 'password') { Ver }
+                @else { Esconder }
+            </button>
+        </div>
+        
+        
+        <div class="form-actions">
+            <button type="reset">Borrar</button>
+            <button type="submit" [disabled]="!form.valid">Enviar</button>
+        </div>
+    </form>
+    <div class="register_route">
+        <a class="register_link" (click)="navigateToRegister()">No tenes cuenta?</a>
+    </div>
+</div>
+<h1>Is logged in? {{ authService.isLoggedIn() }}</h1>
+<h1>Is admin? {{ authService.isAdmin() }}</h1>
+<!--  @let movies = this.movies // no se bien porque por algo de signals calculo-->
+<!-- Despues se usa control para verificar que no este vacio y mostrar el formulario o la lista o lo que sea (como en el parcial: cargando tal cosa)-->

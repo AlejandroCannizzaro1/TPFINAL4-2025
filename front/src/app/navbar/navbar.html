@@ -1,0 +1,18 @@
+<nav class="navbar">
+    <div class="navbar-left">
+        <a class="nav-link" routerLink="">Hola</a>
+        <a class="nav-link" routerLink="/calendario">Calendario</a>
+    </div>
+    
+    <div class="navbar-right">
+        @if (!this.auth.isLoggedIn()) {
+            <a class="nav-link rightmost" routerLink="/login" >Iniciar Sesion</a>
+        }
+        
+        @if (this.auth.isLoggedIn()) {
+            <a class="nav-link">Bienvenido, {{ this.auth.getName() }}</a>
+            <a class="nav-link" (click)="logout()" >Cerrar Sesion</a>
+        }
+    </div>
+
+</nav>
