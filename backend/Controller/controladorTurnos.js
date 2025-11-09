@@ -64,13 +64,21 @@ async function manejarSolicitudesTurnos(req, res) {
 
                 // GET /turnos (Trae todos los turnos)
                 if (cleanUrl === '/turnos') {
-                    const turnos = await obtenerTurnos(); // <- ESTA función ya la importaste
+                    const turnos = await obtenerTurnos();
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(turnos));
                     return;
                 }
 
-                // GET /turnos/:idTurno (Trae un turno específico)
+                // GET /turnos/disponibles (Solo turnos disponibles)
+                if (cleanUrl === '/turnos/disponibles') {
+                    const turnosDisponibles = await obtenerTurnosDisponibles();
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(turnosDisponibles));
+                    return;
+                }
+
+                // GET /turnos/:idTurno (Un turno puntual)
                 if (cleanUrl.startsWith('/turnos/') && idTurno && !cleanUrl.includes('/usuario')) {
                     const turno = await obtenerTurnoByIdNormal(idTurno);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -224,8 +232,11 @@ GET /turnos
 Devuelve todos los turnos.
 No lleva body.
 
-GET/turnos/idTurno
 
+// GET /turnos/disponibles (Solo turnos disponibles)
+/turnos/disponibles
+
+  GET/turnos/idTurno
 Devuelve el turno con el id especifico que se vinculo a la URL 
 No lleva body 
 Ejemplo: 

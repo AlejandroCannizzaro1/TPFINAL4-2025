@@ -13,6 +13,11 @@ async function obtenerTurnos() {
     return data.records || [];
 }
 
+//Obtener los turnos disponibles 
+async function obtenerTurnosDisponibles() {
+    const turnos = await obtenerTurnos();
+    return turnos.filter(t => t.fields.turnoDisponible === true);
+}
 //  Obtener turno por ID NORMAL
 async function obtenerTurnoByIdNormal(idTurno) {
     const formula = `filterByFormula=${encodeURIComponent(`{idTurno}=${idTurno}`)}`;
@@ -107,5 +112,6 @@ module.exports = {
     obtenerTurnoByIdNormal,
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
-    obtenerTurnosPorUsuarioAirtable
+    obtenerTurnosPorUsuarioAirtable, 
+    obtenerTurnosDisponibles
 };
