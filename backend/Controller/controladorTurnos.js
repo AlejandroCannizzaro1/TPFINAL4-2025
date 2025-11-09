@@ -370,23 +370,23 @@ http://localhost:3001/turnos
 GET
 Acción	Método	Endpoint	Body	Respuesta
 Obtener todos los turnos	GET	http://localhost:3001/turnos	No	Lista completa de turnos
-Obtener un turno por ID	GET	http://localhost:3001/turnos/:idTurno	No	Turno específico
+Obtener un turno por ID	GET	http://localhost:3001/turnos/idTurno	No	Turno específico
 Obtener turnos de un usuario	GET	http://localhost:3001/turnos/usuario?idUsuario=ID	No	Turnos reservados por ese usuario
 POST
 Acción	Método	Endpoint	Body
 Crear turno como usuario común	POST	http://localhost:3001/turnos	{ fecha, hora, tipoServicio?, notas? }
 Crear turno como admin	POST	http://localhost:3001/turnos/admin	{ idAdmin, datosTurno: { fecha, hora, tipoServicio, notas } }
-Reservar un turno	POST	http://localhost:3001/turnos/reservar/:idTurno	{ idUsuario }
-Cancelar reserva	POST	http://localhost:3001/turnos/cancelar/:idTurno	{ idUsuario }
+Reservar un turno	POST	http://localhost:3001/turnos/reservar/idTurno	{ idUsuario }
+Cancelar reserva	POST	http://localhost:3001/turnos/cancelar/idTurno	{ idUsuario }
 Limpiar turnos pasados (Admin)	POST	http://localhost:3001/turnos/limpiar	{ idUsuarioAdmin }
-Eliminar turno (Admin)	POST	http://localhost:3001/turnos/:idTurno/eliminar	{ idUsuarioAdmin }
+Eliminar turno (Admin)	POST	http://localhost:3001/turnos/idTurno/eliminar	{ idUsuarioAdmin }
 PUT (no lo vas a usar pero existe)
 Acción	Método	Endpoint	Body
-Sobrescribir turno completo	PUT	http://localhost:3001/turnos/:idTurno	turno entero completo
+Sobrescribir turno completo	PUT	http://localhost:3001/turnos/idTurno	turno entero completo
 PATCH
 Acción	Método	Endpoint	Body
-Editar turno (solo si no está reservado y sos Admin)	PATCH	http://localhost:3001/turnos/:idTurno	{ idUsuarioAdmin, camposQueQuierasModificar }
+Editar turno (solo si no está reservado y sos Admin)	PATCH	http://localhost:3001/turnos/idTurno	{ idUsuarioAdmin, camposQueQuierasModificar }
 DELETE
 Acción	Método	Endpoint
-Eliminar turno sin validar admin (no recomendado)	DELETE	http://localhost:3001/turnos/:idTurno
+Eliminar turno sin validar admin (no recomendado)	DELETE	http://localhost:3001/turnos/idTurno
 */
