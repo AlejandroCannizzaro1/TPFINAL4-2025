@@ -3,29 +3,29 @@ import { HttpClient } from "@angular/common/http";
 import { Usuario } from "./usuario";
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class UsuarioClient {
-    private readonly http = inject(HttpClient);
-    private readonly baseUrl = 'http://localhost:3000/usuarios';
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = 'http://localhost:3001/usuarios'; // <-- CAMBIADO (3001)
 
-    getUsuarios(){
-        return this.http.get<Usuario[]>(this.baseUrl);
-    }
+  getUsuarios() {
+    return this.http.get<Usuario[]>(this.baseUrl);
+  }
 
-    getUsuarioById(id: string | number){
-        return this.http.get<Usuario>(`${this.baseUrl}/${id}`);
-    }
+  getUsuarioById(idUsuario: number) {
+    return this.http.get<Usuario>(`${this.baseUrl}/${idUsuario}`); // <-- idUsuario
+  }
 
-    addUsuario(usuario: Usuario){
-        return this.http.post<Usuario>(this.baseUrl, usuario);
-    }
+  addUsuario(usuario: Usuario) {
+    return this.http.post<Usuario>(this.baseUrl, usuario);
+  }
 
-    updateUsuario(usuario: Usuario, id: string | number){
-        return this.http.patch<Usuario>(`${this.baseUrl}/${id}`, usuario);
-    }
+  updateUsuario(idUsuario: number, cambios: Partial<Usuario>) {
+    return this.http.patch<Usuario>(`${this.baseUrl}/${idUsuario}`, cambios); // <-- patch correcto
+  }
 
-    deleteUsuario(id: string | number){
-        return this.http.delete(`${this.baseUrl}/${id}`);
-    }
+  deleteUsuario(idUsuario: number) {
+    return this.http.delete(`${this.baseUrl}/${idUsuario}`);
+  }
 }
