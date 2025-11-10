@@ -80,9 +80,14 @@ async function manejarSolicitudesTurnos(req, res) {
 
                 // GET /turnos/:idTurno (Un turno puntual)
                 if (cleanUrl.startsWith('/turnos/') && idTurno && !cleanUrl.includes('/usuario')) {
-                    const turno = await obtenerTurnoByIdNormal(idTurno);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(turno));
+                    try {
+                        const turno = await getTurnoByIdService(idTurno);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(turno));
+                    } catch (error) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: error.message }));
+                    }
                     return;
                 }
 

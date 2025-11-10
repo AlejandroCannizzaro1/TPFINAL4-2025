@@ -37,15 +37,17 @@ async function obtenerProximoIdTurnoService() {
 }
 //  Obtener todos los turnos
 async function getTurnosService() {
-    return await obtenerTurnos();
+    const turnos = await obtenerTurnos();
+    return turnos.map(mapearTurno);
 }
 
 //  Obtener un turno por su ID normal
 async function getTurnoByIdService(idTurno) {
     const turno = await obtenerTurnoByIdNormal(idTurno);
     if (!turno) throw new Error(`No se encontró el turno con ID ${idTurno}`);
-    return turno;
+    return await mapearTurno(turno);
 }
+
 
 //  Crear un nuevo turno by el admin 
 async function crearTurnoService(idUsuarioAdmin, datosTurno) {
@@ -289,43 +291,21 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
 
 //Obtener todos los turnos de un usuario (por su ID normal)
 async function obtenerTurnosPorUsuarioService(idUsuario) {
-    console.log(`[obtenerTurnosPorUsuarioService] Buscando turnos del usuario ${idUsuario}`);
-
-    //  Verificar si existe el usuario en Airtable
     const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if (!idAirtableUsuario) return { error: `No existe usuario con ID ${idUsuario}` };
 
-    if (!idAirtableUsuario) {
-        return {
-            error: `No existe un usuario con el ID ${idUsuario}`
-        };
-    }
+    const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
 
-    //  Buscar turnos que tengan ese idUsuarioVinculado
-    const turnos = await obtenerTurnosPorUsuarioAirtable(idUsuario);
-
-    if (!turnos || turnos.length === 0) {
-        return {
-            idUsuario,
-            turnos: [],
-            mensaje: `El usuario con ID ${idUsuario} no tiene turnos asignados.`
-        };
-    }
-
-    //  Si tiene turnos, los devolvemos formateados
-    const resultado = turnos.map(t => ({
-        idTurno: t.fields.idTurno,
-        fecha: t.fields.fecha,
-        hora: t.fields.hora,
-        tipoServicio: t.fields.tipoServicio,
-        notas: t.fields.notas,
-    }));
+    const turnosFormateados = turnos.map(t => mapearTurno(t, idUsuario));
 
     return {
         idUsuario,
-        cantidad: resultado.length,
-        turnos: resultado
+        cantidad: turnosFormateados.length,
+        turnos: turnosFormateados
     };
 }
+
+
 
 
 //Funciones Auxiliares

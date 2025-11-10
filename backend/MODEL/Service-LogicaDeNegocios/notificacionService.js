@@ -12,6 +12,7 @@ const { obtenerAdminsService } = require('./usuarioService');
 const { mapearNotificacionTurno, mapearNotificacionUsuario } = require("../Mappers/notificacionMapper");
 
 
+
 // Helper. Identifica si es un recordId de Airtable
 function esRecordId(id) {
     return typeof id === "string" && id.startsWith("rec");
@@ -88,17 +89,27 @@ async function notificarCancelacionService(idTurno, idUsuario) {
 // Notifica a usuario + admins
 async function notificarEventoService(turnoAirtableId, usuarioAirtableId, mensajeUsuario, mensajeAdmin) {
 
+    // Notificación al usuario
     await crearNotificacionService(turnoAirtableId, usuarioAirtableId, mensajeUsuario);
 
-    const admins = await obtenerAdminsService();
+    let admins = await obtenerAdminsService();
 
-    // LOG PARA VER SI ESTÁN LLEGANDO LOS ADMINS CORRECTOS
-    console.log("ADMINS ENCONTRADOS PARA NOTIFICAR:", admins);
+    // ACÁ EL FIX: Resolver las promesas
+    admins = await Promise.all(admins);
+
+    console.log("ADMINS RESUELTOS:", admins);
 
     for (const admin of admins) {
-        await crearNotificacionService(turnoAirtableId, admin.idAirtable, mensajeAdmin);
+
+        // Aseguramos obtener recordId
+        const adminAirtableId = esRecordId(admin.idAirtable)
+            ? admin.idAirtable
+            : await obtenerIdAirtablePorIdUsuario(admin.idUsuario); // <-- AHORA SÍ EXISTE
+
+        await crearNotificacionService(turnoAirtableId, adminAirtableId, mensajeAdmin);
     }
 }
+
 
 
 // Obtiene notificaciones por ID de turno
@@ -107,29 +118,37 @@ async function obtenerNotificacionesPorIdTurnoService(idTurno) {
     const turnoAirtableId = await obtenerIdAirtablePorIdTurno(idTurno);
     if (!turnoAirtableId) return { mensaje: `No existe el turno ${idTurno}` };
 
-    const admins = await obtenerAdminsService();
+    let admins = await obtenerAdminsService();
+    admins = await Promise.all(admins);
     const adminIds = admins.map(a => a.idAirtable);
-
+   console.log("Admin Ids " , adminIds);
     const notificaciones = await obtenerNotificaciones();
 
-    const filtradas = notificaciones.filter(n =>
-        Array.isArray(n.fields.idTurnoVinculado) &&
-        n.fields.idTurnoVinculado.includes(turnoAirtableId) &&
-        Array.isArray(n.fields.idUsuarioVinculado) &&
-        n.fields.idUsuarioVinculado.some(uid => adminIds.includes(uid))
-    );
+    const filtradas = notificaciones.filter(n => {
+
+        const turnosVinculados = Array.isArray(n.fields.idTurnoVinculado)
+            ? n.fields.idTurnoVinculado
+            : [n.fields.idTurnoVinculado];
+
+        const usuariosVinculados = Array.isArray(n.fields.idUsuarioVinculado)
+            ? n.fields.idUsuarioVinculado
+            : [n.fields.idUsuarioVinculado];
+
+        const turnoMatch = turnosVinculados.includes(turnoAirtableId);
+        const adminMatch = usuariosVinculados.some(uid => adminIds.includes(uid));
+
+        return turnoMatch && adminMatch;
+    });
 
     if (filtradas.length === 0) {
         return { mensaje: "No hay notificaciones para este turno (solo admin)." };
     }
 
-    // Pasamos adminIds para detectar quién es el admin correcto
     return await Promise.all(
-        filtradas.map(n =>
-            mapearNotificacionUsuario(n, obtenerUsuarioByIdAirtable, adminIds)
-        )
+        filtradas.map(n => mapearNotificacionTurno(n, obtenerTurnoByIdAirtable))
     );
 }
+
 
 
 //Obtiene las notificaciones de un usario especifico 

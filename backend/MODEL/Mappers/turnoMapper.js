@@ -1,22 +1,32 @@
-function mapearTurno(turnoRecord) {
-    if (!turnoRecord || !turnoRecord.fields) return null;
+const { obtenerUsuarioByIdAirtable } = require("../DAO-Repository/airtableRepositoryUsuarios");
 
-    const fields = turnoRecord.fields;
+async function mapearTurno(recordAirtable) {
+    if (!recordAirtable || !recordAirtable.fields) return null;
+
+    const f = recordAirtable.fields;
+
+    let usuarioIdNormal = null;
+    let usuarioNombre = null;
+
+    if (Array.isArray(f.idUsuarioVinculado) && f.idUsuarioVinculado.length > 0) {
+        const usuarioRecord = await obtenerUsuarioByIdAirtable(f.idUsuarioVinculado[0]);
+
+        if (usuarioRecord && usuarioRecord.fields) {
+            usuarioIdNormal = usuarioRecord.fields.idUsuario;
+            usuarioNombre = usuarioRecord.fields.nombreUsuario;
+        }
+    }
 
     return {
-        idTurno: fields.idTurno,                  // ID real que el front conoce
-        fecha: fields.fecha,
-        hora: fields.hora,
-        tipoServicio: fields.tipoServicio || "",
-        notas: fields.notas || "",
-        turnoDisponible: fields.turnoDisponible === true,
-
-        // Si tiene usuario vinculado, lo mandamos como ID normal (no el interno)
-        usuarioVinculado: Array.isArray(fields.idUsuarioVinculado)
-            ? fields.idUsuarioVinculado.length > 0
-                ? fields.idUsuarioVinculado[0] // esto es id Airtable
-                : null
-            : null
+        idTurno: f.idTurno,
+        fecha: f.fecha,
+        hora: f.hora,
+        tipoServicio: f.tipoServicio || "",
+        notas: f.notas || null,
+        turnoDisponible: f.turnoDisponible === true,
+        usuarioId: usuarioIdNormal,
+        usuarioNombre,
+        notificaciones: Array.isArray(f.Notificacion) ? f.Notificacion.slice() : []
     };
 }
 
