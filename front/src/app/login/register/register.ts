@@ -3,69 +3,61 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../services/usuarioService';
 import { Usuario } from '../../entities/usuario';
 import { Router } from '@angular/router';
-import { UsuarioFilterService } from '../../services/filt-user.service';
 import { take } from 'rxjs';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
 export class Register {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly client = inject(UsuarioService);
+  private readonly usuarioService = inject(UsuarioService);
   private readonly router = inject(Router);
-  private readonly usuarioFilter = inject(UsuarioFilterService);
 
   readonly usuario = input<Usuario>();
 
-  inputType = 'text';
+  inputType = 'password';
   showPassword = false;
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]],
+    email: ['', [Validators.required, Validators.email]],
     nombreUsuario: ['', [Validators.required]],
     contrasenia: ['', [Validators.required]]
   });
 
   changeVisual() {
     this.showPassword = !this.showPassword;
-    this.inputType = this.showPassword ? 'password' : 'text';
+    this.inputType = this.showPassword ? 'text' : 'password';
   }
 
   handleSubmit() {
-
     if (this.form.invalid) {
-      alert("El formulario no puede tener caracteres invalidos o vacios!");
+      alert("El formulario no puede tener campos vacíos o inválidos.");
       return;
     }
 
-    if (confirm('Desea registrarse?')) {
+    const nuevoUsuario = this.form.getRawValue() as Usuario;
+    nuevoUsuario.email = nuevoUsuario.email.toLowerCase().trim();
+    nuevoUsuario.estadoAdmin = nuevoUsuario.email.includes("admin"); // si querés mantener esto
 
-      const usuario = this.form.getRawValue() as Usuario;
-      usuario.email = usuario.email.toLowerCase().trim();
+    this.usuarioService.checkEmail(nuevoUsuario.email).pipe(take(1)).subscribe(emailExiste => {
 
-      this.usuarioFilter.getUsuariosNormalizados().pipe(take(1)).subscribe(usuarios => {
+      if (emailExiste) {
+        alert("Ya existe una cuenta con este correo.");
+        return;
+      }
 
-        const encontrado = usuarios.some(us => us.email === usuario.email);
-
-        if (encontrado) {
-          alert("El mail ya tiene una cuenta asignada");
-          return;
-        }
-
-        usuario.estadoAdmin = usuario.email.includes("admin");
-
-        this.client.addUsuario(usuario).subscribe(() => {
+      this.usuarioService.addUsuario(nuevoUsuario).subscribe({
+        next: () => {
           alert("Cuenta creada con éxito!");
-          this.form.reset();
-          this.router.navigateByUrl(`/login`);
-        });
-
+          this.router.navigate(['/login']);
+        },
+        error: () => alert("Error registrando usuario, intentá de nuevo.")
       });
 
-    }
+    });
   }
-
 }

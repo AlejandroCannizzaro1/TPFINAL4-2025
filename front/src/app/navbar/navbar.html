@@ -1,24 +1,26 @@
-<nav class="navbar">
-    <div class="navbar-left">
-        <a class="nav-link" routerLink="">Hola</a>
-        <a class="nav-link" routerLink="/calendario">Calendario de Turnos</a> 
-        <a class="nav-link" routerLink="/">Mis Turnos</a> //Checkear endpoint 
-        <a class="nav-link" routerLink="/">Cortes</a> //Checker endpoint 
-        <a class="nav-link" routerLink="/">Precios</a> //Checker endpoint 
-        <a class="nav-link" routerLink="/">Contacto</a> //Checker endpoint 
+<div class="navbar">
+  <div class="navbar-left">
+    <a class="nav-link" routerLink="">Inicio</a>
 
-        
-    </div>
-    
-    <div class="navbar-right">
-        @if (!this.auth.isLoggedIn()) {
-            <a class="nav-link rightmost" routerLink="/login" >Iniciar Sesion</a>
-        }
-        
-        @if (this.auth.isLoggedIn()) {
-            <a class="nav-link">Bienvenido, {{ this.auth.getName() }}</a>
-            <a class="nav-link" (click)="logout()" >Cerrar Sesion</a>
-        }
-    </div>
+    @if (auth.isLoggedIn() && !auth.isAdmin()) {
+      <a class="nav-link" routerLink="/mis-turnos">Mis Turnos</a>
+      <a class="nav-link" routerLink="/calendario">Pedir Turno</a>
+    }
 
-</nav>
+    @if (auth.isLoggedIn() && auth.isAdmin()) {
+      <a class="nav-link" routerLink="/admin">Panel Admin</a>
+      <a class="nav-link" routerLink="/calendario">Gestionar Turnos</a>
+    }
+  </div>
+
+  <div class="navbar-right">
+    @if (!auth.isLoggedIn()) {
+      <!-- Nada de login/register acá, eso ya está en la main page -->
+    }
+
+    @if (auth.isLoggedIn()) {
+      <span class="nav-link">Bienvenido, {{ auth.getName() }}</span>
+      <a class="nav-link" (click)="logout()">Cerrar Sesión</a>
+    }
+  </div>
+</div>

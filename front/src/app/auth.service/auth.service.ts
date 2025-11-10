@@ -12,16 +12,16 @@ export class AuthService {
 
   constructor(private router: Router){}
 
-
   login(token: string, roleStatus: string, name: string): void{
     localStorage.setItem(this.tokenKey, token);
-    localStorage.setItem(this.userRole, roleStatus)
+    localStorage.setItem(this.userRole, roleStatus);
     localStorage.setItem(this.userName, name);
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userRole);
+    localStorage.removeItem(this.userName);   // <--- antes faltaba esto
   }
 
   isLoggedIn(): boolean {
@@ -33,10 +33,11 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    if(localStorage.getItem(this.userRole) == "admin"){
-      return true;
-    }
-    else return false;
+    return localStorage.getItem(this.userRole) === "admin";
+  }
+
+  getRole(): string | null {        // <--- lo agregamos porque lo usa MainPage
+    return localStorage.getItem(this.userRole);
   }
 
   getName(): string | null {

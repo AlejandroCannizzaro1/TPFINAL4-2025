@@ -1,6 +1,100 @@
-/* You can add global styles to this file, and also import other style files */
-body {
-    background-color: rgb(255, 255, 199);
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: small;
+/* FUENTE GLOBAL */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #0d1b2a, #1b263b);
+  height: 100%;
+  color: white;
+}
+
+/* CONTENEDORES (Login, Register, Main Box) */
+.main-box, .login_box, .register_box {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 35px 45px;
+  max-width: 400px;
+  margin: 100px auto;
+  text-align: center;
+  color: white;
+}
+
+/* TITULOS */
+h1, h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+/* BOTONES */
+.btn, button {
+  cursor: pointer;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.25s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn.primary {
+  background: #e63946;
+  color: white;
+}
+
+.btn.primary:hover {
+  background: #c92c38;
+}
+
+.btn.secondary {
+  background: #457b9d;
+  color: white;
+}
+
+.btn.secondary:hover {
+  background: #365f7a;
+}
+
+/* GRUPOS DE BOTONES */
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+/* NAVBAR */
+.navbar {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  margin-right: 16px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  opacity: 0.7;
 }

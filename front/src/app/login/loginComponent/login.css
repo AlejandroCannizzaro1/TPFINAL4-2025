@@ -1,84 +1,26 @@
-.error{
-    color: red;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-right: 4rem;
-    margin-left: 5rem;
-    width: 70%;
-    display: block;
-    justify-content: center;
+.form-field {
+  text-align: left;
+  margin-bottom: 12px;
 }
 
 label {
-    width: 100%;
-    background-color: rgb(247, 247, 192);
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-input {
-    width: 100%;
+.password-wrapper {
+  display: flex;
+  gap: 10px;
 }
 
-.login_box{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: beige;
-    margin-left: 30%;
-    margin-right: 30%;
-    border-radius: 5%;
-    overflow: hidden;
-    box-shadow: -5px 5px rgb(214, 214, 191);
+.error {
+  color: #ffb4b4;
+  font-size: 0.85rem;
+  margin-top: -4px;
 }
 
-.login_box h2{
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    background-color: rgb(110, 110, 75);
-}
-
-.form-field{
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    margin-right: 4rem;
-    margin-left: 5rem;
-    width: 70%;
-    display: block;
-    justify-content: center;
-}
-
-.form-actions{
-    padding: 1rem;
-}
-
-.form-actions button{
-    border: 2px solid rgb(194, 194, 167);
-    font-size: 20px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    margin-right: 4rem;
-    margin-left: 4rem;
-    
-}
-
-button:hover{
-    background-color: rgb(253, 253, 172);
-    box-shadow: 0 2px 2px 0 rgb(175, 175, 162);
-    transition-duration: 1s;
-}
-
-.register_route{
-    margin: 1rem;
-    padding-bottom: 1rem;
-}
-
-.register_link{
-    border-radius: 8%;
-    padding: 10px;
-    color: white;
-    background-color: #3a3a3a;
-    box-shadow: -2px 2px gray;
-}
-
-.register_link:hover{
-    color: rgb(57, 255, 50);
+.register_link {
+  color: #ffd6d6;
+  font-weight: 600;
+  cursor: pointer;
 }

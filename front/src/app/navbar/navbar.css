@@ -1,36 +1,57 @@
 .navbar {
-    background-color: rgb(173, 173, 140);
-    display: flex;
-    flex-direction: row;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    
+  width: 100%;
+  padding: 0.8rem 2rem;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
+.navbar-left,
 .navbar-right {
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
 }
 
 .nav-link {
-    background-color: beige;
-    padding: 4px;
-    margin-right: 1rem;
-    margin-left: 1rem;
-    border-width: 2px;
-    border-style: solid;
-    border-color: black;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  transition: 0.3s;
+  cursor: pointer;
 }
 
-
-
-
-a {
-    text-decoration: none;
-    color: black;
+.nav-link:hover {
+  color: #d4a373;
+  transform: scale(1.05);
 }
 
-a:hover{
-    background-color: rgb(253, 253, 172);
-    box-shadow: 0 2px 2px 0 rgb(175, 175, 162);
-    transition-duration: 0.1s;
+.navbar-right .nav-link {
+  font-weight: 500;
+}
+
+/* Bienvenido nombre */
+.navbar-right span.nav-link {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Para pantallas chicas */
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem;
+  }
+
+  .navbar-left, .navbar-right {
+    gap: 1rem;
+  }
 }

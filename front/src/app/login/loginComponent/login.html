@@ -1,42 +1,51 @@
+<div class="main-box">
 
-<div class="login_box">
-    
-    <h2>Iniciar sesion</h2>
-    <form [formGroup]="form" (ngSubmit)="handleSubmit()">
-        
-        
-        <div class="form-field">
-            @let email= form.controls.email;
+  <h2>Iniciar Sesión</h2>
 
-            <label for="email">Correo Electronico</label>
-            <input type="email" id="email" formControlName="email" placeholder="Correo Electronico" [email]="true">
-            
-        </div>
-        @if (email.invalid && email.touched) {
-            <p class="error">El mail debe ser valido!</p>
-        }
-        
-        
-        <div class="form-field">
-            <label for="contrasenia">Contrasenia</label>
-            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia" autocomplete="off">
-            <button type="button" (click)="changeVisual()" >
-                @if(inputType == 'password') { Ver }
-                @else { Esconder }
-            </button>
-        </div>
-        
-        
-        <div class="form-actions">
-            <button type="reset">Borrar</button>
-            <button type="submit" [disabled]="!form.valid">Enviar</button>
-        </div>
-    </form>
-    <div class="register_route">
-        <a class="register_link" (click)="navigateToRegister()">No tenes cuenta?</a>
+  <form [formGroup]="form" (ngSubmit)="handleSubmit()">
+
+    <!-- EMAIL -->
+    <div class="form-field">
+      @let email = form.controls.email;
+      <label for="email">Correo Electrónico</label>
+      <input type="email" id="email" formControlName="email" placeholder="ejemplo@correo.com">
+
+      @if (email.invalid && email.touched) {
+        <p class="error">Ingresá un correo válido.</p>
+      }
     </div>
+
+    <!-- PASSWORD -->
+    <div class="form-field">
+      @let pass = form.controls.contrasenia;
+
+      <label for="contrasenia">Contraseña</label>
+
+      <div class="password-wrapper">
+        <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="********" autocomplete="off">
+
+        <button type="button" class="btn secondary" (click)="changeVisual()">
+          @if(inputType == 'password') { Ver }
+          @else { Ocultar }
+        </button>
+      </div>
+
+      @if (pass.invalid && pass.touched) {
+        <p class="error">La contraseña no puede estar vacía.</p>
+      }
+    </div>
+
+    <!-- BOTONES -->
+    <div class="button-group">
+      <button type="reset" class="btn secondary">Borrar</button>
+      <button type="submit" class="btn primary" [disabled]="!form.valid">Ingresar</button>
+    </div>
+
+  </form>
+
+  <p style="margin-top: 18px;">
+    ¿No tenés cuenta?
+    <a routerLink="/register" class="register_link">Registrate</a>
+  </p>
+
 </div>
-<h1>Is logged in? {{ authService.isLoggedIn() }}</h1>
-<h1>Is admin? {{ authService.isAdmin() }}</h1>
-<!--  @let movies = this.movies // no se bien porque por algo de signals calculo-->
-<!-- Despues se usa control para verificar que no este vacio y mostrar el formulario o la lista o lo que sea (como en el parcial: cargando tal cosa)-->

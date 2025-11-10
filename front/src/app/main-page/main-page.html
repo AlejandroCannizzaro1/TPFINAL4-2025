@@ -1,2 +1,31 @@
-<h1>Main page</h1>
-<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsum aliquam, eius adipisci consequatur labore earum libero fugit ad voluptate! Id molestias, expedita voluptatem neque sapiente minus mollitia praesentium voluptatibus? Magnam!</p>
+<div class="main-box">
+
+  @if (!auth.isLoggedIn()) {
+    <h1>Turnera Barbería</h1>
+    <p>Elegí tu corte, tu horario y listo.</p>
+
+    <div class="button-group">
+      <a routerLink="/login" class="btn primary">Iniciar Sesión</a>
+      <a routerLink="/register" class="btn secondary">Registrarse</a>
+    </div>
+  }
+
+  @if (auth.isLoggedIn() && !auth.isAdmin()) {
+    <h1>Hola {{ auth.getName() }} 👋</h1>
+    <p>Reservá tus turnos fácilmente.</p>
+    <div class="button-group">
+      <a routerLink="/calendario" class="btn primary">Reservar Turno</a>
+      <a routerLink="/mis-turnos" class="btn secondary">Ver Mis Turnos</a>
+    </div>
+  }
+
+  @if (auth.isLoggedIn() && auth.isAdmin()) {
+    <h1>Bienvenido, {{ auth.getName() }}</h1>
+    <p>Administrá la agenda de tu barbería.</p>
+    <div class="button-group">
+      <a routerLink="/admin" class="btn primary">Panel Admin</a>
+      <a routerLink="/calendario" class="btn secondary">Gestionar Turnos</a>
+    </div>
+  }
+
+</div>

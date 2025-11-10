@@ -1,47 +1,61 @@
+<div class="register_box main-box">
 
-<div class="login_box">
-    
-    <h2>Registrarse</h2>
-    <form [formGroup]="form" (ngSubmit)="handleSubmit()">
-        
-        
-        <div class="form-field">
-            @let email= form.controls.email;
+  <h2>Registrarse</h2>
 
-            <label for="email">Correo Electronico</label>
-            <input type="email" id="email" formControlName="email" placeholder="Correo Electronico" [email]="true">
-            
-        </div>
-        @if (email.invalid && email.touched) {
-            <p class="error">El mail debe ser valido!</p>
-        }
-        
-        <div class="form-field">
-            @let name= form.controls.nombreUsuario;
+  <form [formGroup]="form" (ngSubmit)="handleSubmit()">
 
-            <label for="nombreUsuario">Nombre</label>
-            <input type="text" id="nombreUsuario" formControlName="nombreUsuario" placeholder="Usuario">
+    <!-- EMAIL -->
+    <div class="form-field">
+      @let email = form.controls.email;
 
-        </div>
-        @if (name.invalid && name.touched) {
-            <p class="error">El nombre es obligatorio!</p>
-        }
-        
-        <div class="form-field">
-            @let pass = form.controls.contrasenia;
+      <label for="email">Correo Electrónico</label>
+      <input type="email" id="email" formControlName="email" placeholder="correo@ejemplo.com">
 
-            <label for="contrasenia">Contrasenia</label>
-            <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="Contrasenia">
-            <button type="button" (click)="changeVisual()" >Ver</button>
-        </div>
-        @if (pass.invalid && pass.touched) {
-            <p class="error">Al menos 8 caracteres, 1 minuscula, mayuscula, numero y caracter especial
-            </p>
-        }
-        
-        <div class="form-actions">
-            <button type="reset">Borrar</button>
-            <button type="submit" [disabled]="!form.valid">Enviar</button>
-        </div>
-    </form>
+      @if (email.invalid && email.touched) {
+        <p class="error">Ingrese un correo válido.</p>
+      }
+    </div>
+
+    <!-- NOMBRE -->
+    <div class="form-field">
+      @let name = form.controls.nombreUsuario;
+
+      <label for="nombreUsuario">Nombre</label>
+      <input type="text" id="nombreUsuario" formControlName="nombreUsuario" placeholder="Juan Perez">
+
+      @if (name.invalid && name.touched) {
+        <p class="error">El nombre es obligatorio.</p>
+      }
+    </div>
+
+    <!-- CONTRASEÑA -->
+    <div class="form-field">
+      @let pass = form.controls.contrasenia;
+
+      <label for="contrasenia">Contraseña</label>
+
+      <div class="password-wrapper">
+        <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="********" autocomplete="off">
+
+        <button type="button" class="btn secondary" (click)="changeVisual()">
+          @if(inputType == 'password') { Ver }
+          @else { Ocultar }
+        </button>
+      </div>
+
+      @if (pass.invalid && pass.touched) {
+        <p class="error">
+          La contraseña debe tener al menos 8 caracteres, incluir mayúscula, minúscula, número y símbolo.
+        </p>
+      }
+    </div>
+
+    <!-- BOTONES -->
+    <div class="button-group">
+      <button type="reset" class="btn secondary">Borrar</button>
+      <button type="submit" class="btn primary" [disabled]="!form.valid">Registrarse</button>
+    </div>
+
+  </form>
+
 </div>

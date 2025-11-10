@@ -1,0 +1,47 @@
+.main-box {
+  max-width: 600px;
+  margin: auto;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+h1 {
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.btn {
+  padding: 0.7rem 1.6rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.primary {
+  background-color: #d4a373;
+  color: white;
+}
+
+.secondary {
+  background-color: transparent;
+  border: 2px solid #d4a373;
+  color: #d4a373;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  transition: 0.3s;
+}

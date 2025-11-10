@@ -9,6 +9,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import { TurnoService } from '../services/turnoService';
 import { Turno } from '../entities/turno';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { AuthService } from '../auth.service/auth.service';
 
 @Component({
   selector: 'app-calendario',
@@ -19,54 +20,40 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 })
 export class CalendarComponent implements OnInit {
 
-  usuarioEsAdmin = true;
+  get usuarioEsAdmin() {
+    return this.auth.isAdmin();
+  }
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, multiMonthPlugin],
     initialView: 'dayGridMonth',
     locale: esLocale,
     selectable: true,
-    editable: false,
-    selectMirror: true,
-    eventStartEditable: false,
-    eventDurationEditable: false,
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-    },
-    events: [],
+    eventClick: (info) => this.handleEventClick(info),
     select: (info) => this.handleDateSelect(info),
-    eventClick: (info) => this.handleEventClick(info)
   };
 
-  constructor(private turnoClient: TurnoService) { }
+  constructor(
+    private turnoClient: TurnoService,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.cargarTurnos();
   }
 
   cargarTurnos() {
-    this.turnoClient.getTurnosDisponibles().subscribe((turnos: Turno[]) => {
-      const eventos = turnos.map(t => ({
-        id: t.idTurno?.toString(),
-        title: t.hora,
-        start: `${t.fecha}T${t.hora}:00`,
-        extendedProps: t
-      }));
+    this.turnoClient.getTurnosDisponibles()
+      .subscribe((turnos: Turno[]) => {
+        const eventos = turnos.map(t => ({
+          id: t.idTurno?.toString(),
+          title: t.hora,
+          start: `${t.fecha}T${t.hora}:00`,
+          extendedProps: t
+        }));
 
-      const diasConDisponibilidad = [...new Set(turnos.map(t => t.fecha))];
-      const fondos = diasConDisponibilidad.map(fecha => ({
-        start: fecha,
-        display: 'background',
-        backgroundColor: '#92f796'
-      }));
-
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        events: [...eventos, ...fondos]
-      };
-    });
+        this.calendarOptions = { ...this.calendarOptions, events: eventos };
+      });
   }
 
   handleDateSelect(info: any) {
@@ -80,23 +67,21 @@ export class CalendarComponent implements OnInit {
     if (!hora.includes(":")) hora = hora + ":00";
     if (hora.length === 4) hora = "0" + hora;
 
-    const nuevoTurno = {
-      fecha,
-      hora,
-      turnoDisponible: true
-    };
+    const nuevoTurno = { fecha, hora, turnoDisponible: true };
 
-    this.turnoClient.crearTurno(nuevoTurno).subscribe({
-      next: () => this.cargarTurnos(),
-      error: err => console.error("Error creando turno:", err)
-    });
+    this.turnoClient.crearTurno(nuevoTurno).subscribe(() => this.cargarTurnos());
   }
 
   handleEventClick(info: any) {
     if (this.usuarioEsAdmin) return;
 
     const turno: Turno = info.event.extendedProps;
-    const idUsuario = 1;
+    const idUsuario = Number(localStorage.getItem("idUsuario"));
+
+    if (!idUsuario) {
+      alert("Debes iniciar sesión para reservar turnos.");
+      return;
+    }
 
     this.turnoClient.reservarTurno(turno.idTurno!, idUsuario)
       .subscribe(() => {
