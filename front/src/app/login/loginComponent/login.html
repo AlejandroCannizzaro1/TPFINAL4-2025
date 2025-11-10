@@ -1,51 +1,50 @@
-<div class="main-box">
+<div class="page-center">
+  <div class="card login_box">
 
-  <h2>Iniciar Sesión</h2>
+    <h2>Iniciar Sesión</h2>
 
-  <form [formGroup]="form" (ngSubmit)="handleSubmit()">
+    <form [formGroup]="form" (ngSubmit)="handleSubmit()">
 
-    <!-- EMAIL -->
-    <div class="form-field">
-      @let email = form.controls.email;
-      <label for="email">Correo Electrónico</label>
-      <input type="email" id="email" formControlName="email" placeholder="ejemplo@correo.com">
+      <div class="form-field">
+        @let email = form.controls.email;
 
-      @if (email.invalid && email.touched) {
-        <p class="error">Ingresá un correo válido.</p>
-      }
-    </div>
+        <label for="email">Correo Electrónico</label>
+        <input type="email" id="email" formControlName="email" placeholder="ejemplo@correo.com">
 
-    <!-- PASSWORD -->
-    <div class="form-field">
-      @let pass = form.controls.contrasenia;
-
-      <label for="contrasenia">Contraseña</label>
-
-      <div class="password-wrapper">
-        <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="********" autocomplete="off">
-
-        <button type="button" class="btn secondary" (click)="changeVisual()">
-          @if(inputType == 'password') { Ver }
-          @else { Ocultar }
-        </button>
+        @if (email.invalid && email.touched) {
+          <p class="error">Ingresá un correo válido.</p>
+        }
       </div>
 
-      @if (pass.invalid && pass.touched) {
-        <p class="error">La contraseña no puede estar vacía.</p>
-      }
+      <div class="form-field">
+        @let pass = form.controls.contrasenia;
+
+        <label for="contrasenia">Contraseña</label>
+
+        <div class="password-wrapper">
+          <input [type]="inputType" id="contrasenia" formControlName="contrasenia" placeholder="********">
+          <button type="button" class="toggle-btn" (click)="changeVisual()">
+            @if(showPassword) { Ocultar } @else { Ver }
+          </button>
+        </div>
+
+        @if (pass.invalid && pass.touched) {
+          <p class="error">La contraseña no puede estar vacía.</p>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="reset" class="btn secondary">Borrar</button>
+        <button type="submit" class="btn primary" [disabled]="!form.valid">Ingresar</button>
+      </div>
+
+    </form>
+
+    <div class="register_route">
+      <p>¿No tenés cuenta?
+        <a routerLink="/register" class="register_link">Registrate</a>
+      </p>
     </div>
 
-    <!-- BOTONES -->
-    <div class="button-group">
-      <button type="reset" class="btn secondary">Borrar</button>
-      <button type="submit" class="btn primary" [disabled]="!form.valid">Ingresar</button>
-    </div>
-
-  </form>
-
-  <p style="margin-top: 18px;">
-    ¿No tenés cuenta?
-    <a routerLink="/register" class="register_link">Registrate</a>
-  </p>
-
+  </div>
 </div>

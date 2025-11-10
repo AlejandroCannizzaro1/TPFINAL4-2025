@@ -6,7 +6,7 @@ import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import esLocale from '@fullcalendar/core/locales/es';
 import { CalendarOptions } from '@fullcalendar/core';
-import { TurnoService } from '../services/turnoService';
+import { TurnoService } from '../services/turnoService'
 import { Turno } from '../entities/turno';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { AuthService } from '../auth.service/auth.service';

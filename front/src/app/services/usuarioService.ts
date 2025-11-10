@@ -39,8 +39,21 @@ export class UsuarioService {
 
   //  NUEVO
   login(email: string, contrasenia: string) {
-    return this.http.post<any>(`${this.baseUrl}/login`, { email, contrasenia });
-  }
+  return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
+    map(user => {
+      if (!user) {
+        throw new Error("no_user");
+      }
+      
+      // Asegurate que el nombre del campo coincide con Airtable
+      if (user.contrasenia !== contrasenia) {
+        throw new Error("bad_password");
+      }
+
+      return user; // login ok
+    })
+  );
+}
 
   checkEmail(email: string) {
   return this.http.get<UsuarioResponse[]>(this.baseUrl).pipe(
