@@ -3,6 +3,7 @@ const Airtable = require('airtable');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
 const TABLE = process.env.AIRTABLE_TABLE_NOTIFICACIONES;
+const { mapearNotificacionTurno, mapearNotificacionUsuario } = require("../Mappers/notificacionMapper");
 
 // Obtener todas las notificaciones
 async function obtenerNotificaciones() {

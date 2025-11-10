@@ -15,6 +15,7 @@ const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('.
 const { validarAdminService } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
 const { notificarReservaService, notificarCancelacionService } = require('./notificacionService');
+const { mapearTurno } = require('../Mappers/turnoMapper');
 
 
 
