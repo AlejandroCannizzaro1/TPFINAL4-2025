@@ -44,7 +44,7 @@ async function crearNotificacionService(turnoAirtableId, usuarioAirtableId, mens
     };
     //para debugging 
     console.log("OBJETO FINAL A GUARDAR:", nuevaNotificacion);
-    
+
     const resultado = await crearNotificacion(nuevaNotificacion);
     if (resultado.error) throw new Error(`Error creando notificación: ${resultado.error.message}`);
 
@@ -99,10 +99,55 @@ async function notificarEventoService(turnoAirtableId, usuarioAirtableId, mensaj
     }
 }
 
+
+//Obtiene notificaciones por ID usuario 
+async function obtenerNotificacionesPorIdUsuarioService(idUsuario) {
+
+    const usuarioAirtableId = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if (!usuarioAirtableId) throw new Error(`No existe el usuario ${idUsuario}`);
+
+    const notificaciones = await obtenerNotificaciones();
+
+    const filtradas = notificaciones.filter(n =>
+        Array.isArray(n.fields.idUsuarioVinculado) &&
+        n.fields.idUsuarioVinculado.includes(usuarioAirtableId)
+    );
+
+    return filtradas.map(n => ({
+        idNotificacion: n.fields.idNotificacion,
+        mensaje: n.fields.mensajeNotificacion,
+        leida: n.fields.mensajeLeido,
+        turnoVinculado: n.fields.idTurnoVinculado?.[0] ?? null
+    }));
+}
+
+async function obtenerNotificacionesPorIdTurnoService(idTurno) {
+
+    const turnoAirtableId = await obtenerIdAirtablePorIdTurno(idTurno);
+    if (!turnoAirtableId) throw new Error(`No existe el turno ${idTurno}`);
+
+    const notificaciones = await obtenerNotificaciones();
+
+    const filtradas = notificaciones.filter(n =>
+        Array.isArray(n.fields.idTurnoVinculado) &&
+        n.fields.idTurnoVinculado.includes(turnoAirtableId)
+    );
+
+    return filtradas.map(n => ({
+        idNotificacion: n.fields.idNotificacion,
+        mensaje: n.fields.mensajeNotificacion,
+        usuarioVinculado: n.fields.idUsuarioVinculado?.[0] ?? null
+    }));
+}
+
+
+
 module.exports = {
     obtenerProximoIdNotificacionService,
     crearNotificacionService,
     notificarReservaService,
     notificarCancelacionService,
-    notificarEventoService
+    notificarEventoService, 
+    obtenerNotificacionesPorIdUsuarioService, 
+    obtenerNotificacionesPorIdTurnoService
 };

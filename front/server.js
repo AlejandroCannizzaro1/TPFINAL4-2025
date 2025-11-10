@@ -6,8 +6,6 @@ const http = require('http');
 const url = require('url');
 const { manejarSolicitudesTurnos } = require('./Controller/controladorTurnos');
 const { manejarSolicitudesUsuarios } = require('./Controller/controladorUsuarios');
-const { manejarSolicitudesNotificaciones } = require("./Controller/controllerNotificaciones");
-
 
 //Configuracion basica del servidor
 const PORT = process.env.PORT || 3001;
@@ -40,11 +38,9 @@ const server = http.createServer((req, res) => {
         manejarSolicitudesTurnos(req, res);
     } else if (path.startsWith('/usuarios')) {  //Si la request inicia con turnos los redirige al controller de usuarios 
         manejarSolicitudesUsuarios(req, res);
-    } else if (req.url.startsWith('/notificaciones')) {
-        manejarSolicitudesNotificaciones(req, res);
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' }); //Si el path esta mal tira error. 
-        res.end(JSON.stringify({ message: "Path not founded..." }));
+        res.end(JSON.stringify({ message: "Path not founded..." })); 
     }
 });
 
