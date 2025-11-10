@@ -1,4 +1,5 @@
 require('dotenv').config();
+const {mapearTurno} = require ('../Mappers/turnoMapper');
 
 const AIRTABLE_BASE_URL = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_TURNOS}`;
 const HEADERS = {
@@ -15,8 +16,13 @@ async function obtenerTurnos() {
 
 //Obtener los turnos disponibles 
 async function obtenerTurnosDisponibles() {
-    const turnos = await obtenerTurnos();
-    return turnos.filter(t => t.fields.turnoDisponible === true);
+    const turnosRaw = await obtenerTurnos();
+
+    const turnosMapeados = await Promise.all(
+        turnosRaw.map(t => mapearTurno(t))
+    );
+
+    return turnosMapeados.filter(t => t.turnoDisponible === true);
 }
 //  Obtener turno por ID NORMAL
 async function obtenerTurnoByIdNormal(idTurno) {

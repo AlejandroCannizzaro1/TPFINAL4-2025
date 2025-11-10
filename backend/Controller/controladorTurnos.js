@@ -5,7 +5,8 @@ const {
     editarTurno,
     eliminarTurno,
     obtenerTurnoByIdNormal,
-    obtenerIdAirtablePorIdTurno
+    obtenerIdAirtablePorIdTurno, 
+    obtenerTurnosDisponibles
 } = require('../MODEL/DAO-Repository/airtableRepositoryTurnos');
 
 const {

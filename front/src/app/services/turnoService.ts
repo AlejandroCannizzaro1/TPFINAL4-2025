@@ -1,39 +1,27 @@
-import { Injectable, inject } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Turno } from "../entities/turno";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Turno } from '../entities/turno';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TurnoService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3001/turnos';
 
-  getTurnos() {
-    return this.http.get<Turno[]>(this.baseUrl);
-  }
+  private apiUrl = 'http://localhost:3001'; // asegurate que este puerto sea el correcto
 
-  getTurnoById(idTurno: number) {
-    return this.http.get<Turno>(`${this.baseUrl}/${idTurno}`);
-  }
+  constructor(private http: HttpClient) { }
 
-  crearTurno(turno: Partial<Turno>) {
-    return this.http.post<any>(this.baseUrl, turno);
-  }
-
-  reservarTurno(idTurno: number, idUsuario: number) {
-    return this.http.post(`${this.baseUrl}/reservar/${idTurno}`, { idUsuario });
-  }
-
-  cancelarTurno(idTurno: number, idUsuario: number) {
-    return this.http.post(`${this.baseUrl}/cancelar/${idTurno}`, { idUsuario });
-  }
-
-  getTurnosByIdCliente(idUsuario: number){
-    return this.http.get<Turno[]>(`${this.baseUrl}/usuario?idUsuario=${idUsuario}`);
-  }
-
-  getTurnosDisponibles() {
-  return this.http.get<Turno[]>(`${this.baseUrl}/turnos/disponibles`);
+ getTurnosDisponibles() {
+  return this.http.get<Turno[]>(this.apiUrl + '/turnos/disponibles');
 }
+
+
+  crearTurno(turno: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/turnos/crear`, turno);
+  }
+
+  reservarTurno(idTurno: number, data: { idUsuario: number, tipoServicio: string, notas: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/turnos/reservar/${idTurno}`, data);
+  }
 }
