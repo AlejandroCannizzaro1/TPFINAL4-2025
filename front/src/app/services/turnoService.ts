@@ -5,7 +5,7 @@ import { Turno } from "../entities/turno";
 @Injectable({
   providedIn: 'root'
 })
-export class TurnoClient {
+export class TurnoService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = 'http://localhost:3001/turnos';
 
@@ -34,6 +34,6 @@ export class TurnoClient {
   }
 
   getTurnosDisponibles() {
-  return this.http.get<Turno[]>('/turnos/disponibles');
+  return this.http.get<Turno[]>(`${this.baseUrl}/turnos/disponibles`);
 }
 }

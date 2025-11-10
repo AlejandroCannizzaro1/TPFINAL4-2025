@@ -6,17 +6,20 @@ import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import esLocale from '@fullcalendar/core/locales/es';
 import { CalendarOptions } from '@fullcalendar/core';
-import { TurnoClient } from '../services/turnoService';
+import { TurnoService } from '../services/turnoService';
 import { Turno } from '../entities/turno';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 @Component({
   selector: 'app-calendario',
-  templateUrl: './calendario.component.html',
-  styleUrls: ['./calendario.component.css']
+  standalone: true,
+  imports: [FullCalendarModule],
+  templateUrl: './calendar-component.html',
+  styleUrls: ['./calendar-component.css']
 })
-export class CalendarioComponent implements OnInit {
+export class CalendarComponent implements OnInit {
 
-  usuarioEsAdmin = true; // cambiar cuando haya login
+  usuarioEsAdmin = true;
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, multiMonthPlugin],
@@ -37,7 +40,7 @@ export class CalendarioComponent implements OnInit {
     eventClick: (info) => this.handleEventClick(info)
   };
 
-  constructor(private turnoClient: TurnoClient) { }
+  constructor(private turnoClient: TurnoService) { }
 
   ngOnInit(): void {
     this.cargarTurnos();
@@ -45,8 +48,6 @@ export class CalendarioComponent implements OnInit {
 
   cargarTurnos() {
     this.turnoClient.getTurnosDisponibles().subscribe((turnos: Turno[]) => {
-
-      // Mostrar solo turnos disponibles con su hora
       const eventos = turnos.map(t => ({
         id: t.idTurno?.toString(),
         title: t.hora,
@@ -54,7 +55,6 @@ export class CalendarioComponent implements OnInit {
         extendedProps: t
       }));
 
-      // Colorear solo días con disponibilidad → verde
       const diasConDisponibilidad = [...new Set(turnos.map(t => t.fecha))];
       const fondos = diasConDisponibilidad.map(fecha => ({
         start: fecha,
@@ -69,9 +69,6 @@ export class CalendarioComponent implements OnInit {
     });
   }
 
-
-  // handleDateSelect es la función que se dispara cuando hacés clic en un día vacío del calendario (no en un turno).
-  // Sirve para crear un turno nuevo. Solo deja hacerlo si el usuario es admin.
   handleDateSelect(info: any) {
     if (!this.usuarioEsAdmin) return;
 
@@ -79,10 +76,9 @@ export class CalendarioComponent implements OnInit {
     let hora = prompt("Ingrese hora (HH:MM):");
     if (!hora) return;
 
-    // Normalizar formato
     hora = hora.trim();
     if (!hora.includes(":")) hora = hora + ":00";
-    if (hora.length === 4) hora = "0" + hora;  // Ej: 9:00 → 09:00
+    if (hora.length === 4) hora = "0" + hora;
 
     const nuevoTurno = {
       fecha,
@@ -96,14 +92,11 @@ export class CalendarioComponent implements OnInit {
     });
   }
 
-  //handleEventClick es la función que se ejecuta cuando el usuario hace clic en un turno ya creado dentro del calendario.
-  //Si el usuario es Admin: no hace nada (porque el admin solo crea turnos, no los reserva).
- //Si el usuario es solo un  Usuario: intenta reservar el turno.
   handleEventClick(info: any) {
     if (this.usuarioEsAdmin) return;
 
     const turno: Turno = info.event.extendedProps;
-    const idUsuario = 1; // luego lo sacás del login
+    const idUsuario = 1;
 
     this.turnoClient.reservarTurno(turno.idTurno!, idUsuario)
       .subscribe(() => {

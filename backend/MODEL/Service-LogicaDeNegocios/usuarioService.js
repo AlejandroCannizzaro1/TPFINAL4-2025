@@ -342,6 +342,21 @@ async function setUsuarioPremiumService(idUsuario) {
     };
 }
 
+//Obtener administradores
+async function obtenerAdminsService() {
+    const usuarios = await obtenerUsuarios();
+
+    return usuarios
+        .filter(u => u.fields.estadoAdmin === true)
+        .map(u => ({
+            idAirtable: u.id,                // CLAVE
+            nombreUsuario: u.fields.nombreUsuario,
+            email: u.fields.email
+        }));
+}
+
+
+
 
 module.exports = {
     crearUsuarioService,
@@ -354,5 +369,6 @@ module.exports = {
     obtenerUsuarioService,
     buscarUsuarioPorEmailService,
     buscarUsuarioPorNombreUsuarioService,
+    obtenerAdminsService
 
 }

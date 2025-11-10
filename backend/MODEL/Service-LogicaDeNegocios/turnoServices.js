@@ -14,6 +14,8 @@ const {
 const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('../DAO-Repository/airtableRepositoryUsuarios');
 const { validarAdminService } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
+const { notificarReservaService, notificarCancelacionService } = require('./notificacionService');
+
 
 
 //Obtener proximo id de Turnos de Airtable 
@@ -195,14 +197,22 @@ async function reservarTurnoService(idTurno, idUsuario) {
     // 5️ Ejecutar PATCH en Airtable
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
 
+   
+
     // 6️ Manejar error de Airtable
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
         throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
     }
 
-    console.log(" Turno reservado correctamente:", resultado);
-    return resultado;
+    // 7) Notificar a usuario y admins
+    await notificarReservaService(idAirtableTurno, idAirtableUsuario);
+
+      console.log(" Turno reservado correctamente:", resultado);
+    return {
+        message: `Turno ${idTurno} reservado correctamente`,
+        data: resultado
+    };
 }
 
 //Cancerlar Reserva 
@@ -232,6 +242,9 @@ async function cancelarReservaService(idTurno, idUsuario) {
 
     // 4️ Ejecutar PATCH en Airtable
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
+
+  //  ACA es donde corregimos: Se notifica al usuario y al Admin 
+    await notificarCancelacionService(idAirtableTurno, idAirtableUsuario);
 
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
