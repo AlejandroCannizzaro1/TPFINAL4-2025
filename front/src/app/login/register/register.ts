@@ -41,7 +41,7 @@ export class Register {
 
     const nuevoUsuario = this.form.getRawValue() as Usuario;
     nuevoUsuario.email = nuevoUsuario.email.toLowerCase().trim();
-    nuevoUsuario.estadoAdmin = nuevoUsuario.email.includes("admin"); // si querés mantener esto
+    nuevoUsuario.estadoAdmin = nuevoUsuario.email.includes("admin");
 
     this.usuarioService.checkEmail(nuevoUsuario.email).pipe(take(1)).subscribe(emailExiste => {
 
@@ -60,4 +60,5 @@ export class Register {
 
     });
   }
+
 }

@@ -2,7 +2,7 @@ import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Usuario } from "../entities/usuario";
 import { UsuarioResponse } from '../entities/usuarioResponse';
-import { map } from 'rxjs/operators';
+import { map, catchError, of } from 'rxjs';
 
 
 
@@ -55,9 +55,16 @@ export class UsuarioService {
   );
 }
 
-  checkEmail(email: string) {
-  return this.http.get<UsuarioResponse[]>(this.baseUrl).pipe(
-    map(users => users.some(u => u.fields.email.toLowerCase() === email.toLowerCase()))
+checkEmail(email: string) {
+  return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
+    map(() => true), // Si encuentra el usuario → el email está en uso
+    catchError(err => {
+      // Si el backend responde 404 → el email NO existe
+      if (err.status === 404) return of(false);
+
+      // Si es otro error → lo relanzamos para debug
+      return of(true);
+    })
   );
 }
   
