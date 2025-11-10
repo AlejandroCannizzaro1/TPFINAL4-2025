@@ -100,11 +100,13 @@ async function notificarEventoService(turnoAirtableId, usuarioAirtableId, mensaj
 }
 
 
-//Obtiene notificaciones por ID usuario 
+// Obtiene notificaciones por ID de Usuario
 async function obtenerNotificacionesPorIdUsuarioService(idUsuario) {
 
     const usuarioAirtableId = await obtenerIdAirtablePorIdUsuario(idUsuario);
-    if (!usuarioAirtableId) throw new Error(`No existe el usuario ${idUsuario}`);
+    if (!usuarioAirtableId) {
+        return { error: `No existe el usuario con ID ${idUsuario}` };
+    }
 
     const notificaciones = await obtenerNotificaciones();
 
@@ -112,6 +114,10 @@ async function obtenerNotificacionesPorIdUsuarioService(idUsuario) {
         Array.isArray(n.fields.idUsuarioVinculado) &&
         n.fields.idUsuarioVinculado.includes(usuarioAirtableId)
     );
+
+    if (filtradas.length === 0) {
+        return { mensaje: `El usuario ${idUsuario} no tiene notificaciones` };
+    }
 
     return filtradas.map(n => ({
         idNotificacion: n.fields.idNotificacion,
@@ -121,6 +127,7 @@ async function obtenerNotificacionesPorIdUsuarioService(idUsuario) {
     }));
 }
 
+// Obtiene notificaciones por ID de Turno
 async function obtenerNotificacionesPorIdTurnoService(idTurno) {
 
     const turnoAirtableId = await obtenerIdAirtablePorIdTurno(idTurno);
@@ -133,12 +140,27 @@ async function obtenerNotificacionesPorIdTurnoService(idTurno) {
         n.fields.idTurnoVinculado.includes(turnoAirtableId)
     );
 
-    return filtradas.map(n => ({
+    // Deduplicar por mensaje (un evento = un mensaje)
+    const unicas = [];
+    const mensajesVistos = new Set();
+
+    for (const n of filtradas) {
+        const msg = n.fields.mensajeNotificacion;
+        if (!mensajesVistos.has(msg)) {
+            mensajesVistos.add(msg);
+            unicas.push(n);
+        }
+    }
+
+    return unicas.map(n => ({
         idNotificacion: n.fields.idNotificacion,
         mensaje: n.fields.mensajeNotificacion,
         usuarioVinculado: n.fields.idUsuarioVinculado?.[0] ?? null
     }));
 }
+
+
+
 
 
 
