@@ -119,46 +119,92 @@ async function obtenerNotificacionesPorIdUsuarioService(idUsuario) {
         return { mensaje: `El usuario ${idUsuario} no tiene notificaciones` };
     }
 
-    return filtradas.map(n => ({
-        idNotificacion: n.fields.idNotificacion,
-        mensaje: n.fields.mensajeNotificacion,
-        leida: n.fields.mensajeLeido,
-        turnoVinculado: n.fields.idTurnoVinculado?.[0] ?? null
-    }));
+    return await Promise.all(
+        filtradas.map(async n => {
+
+            // INICIALIZAMOS EN NULL POR SI NO HAY TURNO VINCULADO
+            let idTurno = null;
+            let fechaTurno = null;
+            let horaTurno = null;
+            let servicioTurno = null;
+
+            const turnoAirtableId = n.fields.idTurnoVinculado?.[0] ?? null;
+
+            if (turnoAirtableId) {
+                const turno = await obtenerTurnoByIdAirtable(turnoAirtableId);
+
+                idTurno = turno.fields.idTurno;
+                fechaTurno = turno.fields.fecha;
+                horaTurno = turno.fields.hora;
+                servicioTurno = turno.fields.tipoServicio || "servicio";
+            }
+
+            return {
+                idNotificacion: n.fields.idNotificacion,
+                mensaje: n.fields.mensajeNotificacion,
+                leida: n.fields.mensajeLeido,
+
+                // CAMPOS PLANOS PARA EL FRONT
+                idTurno,
+                fechaTurno,
+                horaTurno,
+                servicioTurno
+            };
+        })
+    );
 }
 
-// Obtiene notificaciones por ID de Turno
+
+
+// Obtiene notificaciones por ID de Turno. Solo manda las que le llegaron al admin para evitar duplicados 
 async function obtenerNotificacionesPorIdTurnoService(idTurno) {
 
     const turnoAirtableId = await obtenerIdAirtablePorIdTurno(idTurno);
-    if (!turnoAirtableId) throw new Error(`No existe el turno ${idTurno}`);
+    if (!turnoAirtableId) {
+        return { error: `No existe el turno con ID ${idTurno}` };
+    }
+
+    const admins = await obtenerAdminsService();
+    const adminIds = admins.map(a => a.idAirtable);
 
     const notificaciones = await obtenerNotificaciones();
 
+    // Filtrar solo las que pertenecen a ese turno y son notificaciones para admins
     const filtradas = notificaciones.filter(n =>
         Array.isArray(n.fields.idTurnoVinculado) &&
-        n.fields.idTurnoVinculado.includes(turnoAirtableId)
+        n.fields.idTurnoVinculado.includes(turnoAirtableId) &&
+        Array.isArray(n.fields.idUsuarioVinculado) &&
+        n.fields.idUsuarioVinculado.some(uid => adminIds.includes(uid))
     );
 
-    // Deduplicar por mensaje (un evento = un mensaje)
-    const unicas = [];
-    const mensajesVistos = new Set();
-
-    for (const n of filtradas) {
-        const msg = n.fields.mensajeNotificacion;
-        if (!mensajesVistos.has(msg)) {
-            mensajesVistos.add(msg);
-            unicas.push(n);
-        }
+    if (filtradas.length === 0) {
+        return { mensaje: "No hay notificaciones para este turno (solo admin)." };
     }
 
-    return unicas.map(n => ({
-        idNotificacion: n.fields.idNotificacion,
-        mensaje: n.fields.mensajeNotificacion,
-        usuarioVinculado: n.fields.idUsuarioVinculado?.[0] ?? null
-    }));
-}
+    // Convertimos las notificaciones
+    return await Promise.all(
+        filtradas.map(async n => {
+            const usuarioAirtableId = n.fields.idUsuarioVinculado?.[0] ?? null;
 
+            let usuarioNombre = null;
+            let usuarioIdNormal = null;
+
+            if (usuarioAirtableId) {
+                const usuario = await obtenerUsuarioByIdAirtable(usuarioAirtableId);
+                usuarioNombre = usuario.fields.nombreUsuario;
+                usuarioIdNormal = usuario.fields.idUsuario;
+            }
+
+            return {
+                idNotificacion: n.fields.idNotificacion,
+                mensaje: n.fields.mensajeNotificacion,
+                idTurno,              // <-- ahora el front tiene acceso directo
+                usuario: usuarioNombre,
+                idUsuario: usuarioIdNormal
+            };
+        })
+    );
+}
 
 
 

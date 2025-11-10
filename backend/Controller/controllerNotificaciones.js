@@ -87,7 +87,7 @@ async function manejarSolicitudesNotificaciones(req, res) {
             }
 
             // ==================== PUT ====================
-            // PUT /notificaciones/leer/:idNotificacion
+            // PUT /notificaciones/leer/idNotificacion
             case "PUT": {
                 if (cleanUrl.includes("/notificaciones/leer/")) {
                     const resultado = await marcarNotificacionLeidaService(id);
@@ -101,7 +101,7 @@ async function manejarSolicitudesNotificaciones(req, res) {
             }
 
             // ==================== DELETE ====================
-            // DELETE /notificaciones/:idNotificacion
+            // DELETE /notificaciones/idNotificacion
             case "DELETE": {
                 const resultado = await eliminarNotificacionService(id);
                 const status = resultado?.error ? 400 : 200;
