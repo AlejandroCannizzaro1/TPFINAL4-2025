@@ -32,32 +32,35 @@ export class Login {
     this.inputType = this.showPassword ? 'text' : 'password';
   }
 
-  handleSubmit() {
-    if (this.form.invalid) {
-      alert("El formulario no puede tener caracteres inválidos o vacíos!");
-      return;
-    }
-
-    const { email, contrasenia } = this.form.getRawValue();
-
-    this.usuarioService.login(email.toLowerCase(), contrasenia).subscribe({
-      next: (user) => {
-        const token = 'token_' + Math.random().toString(36).substring(2);
-
-        if (user.estadoAdmin) {
-          this.authService.login(token, "admin", user.nombreUsuario);
-        } else {
-          this.authService.login(token, "user", user.nombreUsuario);
-        }
-
-        alert("Sesión iniciada con éxito");
-        this.router.navigate(['/']);
-      },
-      error: () => {
-        alert("Email o contraseña incorrectos.");
-      }
-    });
+handleSubmit() {
+  if (this.form.invalid) {
+    alert("El formulario no puede tener caracteres inválidos o vacíos!");
+    return;
   }
+
+  const { email, contrasenia } = this.form.getRawValue();
+
+  this.usuarioService.login(email.toLowerCase(), contrasenia).subscribe({
+    next: (user) => {
+      const token = 'token_' + Math.random().toString(36).substring(2);
+
+      //  GUARDAMOS EL ID EN EL LOCALSTORAGE
+      localStorage.setItem("idUsuario", user.idUsuario.toString());
+
+      if (user.estadoAdmin) {
+        this.authService.login(token, "admin", user.nombreUsuario);
+      } else {
+        this.authService.login(token, "user", user.nombreUsuario);
+      }
+
+      alert("Sesión iniciada con éxito");
+      this.router.navigate(['/']);
+    },
+    error: () => {
+      alert("Email o contraseña incorrectos.");
+    }
+  });
+}
 
   navigateToRegister() {
     this.router.navigateByUrl('/register');
