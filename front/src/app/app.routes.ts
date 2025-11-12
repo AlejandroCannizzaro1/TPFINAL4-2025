@@ -23,3 +23,6 @@ export const routes: Routes = [
   // Solo admin
   { path: 'admin', component: AdminPanelComponent, canActivate: [AuthGuard, RoleGuard], title: 'Panel Admin' }
 ];
+
+
+/** Hola soy Joaco */
