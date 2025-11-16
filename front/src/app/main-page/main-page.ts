@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../auth.service/auth.service';
 import { RouterLink } from "@angular/router";
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 })
 export class MainPage {
 
-  constructor(public auth: AuthService) {}
+  protected readonly auth = inject(AuthService);
+  
+  
 
 }

@@ -16,7 +16,8 @@ const {
     eliminarTurnoByAdminService,
     crearTurnoService,
     obtenerTurnosPorUsuarioService,
-    getTurnoByIdService
+    getTurnoByIdService,
+    editarTurnoByAdminService
 } = require('../MODEL/Service-LogicaDeNegocios/turnoServices');
 
 

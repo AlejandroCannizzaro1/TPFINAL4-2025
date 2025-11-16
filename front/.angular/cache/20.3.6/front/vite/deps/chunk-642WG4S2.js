@@ -5,19 +5,25 @@ import {
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
+  Inject,
+  Injectable,
+  NgModule,
+  NgZone,
+  TransferState,
+  makeStateKey,
+  performanceMarkFeature,
+  setClassMetadata,
+  ɵɵdefineNgModule
+} from "./chunk-6YIFPLMW.js";
+import {
   DOCUMENT,
   DestroyRef,
   EnvironmentInjector,
-  Inject,
-  Injectable,
   InjectionToken,
   Injector,
-  NgModule,
-  NgZone,
   PendingTasks,
   ResourceImpl,
   RuntimeError,
-  TransferState,
   assertInInjectionContext,
   computed,
   encapsulateResourceError,
@@ -25,17 +31,13 @@ import {
   inject,
   linkedSignal,
   makeEnvironmentProviders,
-  makeStateKey,
-  performanceMarkFeature,
   runInInjectionContext,
-  setClassMetadata,
   signal,
   truncateMiddle,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
-  ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-KOXFDEHF.js";
+} from "./chunk-SNF4ZOLK.js";
 import {
   Observable,
   concatMap,
@@ -2791,4 +2793,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-Y6LCYH5N.js.map
+//# sourceMappingURL=chunk-642WG4S2.js.map

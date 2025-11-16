@@ -38,14 +38,14 @@ async function obtenerProximoIdTurnoService() {
 //  Obtener todos los turnos
 async function getTurnosService() {
     const turnos = await obtenerTurnos();
-    return turnos.map(mapearTurno);
+    return  turnos.map(mapearTurno);
 }
 
 //  Obtener un turno por su ID normal
 async function getTurnoByIdService(idTurno) {
     const turno = await obtenerTurnoByIdNormal(idTurno);
     if (!turno) throw new Error(`No se encontró el turno con ID ${idTurno}`);
-    return await mapearTurno(turno);
+    return  mapearTurno(turno);
 }
 
 
@@ -296,7 +296,7 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
 
     const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
 
-    const turnosFormateados = turnos.map(t => mapearTurno(t, idUsuario));
+    const turnosFormateados =  turnos.map(t => mapearTurno(t, idUsuario));
 
     return {
         idUsuario,
@@ -343,7 +343,7 @@ async function hayConflictoDeHorario(fecha, hora) {
         const horaExistente = convertirHoraAMinutos(t.fields.hora);
         const diferencia = Math.abs(nuevaHora - horaExistente);
 
-        return diferencia < 59; // menos de 59 min → conflicto
+        return diferencia < 60; // menos de 59 min → conflicto
     });
 }
 

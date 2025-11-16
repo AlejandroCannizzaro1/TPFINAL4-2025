@@ -1,1 +1,14 @@
-<p>mis-turnos works!</p>
+@if (turnosSource() === undefined) {
+<p>Cargando Turnos...</p>
+}
+
+@if (turnos()?.turnos) {
+<h1>Turnos</h1>
+<ul>
+    @for (turno of turnos()?.turnos; track $index) {
+    <li>
+        Turno: {{turno.fecha}} | {{turno.hora}} | (id = {{turno.idTurno}})
+    </li>
+    }
+</ul>
+}

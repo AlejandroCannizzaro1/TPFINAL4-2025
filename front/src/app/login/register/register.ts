@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../services/usuarioService';
 import { Usuario } from '../../entities/usuario';
@@ -16,6 +16,7 @@ export class Register {
   private readonly formBuilder = inject(FormBuilder);
   private readonly usuarioService = inject(UsuarioService);
   private readonly router = inject(Router);
+  protected readonly waiting = signal(false)
 
   readonly usuario = input<Usuario>();
 
@@ -34,10 +35,15 @@ export class Register {
   }
 
   handleSubmit() {
+    this.waiting.set(true);
+
     if (this.form.invalid) {
       alert("El formulario no puede tener campos vacíos o inválidos.");
+      this.waiting.set(false);
       return;
     }
+
+    this.waiting.set(true);
 
     const nuevoUsuario = this.form.getRawValue() as Usuario;
     nuevoUsuario.email = nuevoUsuario.email.toLowerCase().trim();
@@ -59,6 +65,8 @@ export class Register {
       });
 
     });
+
+    this.waiting.set(false);
   }
 
 }

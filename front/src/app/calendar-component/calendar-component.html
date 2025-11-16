@@ -1,28 +1,33 @@
 <div class="calendar-container">
-  <full-calendar [options]="calendarOptions"></full-calendar>
+  @if (turnoResponse()) {
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  }
 </div>
 
 <!-- FORMULARIO EMERGENTE -->
-<div *ngIf="mostrarFormulario" class="modal-fondo">
-  <div class="modal-contenido">
-    <h3>Confirmar Reserva</h3>
-    <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
-    <p><strong>Hora:</strong> {{ turnoSeleccionado?.hora }}</p>
+@if (mostrarFormulario()) {
 
-    <label for="tipoServicio">Tipo de servicio:</label>
-    <select id="tipoServicio" [(ngModel)]="tipoServicio">
-      <option value="" disabled selected>Selecciona una opción</option>
-      <option value="Corte Masculino">Corte Masculino</option>
-      <option value="Corte Femenino">Corte Femenino</option>
-      <option value="Barba">Barba</option>
-    </select>
-
-    <label for="notas">Notas (opcional):</label>
-    <textarea id="notas" rows="3" [(ngModel)]="notas"></textarea>
-
-    <div class="botones">
-      <button (click)="confirmarTurno()">Confirmar</button>
-      <button class="cancelar" (click)="cancelar()">Cancelar</button>
+  <div class="modal-fondo">
+    <div class="modal-contenido">
+      <h3>Confirmar Reserva</h3>
+      <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
+      <p><strong>Hora:</strong> {{ turnoSeleccionado?.hora }}</p>
+      
+      <label for="tipoServicio">Tipo de servicio:</label>
+      <select id="tipoServicio" [(ngModel)]="tipoServicio">
+        <option value="" disabled selected>Selecciona una opción</option>
+        <option value="Corte Masculino">Corte Masculino</option>
+        <option value="Corte Femenino">Corte Femenino</option>
+        <option value="Barba">Barba</option>
+      </select>
+      
+      <label for="notas">Notas (opcional):</label>
+      <textarea id="notas" rows="3" [(ngModel)]="notas"></textarea>
+      
+      <div class="botones">
+        <button (click)="confirmarTurno()">Confirmar</button>
+        <button class="cancelar" (click)="cancelar()">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
+}
