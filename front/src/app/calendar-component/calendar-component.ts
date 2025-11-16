@@ -32,8 +32,11 @@ export class CalendarComponent {
   private turnoClient = inject(TurnoService);
   private auth = inject(AuthService);
 
-  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnos());
+  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnosDisponibles());
   protected readonly turnoResponse = linkedSignal(() => this.turnoResponseSource() || []);
+
+  protected readonly turnoResponseAllSource = toSignal(this.turnoClient.getTurnos());
+  protected readonly turnoResponseAll = linkedSignal(() => this.turnoResponseAllSource());
 
   get usuarioEsAdmin() {
     return this.auth.isAdmin();
@@ -49,16 +52,31 @@ export class CalendarComponent {
   };
 
   constructor() {
-    effect(() => { //Cada vez que el signal de turnos cambie (recibe los turnos del service)
-      if (this.turnoResponse()) {
-        this.cargarTurnos(); //Manda a la funcion que ya sabe que hay turnos cargados (porque paso el if)
+    effect(() => { //Cada vez que un signal cambie
+      if(this.usuarioEsAdmin){
+        if(this.turnoResponseAll()) {
+          this.cargarTurnos(true);
+        }
+      }else{
+        if (this.turnoResponse()) {
+          this.cargarTurnos(false); //Manda a la funcion que ya sabe que hay turnos cargados (porque paso el if)
+        }
       }
     }) //De paso es reactive porque si se modifica en cualquier momento, los turnos se cargan
   }
 
-  cargarTurnos() {
-    if (this.turnoResponse()) {
+  cargarTurnos(admin: boolean) {
+    if(!admin) {
       const eventos = this.turnoResponse()!.map(t => ({
+        id: t.idTurno?.toString(),
+        title: t.hora,
+        start: `${t.fecha}T${t.hora}:00`,
+        extendedProps: t
+      }));
+      this.calendarOptions = { ...this.calendarOptions, events: eventos };
+    }
+    else {
+      const eventos = this.turnoResponseAll()!.map(t => ({
         id: t.fields.idTurno?.toString(),
         title: t.fields.hora,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
@@ -70,7 +88,7 @@ export class CalendarComponent {
 
   agregarTurno(turno: Turno) {
     if (turno) {
-      //this.turnoResponse.update((t) => [...t, turno]);
+      this.turnoResponse.update((t) => [...t, turno]);
     }
   }
 
@@ -142,7 +160,7 @@ export class CalendarComponent {
       notas: this.notas
     };
 
-    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, data).subscribe(() => {
+    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, data).subscribe((t) => {
       alert("Turno reservado con éxito");
 
       // limpiar formulario
@@ -150,7 +168,7 @@ export class CalendarComponent {
       this.tipoServicio = '';
       this.notas = '';
 
-      this.cargarTurnos();
+      this.turnoResponse.update((turnos) => [...turnos, t]);
     });
   }
 
