@@ -6,6 +6,8 @@ const http = require('http');
 const url = require('url');
 const { manejarSolicitudesTurnos } = require('./Controller/controladorTurnos');
 const { manejarSolicitudesUsuarios } = require('./Controller/controladorUsuarios');
+const { manejarSolicitudesNotificaciones } = require("./Controller/controllerNotificaciones");
+
 
 //Configuracion basica del servidor
 const PORT = process.env.PORT || 3001;
@@ -20,29 +22,33 @@ const server = http.createServer((req, res) => {
     //Sirve para consultar las reglas del servidor antes de enviar datos reales
     if (req.method === 'OPTIONS') {
         res.writeHead(204, {
-            'Access-Control-Allow-Origin': '*', //O el dominio permitido
-            'Access-Control-Allow-Methods': 'GET,POST,DELETE,PUT,PATCH',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Allow-Origin': '*', //En este caso permite cualquier dominio y si no se especifica el dominio permitido
+            'Access-Control-Allow-Methods': 'GET,POST,DELETE,PUT,PATCH', //Los metodos HTTP permitidos para otras apps
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization', //Esto le permite al FRONT mandar ciertos encabezados 
+            //Aurthorization Se usa para tokens/JWT/API keys en headers
+            //Content-Type indica el  tipo de datos enviados (application/json, etc.)
         });
         res.end();
         return;
-    } //Esto envia info de los verbos http que se pueden usar, y los puertos o dominios permitidos que se pueden comunicar con el BE
+    } //Esto envia info de los verbos http que se pueden usar, y los puertos o dominios permitidos que se pueden comunicar con el BACKEND
 
     //Parsear la URL para saber que ruta se esta pidiendo
     const parsedUrl = url.parse(req.url, true); //true convierte a la query en objeto, es decir, a lo que viene luego del ?, si viene id=1 y curso='java', lo convierte en objeto literal 
     const path = parsedUrl.pathname; //Aca extrae la ruta sin parametros, es decir, usuarios o turnos para aplicarlo a un case o un if o lo que fuere
 
-    if (path.startsWith('/turnos')) {
+    if (path.startsWith('/turnos')) { //Si la request inicia con turnos los redirige al controller de turnos 
         manejarSolicitudesTurnos(req, res);
-    } else if (path.startsWith('/usuarios')) {
+    } else if (path.startsWith('/usuarios')) {  //Si la request inicia con turnos los redirige al controller de usuarios 
         manejarSolicitudesUsuarios(req, res);
+    } else if (req.url.startsWith('/notificaciones')) {
+        manejarSolicitudesNotificaciones(req, res);
     } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.writeHead(404, { 'Content-Type': 'application/json' }); //Si el path esta mal tira error. 
         res.end(JSON.stringify({ message: "Path not founded..." }));
     }
 });
 
-//Iniciar el servidor 
+//Iniciar el servidor : ESCUCHA EN EL PUERTO 3001 SETEADO MAS ARRIBA
 server.listen(PORT, "localhost", () => {
     console.log(`Server listening at "http://localhost:${PORT}"`);
 });

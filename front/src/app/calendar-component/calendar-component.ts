@@ -32,7 +32,7 @@ export class CalendarComponent {
   private turnoClient = inject(TurnoService);
   private auth = inject(AuthService);
 
-  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnosDisponibles());
+  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnos());
   protected readonly turnoResponse = linkedSignal(() => this.turnoResponseSource() || []);
 
   get usuarioEsAdmin() {
@@ -59,9 +59,9 @@ export class CalendarComponent {
   cargarTurnos() {
     if (this.turnoResponse()) {
       const eventos = this.turnoResponse()!.map(t => ({
-        id: t.idTurno?.toString(),
-        title: t.hora,
-        start: `${t.fecha}T${t.hora}:00`,
+        id: t.fields.idTurno?.toString(),
+        title: t.fields.hora,
+        start: `${t.fields.fecha}T${t.fields.hora}:00`,
         extendedProps: t
       }));
       this.calendarOptions = { ...this.calendarOptions, events: eventos };
@@ -70,7 +70,7 @@ export class CalendarComponent {
 
   agregarTurno(turno: Turno) {
     if (turno) {
-      this.turnoResponse.update((t) => [...t, turno]);
+      //this.turnoResponse.update((t) => [...t, turno]);
     }
   }
 
@@ -110,7 +110,7 @@ export class CalendarComponent {
 
   handleEventClick(info: any) {
     const turno: Turno = info.event.extendedProps;
-    const idUsuario = Number(localStorage.getItem("idUsuario"));
+    const idUsuario = Number(localStorage.getItem("userId"));
 
     if (!idUsuario) {
       alert("Debes iniciar sesión para reservar turnos.");
