@@ -2,6 +2,7 @@
 # ========================================
 /backend/node_modules/
 /front/node_modules/
+/front/.angular
 
 # Logs
 logs
