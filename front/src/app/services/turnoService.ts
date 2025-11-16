@@ -15,7 +15,9 @@ export class TurnoService {
 
   constructor(private http: HttpClient) { }
 
-
+  getTurnosDisponibles() {
+    return this.http.get<Turno[]>(this.apiUrl + '/turnos/disponibles');
+  }
   getTurnos() {
     return this.http.get<TurnosResponse[]>(this.apiUrl + '/turnos');
   }
@@ -25,9 +27,9 @@ export class TurnoService {
   }
 
 
-crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
-}
+  crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
+  }
 
   reservarTurno(idTurno: number, data: { idUsuario: number, tipoServicio: string, notas: string }): Observable<any> {
     return this.http.put<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, data);

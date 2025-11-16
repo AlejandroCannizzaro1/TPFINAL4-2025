@@ -22,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './calendar-component.html',
   styleUrls: ['./calendar-component.css']
 })
+
 export class CalendarComponent {
 
   mostrarFormulario = signal(false);

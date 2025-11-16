@@ -1,5 +1,5 @@
 require('dotenv').config();
-const {mapearTurno} = require ('../Mappers/turnoMapper');
+const { mapearTurno } = require('../Mappers/turnoMapper');
 
 const AIRTABLE_BASE_URL = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_TURNOS}`;
 const HEADERS = {
@@ -21,7 +21,6 @@ async function obtenerTurnosDisponibles() {
     const turnosMapeados = await Promise.all(
         turnosRaw.map(t => mapearTurno(t))
     );
-
     return turnosMapeados.filter(t => t.turnoDisponible === true);
 }
 //  Obtener turno por ID NORMAL
@@ -94,15 +93,23 @@ async function eliminarTurno(idDELETE) {
 
 //Obtener todos los turnos de un usuario especifico
 async function obtenerTurnosPorUsuarioAirtable(idAirtableUsuario) {
-    const formula = `filterByFormula=${encodeURIComponent(`FIND('${idAirtableUsuario}', ARRAYJOIN({idUsuarioVinculado}))`)}`;
+  // Traemos todos los turnos
+  const turnos = await obtenerTurnos();
 
-    const url = `${AIRTABLE_BASE_URL}?${formula}`;
+  // Filtramos manualmente los que tengan el usuario vinculado
+  const turnosFiltrados = turnos.filter(t =>
+    Array.isArray(t.fields.idUsuarioVinculado) &&
+    t.fields.idUsuarioVinculado.includes(idAirtableUsuario)
+  );
 
-    const res = await fetch(url, { headers: HEADERS });
-    const data = await res.json();
-
-    return data.records || [];
+  return turnosFiltrados;
 }
+
+
+
+
+
+
 /*El parámetro filterByFormula te permite filtrar registros según una fórmula de Airtable.
 Por ejemplo:
 filterByFormula=FIND('123', {idUsuarioVinculado})*/
@@ -118,6 +125,6 @@ module.exports = {
     obtenerTurnoByIdNormal,
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
-    obtenerTurnosPorUsuarioAirtable, 
+    obtenerTurnosPorUsuarioAirtable,
     obtenerTurnosDisponibles
 };
