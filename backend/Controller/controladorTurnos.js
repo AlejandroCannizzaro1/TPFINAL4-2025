@@ -316,7 +316,7 @@ POST /turnos/{idTurno}/eliminar
 Elimina un turno como administrador.
 Ejemplo:
 
-POST /turnos/10/eliminar
+POST /turnos/eliminar/40
 
 
 Body:
@@ -397,7 +397,7 @@ Crear turno como admin	POST	http://localhost:3001/turnos/admin	{ idAdmin, datosT
 Reservar un turno	POST	http://localhost:3001/turnos/reservar/idTurno	{ idUsuario }
 Cancelar reserva	POST	http://localhost:3001/turnos/cancelar/idTurno	{ idUsuario }
 Limpiar turnos pasados (Admin)	POST	http://localhost:3001/turnos/limpiar	{ idUsuarioAdmin }
-Eliminar turno (Admin)	POST	http://localhost:3001/turnos/idTurno/eliminar	{ idUsuarioAdmin }
+Eliminar turno (Admin)	POST	http://localhost:3001/turnos/idTurno/eliminar/idTurno body : 	{ idUsuarioAdmin }
 PUT (no lo vas a usar pero existe)
 Acción	Método	Endpoint	Body
 Sobrescribir turno completo	PUT	http://localhost:3001/turnos/idTurno	turno entero completo
