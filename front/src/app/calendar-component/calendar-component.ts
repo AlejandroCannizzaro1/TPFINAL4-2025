@@ -13,6 +13,7 @@ import { AuthService } from '../auth.service/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TurnosResponse } from '../entities/turnosResponse';
 
 
 @Component({
@@ -22,7 +23,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './calendar-component.html',
   styleUrls: ['./calendar-component.css']
 })
-
 export class CalendarComponent {
 
   mostrarFormulario = signal(false);
@@ -32,8 +32,8 @@ export class CalendarComponent {
   private turnoClient = inject(TurnoService);
   private auth = inject(AuthService);
 
-  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnos());
-  protected readonly turnoResponse = linkedSignal(() => this.turnoResponseSource());
+  protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnosDisponibles());
+  protected readonly turnoResponse = linkedSignal(() => this.turnoResponseSource() || []);
 
   get usuarioEsAdmin() {
     return this.auth.isAdmin();
@@ -50,61 +50,67 @@ export class CalendarComponent {
 
   constructor() {
     effect(() => { //Cada vez que el signal de turnos cambie (recibe los turnos del service)
-      if (this.turnoResponse()) { 
+      if (this.turnoResponse()) {
         this.cargarTurnos(); //Manda a la funcion que ya sabe que hay turnos cargados (porque paso el if)
       }
     }) //De paso es reactive porque si se modifica en cualquier momento, los turnos se cargan
   }
 
   cargarTurnos() {
-    if(this.turnoResponse()){
+    if (this.turnoResponse()) {
       const eventos = this.turnoResponse()!.map(t => ({
-        id: t.fields.idTurno?.toString(),
-        title: t.fields.hora,
-        start: `${t.fields.fecha}T${t.fields.hora}:00`,
+        id: t.idTurno?.toString(),
+        title: t.hora,
+        start: `${t.fecha}T${t.hora}:00`,
         extendedProps: t
       }));
       this.calendarOptions = { ...this.calendarOptions, events: eventos };
     }
   }
 
- handleDateSelect(info: any) {
-  if (!this.usuarioEsAdmin) return;
-
-  const idAdminStr = localStorage.getItem('userId');
-  if (!idAdminStr) {
-    alert('No se pudo obtener el ID de admin. Por favor, inicia sesión nuevamente.');
-    return;
-  }
-  const idAdmin = Number(idAdminStr);
-  if (isNaN(idAdmin)) {
-    alert('ID de admin inválido.');
-    return;
-  }
-
-  const fecha = info.startStr.split('T')[0];
-  let hora = prompt("Ingrese hora (HH:MM):");
-  if (!hora) return;
-
-  hora = hora.trim();
-  if (!hora.includes(":")) hora = hora + ":00";
-  if (hora.length === 4) hora = "0" + hora;
-
-  const nuevoTurno = { fecha, hora, turnoDisponible: true, tipoServicio: 'Servicio estándar', notas: '' };
-
-  this.turnoClient.crearTurnoAdmin(idAdmin, nuevoTurno).subscribe({
-    next: () => this.cargarTurnos(),
-    error: err => {
-      alert('Error al crear turno');
-      console.error(err);
+  agregarTurno(turno: Turno) {
+    if (turno) {
+      //this.turnoResponse.update((t) => [...t, turno]);
     }
-  });
-}
+  }
+
+  handleDateSelect(info: any) {
+    if (!this.usuarioEsAdmin) return;
+
+    const idAdminStr = localStorage.getItem('userId');
+    if (!idAdminStr) {
+      alert('No se pudo obtener el ID de admin. Por favor, inicia sesión nuevamente.');
+      return;
+    }
+    const idAdmin = Number(idAdminStr);
+    if (isNaN(idAdmin)) {
+      alert('ID de admin inválido.');
+      return;
+    }
+
+    const fecha = info.startStr.split('T')[0];
+    let hora = prompt("Ingrese hora (HH:MM):");
+    if (!hora) return;
+
+    hora = hora.trim();
+    if (!hora.includes(":")) hora = hora + ":00";
+    if (hora.length === 4) hora = "0" + hora;
+
+    const nuevoTurno = { fecha, hora, turnoDisponible: true, tipoServicio: 'Servicio estándar', notas: '' };
+
+    this.turnoClient.crearTurnoAdmin(idAdmin, nuevoTurno).subscribe({ //No se carga el turno reactivamente
+      next: (t) => this.agregarTurno(t),//this.cargarTurnos(),
+      error: err => {
+        alert('Error al crear turno');
+        console.error(err);
+      }
+    });
+  }
 
 
   handleEventClick(info: any) {
     const turno: Turno = info.event.extendedProps;
-    const idUsuario = Number(localStorage.getItem("idUsuario"));
+    const idUsuario = Number(localStorage.getItem("userId"));
 
     if (!idUsuario) {
       alert("Debes iniciar sesión para reservar turnos.");

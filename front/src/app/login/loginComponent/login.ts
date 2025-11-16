@@ -45,7 +45,6 @@ handleSubmit() {
       const token = 'token_' + Math.random().toString(36).substring(2);
 
       //  GUARDAMOS EL ID EN EL LOCALSTORAGE -- esto se hace en auth --
-      //localStorage.setItem("idUsuario", user.idUsuario.toString());
 
       if (user.estadoAdmin) {
         this.authService.login(user.idUsuario, token, "admin", user.nombreUsuario);
@@ -56,7 +55,8 @@ handleSubmit() {
       alert("Sesión iniciada con éxito");
       this.router.navigate(['/']);
     },
-    error: () => {
+    error: (e) => {
+      console.log(e);
       alert("Email o contraseña incorrectos.");
     }
   });
