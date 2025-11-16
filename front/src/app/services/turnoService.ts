@@ -20,6 +20,10 @@ export class TurnoService {
     return this.http.get<TurnosResponse[]>(this.apiUrl + '/turnos');
   }
 
+  getTurnosDisponibles() {
+    return this.http.get<Turno[]>(this.apiUrl + '/turnos/disponibles');
+  }
+
   getTurnosById(id: string | number) {  //Turnos de un usuario
     return this.http.get<TurnosByUsuarioResponse>(`${this.apiUrl}/turnos/usuario?idUsuario=${id}`);
   }

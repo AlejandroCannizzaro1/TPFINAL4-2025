@@ -1,7 +1,7 @@
 import { Turno } from "./turno";
 
 export interface TurnosResponse {
-    id: string
+    id?: string
     createdTime: string,
     fields: Turno
 }
