@@ -1,5 +1,6 @@
 const { Usuario } = require('../Entitites/FullEntities/usuario');
-const { mapearUsuario } = require('../Mappers/usuarioMapper');
+
+const { obtenerTurnosPorUsuarioAirtable } = require('../DAO-Repository/airtableRepositoryTurnos');
 
 
 const {
@@ -10,61 +11,85 @@ const {
     eliminarUsuario,
     obtenerUsuarioByIdNormal, //Esta es obtenerUsuarioByIdNormal, solo que la exporta con este nombre a la funcion
     obtenerIdAirtablePorIdUsuario,
-    obtenerUsuarioByIdAirtable 
+    obtenerUsuarioByIdAirtable,
 } = require('../DAO-Repository/airtableRepositoryUsuarios');
 
 
 // =================== Helpers ======================== 
 
-let ultimoIdUsuario = 0;  // variable global en memoria
-
+//Autoincrementa  el idUsuario basado en el mayor existente en Airtable 
 async function obtenerProximoIdUsuario() {
-    if (ultimoIdUsuario === 0) {
-        const usuarios = await obtenerUsuarios();
-        const ids = usuarios
-            .map(u => parseInt(u.fields.idUsuario))
-            .filter(id => !isNaN(id));
-        ultimoIdUsuario = ids.length > 0 ? Math.max(...ids) : 0;
+    const usuarios = await obtenerUsuarios();
+
+    if (!Array.isArray(usuarios) || usuarios.length === 0) {
+        return 1;
     }
 
-    ultimoIdUsuario++;
-    return ultimoIdUsuario;
+    const ids = usuarios
+        .map(t => parseInt(t.fields.idUsuario))
+        .filter(id => !isNaN(id));
+
+    if (ids.length === 0) return 1;
+
+    return Math.max(...ids) + 1;
 }
+
 //Busca Usuario por EMAIL 
 async function buscarUsuarioPorEmailService(email) {
     try {
-        if (!email) return { error: 'El email es obligatorio' };
+        if (!email) {
+            return { error: 'El email es obligatorio' };
+        }
 
         const usuarios = await obtenerUsuarios();
-        if (!Array.isArray(usuarios)) return { error: 'Error al obtener usuarios' };
 
-        const usuario = usuarios.find(u => u.fields?.email?.toLowerCase() === email.toLowerCase());
+        if (!Array.isArray(usuarios)) {
+            console.error('Error: obtenerUsuarios() no devolvió un array:', usuarios);
+            return { error: 'Error interno al obtener la lista de usuarios' };
+        }
 
-        if (!usuario) return { error: `No se encontró usuario con email ${email}` };
+        const usuarioEncontrado = usuarios.find(
+            (user) => user.fields?.email?.toLowerCase() === email.toLowerCase()
+        );
 
-        return mapearUsuario(usuario);
+        if (!usuarioEncontrado) {
+            return { error: `No se encontró ningún usuario con el email ${email}` };
+        }
+
+        return usuarioEncontrado;
 
     } catch (error) {
+        console.error(`Error al buscar usuario por email (${email}):`, error);
         return { error: 'Error interno al buscar usuario por email' };
     }
 }
 
-
 //Busca Usuario por nombreUsuario
 async function buscarUsuarioPorNombreUsuarioService(nombreUsuario) {
     try {
-        if (!nombreUsuario) return { error: 'El nombre de usuario es obligatorio' };
+        if (!nombreUsuario) {
+            return { error: 'El nombre de usuario es obligatorio' };
+        }
 
-        const usuarios = await obtenerUsuarios();
-        const usuario = usuarios.find(
-            u => u.fields?.nombreUsuario?.toLowerCase() === nombreUsuario.toLowerCase()
+        const usuarios = await obtenerUsuarios(); // corregido el nombre de la función
+
+        if (!Array.isArray(usuarios)) {
+            console.error('Error: obtenerUsuarios() no devolvió un array:', usuarios);
+            return { error: 'Error interno al obtener la lista de usuarios' };
+        }
+
+        const usuarioEncontrado = usuarios.find(
+            (user) => user.fields?.nombreUsuario?.toLowerCase() === nombreUsuario.toLowerCase()
         );
 
-        if (!usuario) return { error: `Usuario ${nombreUsuario} no encontrado` };
+        if (!usuarioEncontrado) {
+            return { error: `No se encontró ningún usuario con el nombre de usuario "${nombreUsuario}"` };
+        }
 
-        return mapearUsuario(usuario);
+        return usuarioEncontrado;
 
     } catch (error) {
+        console.error(`Error al buscar usuario por nombreUsuario (${nombreUsuario}):`, error);
         return { error: 'Error interno al buscar usuario por nombre de usuario' };
     }
 }
@@ -101,15 +126,14 @@ async function crearUsuarioService(datosUsuario) {
         usuarioPremium: false,
     });
 
-    return { message: 'Usuario creado correctamente', data: mapearUsuario(resultado) };
+    return { message: 'Usuario creado correctamente', data: resultado };
 }
 
 //Obtener usuario por ID NORMAL, GET 
 async function obtenerUsuarioService(idUsuario) {
     const usuario = await obtenerUsuarioByIdNormal(idUsuario);
     if (!usuario) return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
-
-    return mapearUsuario(usuario);
+    return usuario;
 }
 
 //Actualizar usuario completo (PUT)
@@ -288,9 +312,9 @@ async function setUsuarioAdminService(idUsuario) {
     });
 
     return {
-    message: `Usuario ...`,
-    data: mapearUsuario(resultado)
-};
+        message: `Usuario ${nuevoEstado ? 'promovido a' : 'removido de'} admin correctamente`,
+        data: resultado
+    };
 }
 
 //Setear a un usuario como Premium o sacarle esta funcionalidad
@@ -313,28 +337,10 @@ async function setUsuarioPremiumService(idUsuario) {
     });
 
     return {
-    message: `Usuario ...`,
-    data: mapearUsuario(resultado)
-};
+        message: `Usuario ${nuevoEstado ? 'ahora es PREMIUM' : 'ya no es PREMIUM'}`,
+        data: resultado
+    };
 }
-
-//Obtener administradores
-async function obtenerAdminsService() {
-    const usuarios = await obtenerUsuarios(); // Esto ya devuelve records de Airtable
-
-    return usuarios
-        .filter(u => u.fields.estadoAdmin === true)
-        .map(u => ({
-            idUsuario: u.fields.idUsuario,
-            nombreUsuario: u.fields.nombreUsuario,
-            email: u.fields.email,
-            usuarioPremium: u.fields.usuarioPremium === true,
-            estadoAdmin: true,
-            idAirtable: u.id   // <- ESTO ES LA CLAVE
-        }));
-}
-
-
 
 
 module.exports = {
@@ -348,6 +354,5 @@ module.exports = {
     obtenerUsuarioService,
     buscarUsuarioPorEmailService,
     buscarUsuarioPorNombreUsuarioService,
-    obtenerAdminsService
 
 }

@@ -14,40 +14,35 @@ const {
 const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('../DAO-Repository/airtableRepositoryUsuarios');
 const { validarAdminService } = require('../Service-LogicaDeNegocios/usuarioService');
 const { Turno } = require('../Entitites/FullEntities/turno');
-const { notificarReservaService, notificarCancelacionService } = require('./notificacionService');
-const { mapearTurno } = require('../Mappers/turnoMapper');
 
 
-
-
-
-let ultimoIdTurno = 0; // Variable en memoria para el último ID usado
-
+//Obtener proximo id de Turnos de Airtable 
 async function obtenerProximoIdTurnoService() {
-  if (ultimoIdTurno === 0) {
     const turnos = await obtenerTurnos();
-    const ids = turnos
-      .map(t => parseInt(t.fields.idTurno))
-      .filter(id => !isNaN(id));
 
-    ultimoIdTurno = ids.length > 0 ? Math.max(...ids) : 0;
-  }
-  ultimoIdTurno++;
-  return ultimoIdTurno;
+    if (!Array.isArray(turnos) || turnos.length === 0) {
+        return 1;
+    }
+
+    const ids = turnos
+        .map(t => parseInt(t.fields.idTurno))
+        .filter(id => !isNaN(id));
+
+    if (ids.length === 0) return 1;
+
+    return Math.max(...ids) + 1;
 }
 //  Obtener todos los turnos
 async function getTurnosService() {
-    const turnos = await obtenerTurnos();
-    return  turnos.map(mapearTurno);
+    return await obtenerTurnos();
 }
 
 //  Obtener un turno por su ID normal
 async function getTurnoByIdService(idTurno) {
     const turno = await obtenerTurnoByIdNormal(idTurno);
     if (!turno) throw new Error(`No se encontró el turno con ID ${idTurno}`);
-    return  mapearTurno(turno);
+    return turno;
 }
-
 
 //  Crear un nuevo turno by el admin 
 async function crearTurnoService(idUsuarioAdmin, datosTurno) {
@@ -200,22 +195,14 @@ async function reservarTurnoService(idTurno, idUsuario) {
     // 5️ Ejecutar PATCH en Airtable
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
 
-   
-
     // 6️ Manejar error de Airtable
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
         throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
     }
 
-    // 7) Notificar a usuario y admins
-    await notificarReservaService(idAirtableTurno, idAirtableUsuario);
-
-      console.log(" Turno reservado correctamente:", resultado);
-    return {
-        message: `Turno ${idTurno} reservado correctamente`,
-        data: resultado
-    };
+    console.log(" Turno reservado correctamente:", resultado);
+    return resultado;
 }
 
 //Cancerlar Reserva 
@@ -245,9 +232,6 @@ async function cancelarReservaService(idTurno, idUsuario) {
 
     // 4️ Ejecutar PATCH en Airtable
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
-
-  //  ACA es donde corregimos: Se notifica al usuario y al Admin 
-    await notificarCancelacionService(idAirtableTurno, idAirtableUsuario);
 
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
@@ -291,21 +275,43 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
 
 //Obtener todos los turnos de un usuario (por su ID normal)
 async function obtenerTurnosPorUsuarioService(idUsuario) {
+    console.log(`[obtenerTurnosPorUsuarioService] Buscando turnos del usuario ${idUsuario}`);
+
+    //  Verificar si existe el usuario en Airtable
     const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
-    if (!idAirtableUsuario) return { error: `No existe usuario con ID ${idUsuario}` };
 
-    const turnos = await obtenerTurnosPorUsuarioAirtable(idAirtableUsuario);
+    if (!idAirtableUsuario) {
+        return {
+            error: `No existe un usuario con el ID ${idUsuario}`
+        };
+    }
 
-    const turnosFormateados =  turnos.map(t => mapearTurno(t, idUsuario));
+    //  Buscar turnos que tengan ese idUsuarioVinculado
+    const turnos = await obtenerTurnosPorUsuarioAirtable(idUsuario);
+
+    if (!turnos || turnos.length === 0) {
+        return {
+            idUsuario,
+            turnos: [],
+            mensaje: `El usuario con ID ${idUsuario} no tiene turnos asignados.`
+        };
+    }
+
+    //  Si tiene turnos, los devolvemos formateados
+    const resultado = turnos.map(t => ({
+        idTurno: t.fields.idTurno,
+        fecha: t.fields.fecha,
+        hora: t.fields.hora,
+        tipoServicio: t.fields.tipoServicio,
+        notas: t.fields.notas,
+    }));
 
     return {
         idUsuario,
-        cantidad: turnosFormateados.length,
-        turnos: turnosFormateados
+        cantidad: resultado.length,
+        turnos: resultado
     };
 }
-
-
 
 
 //Funciones Auxiliares
@@ -343,7 +349,7 @@ async function hayConflictoDeHorario(fecha, hora) {
         const horaExistente = convertirHoraAMinutos(t.fields.hora);
         const diferencia = Math.abs(nuevaHora - horaExistente);
 
-        return diferencia < 60; // menos de 59 min → conflicto
+        return diferencia < 59; // menos de 59 min → conflicto
     });
 }
 
