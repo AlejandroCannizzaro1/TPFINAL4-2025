@@ -16,23 +16,20 @@ const {
 
 // =================== Helpers ======================== 
 
-//Autoincrementa  el idUsuario basado en el mayor existente en Airtable 
-async function obtenerProximoIdUsuario() {
-    const usuarios = await obtenerUsuarios();
+let ultimoIdUsuario = 0;  // variable global en memoria
 
-    if (!Array.isArray(usuarios) || usuarios.length === 0) {
-        return 1;
+async function obtenerProximoIdUsuario() {
+    if (ultimoIdUsuario === 0) {
+        const usuarios = await obtenerUsuarios();
+        const ids = usuarios
+            .map(u => parseInt(u.fields.idUsuario))
+            .filter(id => !isNaN(id));
+        ultimoIdUsuario = ids.length > 0 ? Math.max(...ids) : 0;
     }
 
-    const ids = usuarios
-        .map(t => parseInt(t.fields.idUsuario))
-        .filter(id => !isNaN(id));
-
-    if (ids.length === 0) return 1;
-
-    return Math.max(...ids) + 1;
+    ultimoIdUsuario++;
+    return ultimoIdUsuario;
 }
-
 //Busca Usuario por EMAIL 
 async function buscarUsuarioPorEmailService(email) {
     try {

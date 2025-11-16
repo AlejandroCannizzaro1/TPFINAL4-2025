@@ -19,21 +19,21 @@ const { mapearTurno } = require('../Mappers/turnoMapper');
 
 
 
-//Obtener proximo id de Turnos de Airtable 
+
+
+let ultimoIdTurno = 0; // Variable en memoria para el último ID usado
+
 async function obtenerProximoIdTurnoService() {
+  if (ultimoIdTurno === 0) {
     const turnos = await obtenerTurnos();
-
-    if (!Array.isArray(turnos) || turnos.length === 0) {
-        return 1;
-    }
-
     const ids = turnos
-        .map(t => parseInt(t.fields.idTurno))
-        .filter(id => !isNaN(id));
+      .map(t => parseInt(t.fields.idTurno))
+      .filter(id => !isNaN(id));
 
-    if (ids.length === 0) return 1;
-
-    return Math.max(...ids) + 1;
+    ultimoIdTurno = ids.length > 0 ? Math.max(...ids) : 0;
+  }
+  ultimoIdTurno++;
+  return ultimoIdTurno;
 }
 //  Obtener todos los turnos
 async function getTurnosService() {

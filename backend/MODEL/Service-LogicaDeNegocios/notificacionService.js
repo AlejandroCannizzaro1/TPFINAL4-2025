@@ -19,16 +19,23 @@ function esRecordId(id) {
 }
 
 
-// Obtener el próximo ID incremental de notificación
+//Obtener ultimo id de notificacion 
+let ultimoIdNotificacion = 0;
+
 async function obtenerProximoIdNotificacionService() {
-    const notificaciones = await obtenerNotificaciones();
-    if (!notificaciones || notificaciones.length === 0) return 1;
-
-    const ids = notificaciones
-        .map(n => parseInt(n.fields.idNotificacion))
-        .filter(id => !isNaN(id));
-
-    return ids.length === 0 ? 1 : Math.max(...ids) + 1;
+    if (ultimoIdNotificacion === 0) {
+        const notificaciones = await obtenerNotificaciones();
+        if (!notificaciones || notificaciones.length === 0) {
+            ultimoIdNotificacion = 0;
+        } else {
+            const ids = notificaciones
+                .map(n => parseInt(n.fields.idNotificacion))
+                .filter(id => !isNaN(id));
+            ultimoIdNotificacion = ids.length > 0 ? Math.max(...ids) : 0;
+        }
+    }
+    ultimoIdNotificacion++;
+    return ultimoIdNotificacion;
 }
 
 
