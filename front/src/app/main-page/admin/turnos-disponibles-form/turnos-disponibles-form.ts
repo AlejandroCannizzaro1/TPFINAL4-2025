@@ -18,7 +18,7 @@ export class TurnosDisponiblesForm {
   private readonly fb = inject(FormBuilder);
   private readonly client = inject(TurnoService);
 
-  private readonly today = new Date();
+  public readonly today = new Date();
   private readonly dia = this.today.getDate();
   private readonly mes = this.today.getMonth();
   private readonly anio = this.today.getFullYear();
@@ -31,10 +31,12 @@ export class TurnosDisponiblesForm {
     apertura: [8, [Validators.required, Validators.min(0), Validators.max(24)]],
     cierre: [17, [Validators.required, Validators.min(0), Validators.max(24)]],
     cierreXmedio: [false],
-    cierreMedio: [12, [Validators.required, Validators.min(0), Validators.max(24)]],
-    aperturaMedio: [13, [Validators.required, Validators.min(0), Validators.max(24)]],
-    diasGenerar: [7, [Validators.required, Validators.min(1), Validators.max(60)]]
+    cierreMedio: [12, [Validators.min(0), Validators.max(24)]],
+    aperturaMedio: [13, [Validators.min(0), Validators.max(24)]],
+    fechaInicio: ['', Validators.required],
+    fechaFin: ['', Validators.required]
   });
+
 
   get cierreXmedio() {
     return this.form.controls.cierreXmedio;
@@ -45,7 +47,9 @@ export class TurnosDisponiblesForm {
     return fecha.getDate();
   }
 
-
+  get fechaInicio() {
+    return this.form.controls.fechaInicio;
+  }
   async handleSubmit() {
     if (this.form.invalid) {
       alert("El formulario está incompleto!");
@@ -62,6 +66,19 @@ export class TurnosDisponiblesForm {
       }
     }
 
+    // Validar fechas inicio y fin
+    const fechaInicioObj = new Date(info.fechaInicio);
+    const fechaFinObj = new Date(info.fechaFin);
+
+    // Normalizar horas a cero para comparar solo fechas
+    fechaInicioObj.setHours(0, 0, 0, 0);
+    fechaFinObj.setHours(0, 0, 0, 0);
+
+    if (fechaFinObj < fechaInicioObj) {
+      alert("La fecha fin no puede ser anterior a la fecha inicio.");
+      return;
+    }
+
     const idAdminStr = this.auth.getId();
     if (!idAdminStr) {
       alert('No estás logueado o no se encontró el ID de usuario.');
@@ -69,22 +86,22 @@ export class TurnosDisponiblesForm {
     }
     const idAdmin = Number(idAdminStr);
 
-    if (!confirm("Confirma que los horarios son correctos? (Eliminarlos será más difícil)")) {
+    if (!confirm("Confirma que los horarios son correctos? (Eliminar turnos existentes fuera de rango no está contemplado)")) {
       return;
     }
 
     this.loading = true;
 
-    const diasGenerar = info.diasGenerar;
-    const fechaInicio = `${this.anio}-${(this.mes + 1).toString().padStart(2, '0')}-${this.dia.toString().padStart(2, '0')}`;
-    const fechaFinObj = new Date(this.anio, this.mes, this.dia + diasGenerar);
-    const fechaFin = `${fechaFinObj.getFullYear()}-${(fechaFinObj.getMonth() + 1).toString().padStart(2, '0')}-${fechaFinObj.getDate().toString().padStart(2, '0')}`;
+    // Convertir fechas a string para filtrar turnos
+    const fechaInicioStr = fechaInicioObj.toISOString().slice(0, 10);
+    const fechaFinStr = fechaFinObj.toISOString().slice(0, 10);
 
     let turnosExistentes: Turno[] = [];
     try {
       const todosTurnos = await firstValueFrom(this.client.getTurnos());
       const turnos = todosTurnos.map(t => t.fields);
-      turnosExistentes = turnos.filter(t => t.fecha >= fechaInicio && t.fecha <= fechaFin);
+      // Filtrar por rango fecha inicio-fin
+      turnosExistentes = turnos.filter(t => t.fecha >= fechaInicioStr && t.fecha <= fechaFinStr);
     } catch (err) {
       console.error('Error obteniendo turnos existentes:', err);
       alert('No se pudieron obtener los turnos existentes. Intenta más tarde.');
@@ -94,12 +111,12 @@ export class TurnosDisponiblesForm {
 
     const creaciones: Promise<any>[] = [];
 
-    for (let offset = 0; offset < diasGenerar; offset++) {
-      const fechaObj = new Date(this.anio, this.mes, this.dia + offset);
-      const diaSemana = fechaObj.getDay();
+    // Recorrer desde fechaInicio a fechaFin
+    for (let fecha = new Date(fechaInicioObj); fecha <= fechaFinObj; fecha.setDate(fecha.getDate() + 1)) {
+      const diaSemana = fecha.getDay();
       if (diaSemana === 0 || diaSemana === 6) continue; // saltar fines de semana
 
-      const fechaStr = `${fechaObj.getFullYear()}-${(fechaObj.getMonth() + 1).toString().padStart(2, '0')}-${fechaObj.getDate().toString().padStart(2, '0')}`;
+      const fechaStr = fecha.toISOString().slice(0, 10);
 
       const horasAInsertar: number[] = [];
       if (info.cierreXmedio) {
@@ -126,7 +143,6 @@ export class TurnosDisponiblesForm {
           notas: ''
         };
 
-        // Convertir Observable a Promise para await
         const prom = firstValueFrom(this.client.crearTurnoAdmin(idAdmin, datosTurno))
           .then(res => console.log('Turno creado:', res))
           .catch(err => console.error('Error creando turno:', err));
@@ -140,4 +156,6 @@ export class TurnosDisponiblesForm {
     this.loading = false;
     alert('Se crearon todos los turnos disponibles correctamente!');
   }
+ 
+
 }

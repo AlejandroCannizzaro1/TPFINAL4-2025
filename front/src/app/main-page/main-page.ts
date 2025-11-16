@@ -14,6 +14,4 @@ export class MainPage {
 
   protected readonly auth = inject(AuthService);
   
-  
-
 }
