@@ -1,12 +1,21 @@
-@let turno = this.turno();
-<div class="ventana-turno">
-    @if (turno && esMiTurno()) {
-        <h1>Turno</h1>
-        <h3>{{turno.fecha}}</h3>
-        <h3>{{turno.hora}}</h3>
-        <button>Cancelar reserva</button>
-    }@else {
-        <h1>Uh oh!</h1>
-        <p>No se encontro el turno...</p>
-    } 
-</div>
+@if (turnoSource() === undefined) {
+    <p>Cargando...</p>
+}@else {   
+    @let turno = this.turno();
+    <div class="ventana-turno">
+        @if (turno && esMiTurno()) {
+            <h1>Turno</h1>
+            <h3>{{turno.fecha}}</h3>
+            <h3>{{turno.hora}}</h3>
+            <button (click)="cancelarReserva()">Cancelar reserva</button>
+        }@else {
+            <h1>Uh oh!</h1>
+            @if (!esMiTurno()) {
+                <p>Este turno no lo reservaste!</p>
+            }@else {
+                <p>No se encontro el turno...</p>
+            }
+        } 
+    </div>
+}
+    

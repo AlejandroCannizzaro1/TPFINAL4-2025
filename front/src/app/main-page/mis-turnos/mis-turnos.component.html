@@ -2,13 +2,20 @@
 <p>Cargando Turnos...</p>
 }
 
-@if (turnos()?.turnos) {
-<h1>Turnos</h1>
-<ul>
-    @for (turno of turnos()?.turnos; track $index) {
-    <li (click)="verDetalles(turno.idTurno!)">
-        Turno: {{turno.fecha}} | {{turno.hora}} |
-    </li>
+@if (turnos()) {
+    @if (turnos()?.turnos?.length! > 0) {
+
+        <h1>Turnos</h1>
+        <ul>
+            @for (turno of turnos()?.turnos; track $index) {
+                <li (click)="verDetalles(turno.idTurno!)">
+                    Turno: {{turno.fecha}} | {{turno.hora}} |
+                </li>
+            }
+        </ul>
+    }@else {
+        <p>No tenes turnos reservados!</p>
     }
-</ul>
+}@else {
+    <p>Error cargando los turnos!</p>
 }
