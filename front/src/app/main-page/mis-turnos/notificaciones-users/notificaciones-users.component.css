@@ -1,0 +1,68 @@
+.notificaciones-panel {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  background: rgba(255 255 255 / 0.1);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.lista-notificaciones {
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(255 255 255 / 0.2);
+  border-radius: 6px;
+}
+
+.lista-notificaciones li {
+  padding: 10px 15px;
+  border-bottom: 1px solid rgba(255 255 255 / 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lista-notificaciones li:hover {
+  background-color: rgba(255 255 255 / 0.15);
+}
+
+.lista-notificaciones li.seleccionada {
+  background-color: rgba(212 163 115 / 0.4);
+  font-weight: 600;
+}
+
+.detalle-notificacion {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 6px;
+  position: relative; /* por si quieres posicionar elementos relativos */
+  max-width: 500px; /* opcional */
+}
+
+.detalle-header {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.cerrar-btn {
+  background: transparent;
+  border: none;
+  color: red;
+  font-weight: bold;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.25rem;
+  transition: color 0.3s;
+  user-select: none;
+}
+
+.cerrar-btn:hover {
+  color: darkred;
+}
+.cerrar-btn:hover {
+  color: darkred;
+}

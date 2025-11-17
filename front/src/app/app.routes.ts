@@ -10,20 +10,21 @@ import { AdminPanelComponent } from './main-page/admin/admin-panel/admin-panel.c
 import { RoleGuard } from './guards/role.guard/role.guard'; // <- IMPORTANTE
 import { TurnosDisponiblesForm } from './main-page/admin/turnos-disponibles-form/turnos-disponibles-form';
 import { FilterAdminComponent } from './main-page/admin/filter-admin/filter-admin.component';
-import { NotificacionAdminComponent } from './main-page/admin/notificacion-admin/notificacion-admin.component';
+import { NotificacionesUsersComponent } from './main-page/mis-turnos/notificaciones-users/notificaciones-users.component'; 
 
 export const routes: Routes = [
   { path: '', component: MainPage, title: 'Bienvenido' },
   { path: 'login', component: Login, canActivate: [NoGuard], title: 'Iniciar Sesion' },
   { path: 'register', component: Register, canActivate: [NoGuard], title: 'Registrarse' },
-  { path: 'calendario', component: CalendarComponent, canActivate: [AuthGuard], title: 'Calendario' },
+  { path: 'calendario', component: CalendarComponent, canActivate: [AuthGuard], title: 'Calendario'},
+  { path: 'notificaciones', component: NotificacionesUsersComponent, canActivate: [AuthGuard]},
   // Usuario normal
   { path: 'mis-turnos', component: MisTurnosComponent, canActivate: [AuthGuard], title: 'Mis Turnos' },
   // Solo admin
   { path: 'admin', component: AdminPanelComponent, canActivate: [AuthGuard, RoleGuard], title: 'Panel Admin' },
   { path: 'admin/filter-admin', component: FilterAdminComponent, canActivate: [AuthGuard, RoleGuard] },
   { path: 'admin/setting_turnos', component: TurnosDisponiblesForm, canActivate: [AuthGuard, RoleGuard], title: 'Configuracion Turnos Disponibles' }
-  , { path: 'admin/notificacion-admin', component: NotificacionAdminComponent, canActivate: [AuthGuard, RoleGuard] }
+  
 ];
 
 

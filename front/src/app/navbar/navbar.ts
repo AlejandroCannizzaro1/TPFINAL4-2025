@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component,  inject, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service/auth.service';
 import { Router, RouterLink } from "@angular/router";
 import { CommonModule } from '@angular/common';
+import { NotificacionService } from '../services/notificacion-service.service';
 
 @Component({
   selector: 'app-navbar',
@@ -12,10 +13,17 @@ import { CommonModule } from '@angular/common';
 })
 export class Navbar {
 
-  constructor(public auth: AuthService, private router: Router) {}
+ auth = inject(AuthService);
+  router = inject(Router);
+
+  constructor() {}
+
+  ngOnInit() {
+    // Ya no necesitas cargar notificaciones aquí
+  }
 
   logout() {
-    if (confirm("Desea cerrar sesion?")) {
+    if (confirm("Desea cerrar sesión?")) {
       this.auth.logout();
       this.router.navigateByUrl('/');
     }

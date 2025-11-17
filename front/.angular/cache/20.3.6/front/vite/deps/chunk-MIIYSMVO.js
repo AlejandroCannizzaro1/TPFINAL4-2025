@@ -1,7 +1,7 @@
 import {
   BehaviorSubject,
   Observable
-} from "./chunk-RSS3ODKE.js";
+} from "./chunk-Y72XGDAT.js";
 import {
   BASE_EFFECT_NODE,
   SIGNAL,
@@ -3261,4 +3261,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-BOXXQKBM.js.map
+//# sourceMappingURL=chunk-MIIYSMVO.js.map

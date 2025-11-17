@@ -1,0 +1,39 @@
+<div class="notificaciones-panel">
+  <h2>Notificaciones del Administrador</h2>
+
+  <!-- Estado cargando -->
+  <div *ngIf="cargando()">
+    <p>Cargando notificaciones...</p>
+  </div>
+
+  <!-- Estado cargado -->
+  <div *ngIf="!cargando()">
+    <ul *ngIf="notificaciones().length > 0; else noNotificaciones" class="lista-notificaciones">
+      <li *ngFor="let noti of notificaciones(); let i = index"
+          (click)="seleccionarNotificacion(noti)"
+          [class.seleccionada]="noti.idNotificacion === notificacionSeleccionada()?.idNotificacion">
+        Notificación {{ i + 1 }}
+      </li>
+    </ul>
+
+    <ng-template #noNotificaciones>
+      <p>No hay notificaciones.</p>
+    </ng-template>
+  </div>
+
+  <div *ngIf="notificacionSeleccionada()" class="detalle-notificacion">
+    <div class="detalle-header" style="display: flex; justify-content: flex-end;">
+      <button class="cerrar-btn" (click)="notificacionSeleccionada.set(null)" 
+              style="background: none; border: none; font-size: 1.5rem; color: red; cursor: pointer;">
+        ×
+      </button>
+    </div>
+
+    <h3>Detalle Notificación</h3>
+    <p><strong>Mensaje:</strong> {{ notificacionSeleccionada()?.mensaje }}</p>
+    <p><strong>Fecha:</strong> {{ notificacionSeleccionada()?.fecha }}</p>
+    <p><strong>Hora:</strong> {{ notificacionSeleccionada()?.hora }}</p>
+    <p><strong>Servicio:</strong> {{ notificacionSeleccionada()?.servicio }}</p>
+    <p><strong>ID Turno:</strong> {{ notificacionSeleccionada()?.idTurno }}</p>
+  </div>
+</div>
