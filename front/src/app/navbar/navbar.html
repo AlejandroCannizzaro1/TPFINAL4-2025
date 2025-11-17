@@ -4,23 +4,25 @@
 
     @if (auth.isLoggedIn() && !auth.isAdmin()) {
       <a class="nav-link" routerLink="/mis-turnos">Mis Turnos</a>
+      <a class="nav-link" routerLink="/notificaciones">Notificaciones</a>
       <a class="nav-link" routerLink="/calendario">Pedir Turno</a>
     }
 
     @if (auth.isLoggedIn() && auth.isAdmin()) {
       <a class="nav-link" routerLink="/admin">Panel Admin</a>
+      <a class="nav-link" routerLink="/notificaciones">Notificaciones</a>
       <a class="nav-link" routerLink="/calendario">Gestionar Turnos</a>
     }
   </div>
 
   <div class="navbar-right">
-    @if (!auth.isLoggedIn()) {
-      <!-- Nada de login/register acá, eso ya está en la main page -->
-    }
+    <span class="nav-link">Bienvenido, {{ auth.getName() }}</span>
 
-    @if (auth.isLoggedIn()) {
-      <span class="nav-link">Bienvenido, {{ auth.getName() }}</span>
-      <a class="nav-link" (click)="logout()">Cerrar Sesión</a>
-    }
+    <!-- Solo admin: ícono con link a notificaciones -->
+    <a *ngIf="auth.isAdmin()" class="nav-link notif-link" routerLink="/notificaciones" title="Ver notificaciones">
+      <i class="fa-solid fa-bell"></i>
+    </a>
+
+    <a class="nav-link" (click)="logout()">Cerrar Sesión</a>
   </div>
 </div>

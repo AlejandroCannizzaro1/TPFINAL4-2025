@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Turno } from '../entities/turno';
@@ -13,7 +13,7 @@ export class TurnoService {
 
   private apiUrl = 'http://localhost:3001'; // asegurate que este puerto sea el correcto
 
-  constructor(private http: HttpClient) { }
+  private readonly http = inject(HttpClient);
 
 
   getTurnos() {
@@ -24,13 +24,8 @@ export class TurnoService {
     return this.http.get<Turno[]>(this.apiUrl + '/turnos/disponibles');
   }
 
-  getTurnosById(id: string | number) {  //Turnos de un usuario
-    return this.http.get<TurnosByUsuarioResponse>(`${this.apiUrl}/turnos/usuario?idUsuario=${id}`);
-  }
-
-
-  crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
+  getTurnosById(idTurno: string | number) {
+    return this.http.get<Turno[]>(`${this.apiUrl}/turnos/${idTurno}`);
   }
 
   reservarTurno(idTurno: number, idUsuario: number): Observable<any> {
@@ -38,10 +33,35 @@ export class TurnoService {
   }
 
   eliminarTurno(idTurno: number, idAdmin: number) {
-    return this.http.post<any>(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { "idUsuarioAdmin":idAdmin});
+    return this.http.post<any>(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { "idUsuarioAdmin": idAdmin });
   }
 
   cancelarReservaTurno(idTurno: number, idUsuario: number) {
-    return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuario":idUsuario });
+    return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuario": idUsuario });
   }
+
+  getTurnosByIdUsuario(idUsuario: string | number) {
+    return this.http.get<TurnosByUsuarioResponse>(`${this.apiUrl}/turnos/usuario?idUsuario=${idUsuario}`);
+  }
+
+  crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
+  }
+
+  cancelarReserva(idTurno: number, idUsuario: number) {
+    return this.http.post(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { idUsuario });
+  }
+
+  eliminarTurnoAdmin(idTurno: number, idUsuarioAdmin: number) {
+    return this.http.post(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { idUsuarioAdmin });
+  }
+
+  limpiarTurnosPasados(idUsuarioAdmin: number) {
+    return this.http.post(`${this.apiUrl}/turnos/limpiar`, { idUsuarioAdmin });
+  }
+
+  editarTurnoAdmin(idTurno: number, idUsuarioAdmin: number, cambios: Partial<Turno>) {
+    return this.http.patch(`${this.apiUrl}/turnos/${idTurno}`, { idUsuarioAdmin, ...cambios });
+  }
+
 }

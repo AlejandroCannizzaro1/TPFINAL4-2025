@@ -47,6 +47,7 @@ export class CalendarComponent {
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, multiMonthPlugin],
     initialView: 'dayGridMonth',
+    displayEventTime: false,
     locale: esLocale,
     selectable: true,
     eventClick: (info) => this.handleEventClick(info),
@@ -64,7 +65,7 @@ export class CalendarComponent {
           this.cargarTurnos(false); //Manda a la funcion que ya sabe que hay turnos cargados (porque paso el if)
         }
       }
-    }) //De paso es reactive porque si se modifica en cualquier momento, los turnos se cargan
+    })
   }
 
   get userIdNumber() {
@@ -77,9 +78,10 @@ export class CalendarComponent {
     if (!admin) {
       eventos = this.turnoResponse()!.map(t => ({
         id: t.idTurno?.toString(),
-        title: t.hora,
+        title: `cd${t.hora} hs`,
         start: `${t.fecha}T${t.hora}:00`,
         extendedProps: t,
+        order: t.turnoDisponible ? 0 : 1,
         color: 'green'
       }));
     }
@@ -87,15 +89,16 @@ export class CalendarComponent {
     else {
       eventos = this.turnoResponseAll()!.map(t => ({
         id: t.fields.idTurno?.toString(),
-        title: t.fields.hora,
+        title: ` ${t.fields.hora} hs`,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
-        extendedProps: t.fields,
+        extendedProps: t,
+        order: t.fields.turnoDisponible ? 0 : 1,
         color: t.fields.turnoDisponible ? 'green ' : 'red'
       }));
       console.log(eventos);
     }
 
-    this.calendarOptions = { ...this.calendarOptions, events: eventos };
+    this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: 'order' };
   }
 
   agregarTurno(turno: Turno) {
@@ -132,13 +135,13 @@ export class CalendarComponent {
 
     this.turnoClient.crearTurnoAdmin(idAdmin, nuevoTurno).subscribe({ //No se carga el turno reactivamente
       next: (t) => this.agregarTurno(t),//this.cargarTurnos(),
-      error: err => {
+      error: (err) => {
         alert('Error al crear turno');
         console.error(err);
-
       }
     });
   }
+
 
   handleEventClick(info: any) {
     const turno: Turno = info.event.extendedProps;
@@ -208,8 +211,15 @@ export class CalendarComponent {
       return;
     }
 
+    const data = {
+      idUsuario: idUsuario,
+      tipoServicio: this.tipoServicio,
+      notas: this.notas
+    };
+
+
     this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, idUsuario).subscribe({
-      next: (t) => {
+      next: () => {
         alert("Turno reservado con éxito");
 
         // limpiar formulario
@@ -220,7 +230,7 @@ export class CalendarComponent {
 
         window.location.reload();
       },
-      error: (t) => {
+      error: () => {
         alert('Error esperado, reservado igualmente');
         this.mostrarFormulario.set(false);
         this.tipoServicio = '';

@@ -281,6 +281,7 @@ async function limpiarTurnosPasadosService(fechaActual, idUsuarioAdmin) {
 }
 
 // Eliminar un turno (solo admin)
+
 async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
     // Primero, obtenemos el ID interno Airtable del usuario admin
     const idAirtableAdmin = await obtenerIdAirtablePorIdUsuario(idUsuarioAdmin);
@@ -301,6 +302,7 @@ async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
 
     return await eliminarTurno(idAirtableTurno);
 }
+
 
 //Obtener todos los turnos de un usuario (por su ID normal)
 async function obtenerTurnosPorUsuarioService(idUsuario) {

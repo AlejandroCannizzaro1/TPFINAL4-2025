@@ -1,6 +1,8 @@
 export interface Notificacion {
   idNotificacion: number;
   mensaje: string;
-  mensajeLeido?: boolean;
-  usuarioVinculado?: string | null; // viene recId o null
+  idTurno: number;
+  fecha: string;
+  hora: string;
+  servicio: string;
 }

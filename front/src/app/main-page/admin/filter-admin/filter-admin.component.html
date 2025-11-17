@@ -1,0 +1,36 @@
+<h2>Lista de Usuarios</h2>
+
+<div class="usuarios-lista">
+    <div *ngFor="let usuario of usuarios()" class="usuario-card">
+        <div class="usuario-detalles">
+            <p class="usuario-nombre">{{ usuario.nombre }}</p>
+        </div>
+        <div class="usuario-acciones">
+            <button class="btn-pequeno" (click)="verInfoUsuario(usuario)">
+                Ver info
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DETALLE DEL USUARIO -->
+<div *ngIf="usuarioSeleccionado()" #detalleUsuarioRef class="detalle-usuario">
+    <h3>Detalles del Usuario</h3>
+    <p><strong>Nombre:</strong> {{ usuarioSeleccionado().nombre }}</p>
+    <p><strong>Email:</strong> {{ usuarioSeleccionado().email }}</p>
+</div>
+
+<h2 *ngIf="usuarioSeleccionado()">Turnos del Usuario</h2>
+
+<div *ngIf="turnosUsuario().length > 0" class="turnos-usuario">
+    <h3>Turnos Asociados</h3>
+    <ul>
+        <li *ngFor="let turno of turnosUsuario()">
+            {{ turno.fecha }} - {{ turno.hora }}
+        </li>
+    </ul>
+</div>
+
+<div *ngIf="turnosUsuario().length === 0 && usuarioSeleccionado()" class="sin-turnos">
+    No hay turnos para este usuario.
+</div>

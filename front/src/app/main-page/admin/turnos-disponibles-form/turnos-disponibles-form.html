@@ -3,16 +3,19 @@
   <h3>-- Recordá que solo se cargan turnos disponibles desde hoy a fin de mes! --</h3>
   <form [formGroup]="form" (ngSubmit)="handleSubmit()">
     <div class="entradas">
+
       <label for="apertura">Hora de apertura</label>
       <input type="number" id="apertura" formControlName="apertura" min="0" max="24">
 
       <label for="cierre">Hora de cierre</label>
       <input type="number" id="cierre" formControlName="cierre" min="0" max="24">
 
-      <label for="cierreXmedio">Cerrás entre medio?</label>
-      <input type="checkbox" id="cierreXmedio" formControlName="cierreXmedio">
+      <label class="checkbox-label" for="cierreXmedio">
+        <input type="checkbox" id="cierreXmedio" formControlName="cierreXmedio">
+        Cerrás entre medio?
+      </label>
 
-      <div *ngIf="cierreXmedio.value">
+      <div *ngIf="cierreXmedio.value" class="medio-block">
         <label for="cierreMedio">Hora de cierre (medio)</label>
         <input type="number" id="cierreMedio" formControlName="cierreMedio" min="0" max="24">
 

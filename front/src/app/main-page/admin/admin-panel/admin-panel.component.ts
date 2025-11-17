@@ -21,7 +21,11 @@ export class AdminPanelComponent {
      que el usuario lo compre y eso le da, no se, 10 % de descuento en cada turno por 3 meses y ahi le asignamos estado premium
    */
 
-     routearASettingTurnosDisponibles() {
-      this.router.navigateByUrl('/admin/setting_turnos');
-     }
+  routearASettingTurnosDisponibles() {
+    this.router.navigateByUrl('/admin/setting_turnos');
+  }
+  routearAFilterAdmin() {
+    this.router.navigateByUrl('admin/filter-admin');
+  }
+
 }
