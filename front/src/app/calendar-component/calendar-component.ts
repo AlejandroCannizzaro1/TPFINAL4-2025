@@ -67,6 +67,9 @@ export class CalendarComponent {
     }) //De paso es reactive porque si se modifica en cualquier momento, los turnos se cargan
   }
 
+  get userIdNumber() {
+    return Number(this.auth.getId());
+  }
   cargarTurnos(admin: boolean) {
 
     let eventos;
@@ -89,6 +92,7 @@ export class CalendarComponent {
         extendedProps: t.fields,
         color: t.fields.turnoDisponible ? 'green ' : 'red'
       }));
+      console.log(eventos);
     }
 
     this.calendarOptions = { ...this.calendarOptions, events: eventos };
@@ -131,11 +135,10 @@ export class CalendarComponent {
       error: err => {
         alert('Error al crear turno');
         console.error(err);
-        
+
       }
     });
   }
-
 
   handleEventClick(info: any) {
     const turno: Turno = info.event.extendedProps;
@@ -149,10 +152,6 @@ export class CalendarComponent {
     if (!turno.turnoDisponible && !this.usuarioEsAdmin) {
       alert("Este turno ya está reservado.");
       return;
-    }
-
-    if (this.usuarioEsAdmin) {
-
     }
 
     this.turnoSeleccionado = turno;
@@ -203,23 +202,36 @@ export class CalendarComponent {
   confirmarTurno() {
     if (!this.turnoSeleccionado) return;
 
-    const idUsuario = Number(localStorage.getItem("idUsuario"));
+    const idUsuario = Number(this.auth.getId());
     if (!idUsuario) {
       alert("Debes iniciar sesión para reservar turnos.");
       return;
     }
 
-    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, idUsuario).subscribe((t) => {
-      alert("Turno reservado con éxito");
+    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, idUsuario).subscribe({
+      next: (t) => {
+        alert("Turno reservado con éxito");
 
-      // limpiar formulario
-      this.mostrarFormulario.set(false);
-      this.tipoServicio = '';
-      this.notas = '';
-      this.turnoSeleccionado = null;
+        // limpiar formulario
+        this.mostrarFormulario.set(false);
+        this.tipoServicio = '';
+        this.notas = '';
+        this.turnoSeleccionado = null;
 
-      window.location.reload();
-    });
+        window.location.reload();
+      },
+      error: (t) => {
+        alert('Error esperado, reservado igualmente');
+        this.mostrarFormulario.set(false);
+        this.tipoServicio = '';
+        this.notas = '';
+        this.turnoSeleccionado = null;
+
+        window.location.reload();
+      },
+
+    })
+
   }
 
   cancelar() {

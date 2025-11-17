@@ -34,7 +34,7 @@ export class TurnoService {
   }
 
   reservarTurno(idTurno: number, idUsuario: number): Observable<any> {
-    return this.http.put<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, { "idUsuario": idUsuario});
+    return this.http.post<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, { "idUsuario": idUsuario });
   }
 
   eliminarTurno(idTurno: number, idAdmin: number) {

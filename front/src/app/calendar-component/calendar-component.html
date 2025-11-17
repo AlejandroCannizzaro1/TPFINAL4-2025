@@ -4,11 +4,14 @@
   }
 </div>
 
+@let userId = userIdNumber;
+
 <!-- FORMULARIO EMERGENTE -->
 @if (mostrarFormulario()) {
 
   <div class="modal-fondo">
     <div class="modal-contenido">
+      <p>{{userId}}, {{turnoSeleccionado?.idUsuarioVinculado}}</p>
       @if (turnoSeleccionado?.turnoDisponible) {
         <h3>Confirmar Reserva</h3>
       }@else {
@@ -35,10 +38,10 @@
           <button (click)="confirmarTurno()">Confirmar</button>
         }
         <button class="cancelar" (click)="cancelar()">Cancelar</button>
+        @if (!usuarioEsAdmin) {
+          <button (click)="cancelarReserva()">Cancelar Reserva</button>
+        }
         @if (usuarioEsAdmin) {
-          @if (!turnoSeleccionado?.turnoDisponible) {
-            <button (click)="cancelarReserva()">Cancelar Reserva</button>
-          }
           <button (click)="eliminarTurno()">Eliminar Turno</button>
         }
       </div>
