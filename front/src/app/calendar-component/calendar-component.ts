@@ -45,6 +45,7 @@ export class CalendarComponent {
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, multiMonthPlugin],
     initialView: 'dayGridMonth',
+    displayEventTime: false,
     locale: esLocale,
     selectable: true,
     eventClick: (info) => this.handleEventClick(info),
@@ -66,25 +67,28 @@ export class CalendarComponent {
   }
 
   cargarTurnos(admin: boolean) {
-    if(!admin) {
-      const eventos = this.turnoResponse()!.map(t => ({
-        id: t.idTurno?.toString(),
-        title: t.hora,
-        start: `${t.fecha}T${t.hora}:00`,
-        extendedProps: t
-      }));
-      this.calendarOptions = { ...this.calendarOptions, events: eventos };
-    }
-    else {
-      const eventos = this.turnoResponseAll()!.map(t => ({
-        id: t.fields.idTurno?.toString(),
-        title: t.fields.hora,
-        start: `${t.fields.fecha}T${t.fields.hora}:00`,
-        extendedProps: t
-      }));
-      this.calendarOptions = { ...this.calendarOptions, events: eventos };
-    }
+  if (!admin) {
+    const eventos = this.turnoResponse()!.map(t => ({
+      id: t.idTurno?.toString(),
+      title: `cd${t.hora} hs`,
+      start: `${t.fecha}T${t.hora}:00`,
+      extendedProps: t,
+      order: t.turnoDisponible ? 0 : 1  // Turnos disponibles arriba (0), reservados abajo (1)
+    }));
+    this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: 'order' };
+  } else {
+    const eventos = this.turnoResponseAll()!.map(t => ({
+      id: t.fields.idTurno?.toString(),
+      title: ` ${t.fields.hora} hs`,
+      start: `${t.fields.fecha}T${t.fields.hora}:00`,
+      extendedProps: t,
+      order: t.fields.turnoDisponible ? 0 : 1
+    }));
+    this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: 'order' };
   }
+}
+
+
 
   agregarTurno(turno: Turno) {
     if (turno) {
