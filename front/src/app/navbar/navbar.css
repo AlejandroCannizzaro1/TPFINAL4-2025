@@ -4,21 +4,39 @@
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255,255,255,0.18);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   position: sticky;
   top: 0;
   z-index: 1000;
+
+  box-sizing: border-box;
 }
 
+/* --- Contenedores izquierdo y derecho --- */
 .navbar-left,
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 1.6rem;
+  flex-wrap: nowrap;
 }
 
+/* --- Para que el lado derecho no se corte --- */
+.navbar-right {
+  justify-content: flex-end;
+  min-width: 260px; /* evita que "Cerrar Sesión" se vaya debajo */
+}
+
+/* En caso de que quieras que los extremos estén mejor balanceados */
+.navbar-left {
+  justify-content: flex-start;
+}
+
+/* --- Links --- */
 .nav-link {
   color: #fff;
   text-decoration: none;
@@ -26,6 +44,7 @@
   letter-spacing: 0.3px;
   transition: 0.3s;
   cursor: pointer;
+  white-space: nowrap; /* evita que se corten palabras */
 }
 
 .nav-link:hover {
@@ -37,21 +56,28 @@
   font-weight: 500;
 }
 
-/* Bienvenido nombre */
+/* "Bienvenido, Nombre" */
 .navbar-right span.nav-link {
   pointer-events: none;
   opacity: 0.9;
 }
 
-/* Para pantallas chicas */
-@media (max-width: 600px) {
+/* --- Responsive --- */
+@media (max-width: 700px) {
   .navbar {
     flex-direction: column;
     gap: 0.6rem;
     padding: 1rem;
   }
 
-  .navbar-left, .navbar-right {
+  .navbar-left,
+  .navbar-right {
+    width: 100%;
+    justify-content: center;
     gap: 1rem;
+  }
+
+  .navbar-right {
+    min-width: unset;
   }
 }
