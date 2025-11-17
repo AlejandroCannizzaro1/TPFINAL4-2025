@@ -1,3 +1,4 @@
+import "./chunk-ULJGACYD.js";
 import {
   BASE_OPTION_DEFAULTS,
   ElementDragging,
@@ -53,7 +54,7 @@ import {
   startOfDay,
   triggerDateSelect,
   whenTransitionDone
-} from "./chunk-ZI2LOPFC.js";
+} from "./chunk-6XB4UH2B.js";
 import "./chunk-WDMUDEB6.js";
 
 // node_modules/@fullcalendar/interaction/index.js

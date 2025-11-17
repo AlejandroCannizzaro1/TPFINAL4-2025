@@ -29,11 +29,19 @@ export class TurnoService {
   }
 
 
-crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
-}
+  crearTurnoAdmin(idAdmin: number, datosTurno: Partial<Turno>): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
+  }
 
   reservarTurno(idTurno: number, data: { idUsuario: number, tipoServicio: string, notas: string }): Observable<any> {
     return this.http.put<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, data);
+  }
+
+  eliminarTurno(idTurno: number, idAdmin: number) {
+    return this.http.post<any>(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { "idUsuarioAdmin":idAdmin});
+  }
+
+  cancelarReservaTurno(idTurno: number, idUsuario: number) {
+    return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuarioAdmin":idUsuario});
   }
 }

@@ -282,7 +282,16 @@ async function limpiarTurnosPasadosService(fechaActual, idUsuarioAdmin) {
 
 // Eliminar un turno (solo admin)
 async function eliminarTurnoByAdminService(idTurno, idUsuarioAdmin) {
-    const usuarioAdmin = await obtenerUsuarioByIdAirtable(idUsuarioAdmin);
+    // Primero, obtenemos el ID interno Airtable del usuario admin
+    const idAirtableAdmin = await obtenerIdAirtablePorIdUsuario(idUsuarioAdmin);
+    if (!idAirtableAdmin) throw new Error(`No se encontró ID interno Airtable para usuario admin ${idUsuarioAdmin}`);
+
+    // Luego, obtenemos los datos del usuario admin con ese ID Airtable
+    const usuarioAdmin = await obtenerUsuarioByIdAirtable(idAirtableAdmin);
+
+    if (!usuarioAdmin) throw new Error(`No se encontró el usuario admin con ID interno ${idAirtableAdmin}`);
+    if (!usuarioAdmin.fields) throw new Error(`El usuario admin con ID interno ${idAirtableAdmin} no tiene campos 'fields'`);
+
     if (!usuarioAdmin.fields.estadoAdmin) {
         throw new Error('No tienes permisos de administrador para eliminar turnos');
     }

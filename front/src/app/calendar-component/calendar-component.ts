@@ -1,14 +1,14 @@
-import { Component, effect, inject, Inject, linkedSignal, OnInit, signal } from '@angular/core';
+import { Component, effect, ElementRef, inject, Inject, linkedSignal, OnInit, signal, ViewChild } from '@angular/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import esLocale from '@fullcalendar/core/locales/es';
-import { CalendarOptions } from '@fullcalendar/core';
+import { Calendar, CalendarOptions } from '@fullcalendar/core';
 import { TurnoService } from '../services/turnoService'
 import { Turno } from '../entities/turno';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { AuthService } from '../auth.service/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -24,6 +24,8 @@ import { TurnosResponse } from '../entities/turnosResponse';
   styleUrls: ['./calendar-component.css']
 })
 export class CalendarComponent {
+
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   mostrarFormulario = signal(false);
   turnoSeleccionado: Turno | null = null;
@@ -53,11 +55,11 @@ export class CalendarComponent {
 
   constructor() {
     effect(() => { //Cada vez que un signal cambie
-      if(this.usuarioEsAdmin){
-        if(this.turnoResponseAll()) {
+      if (this.usuarioEsAdmin) {
+        if (this.turnoResponseAll()) {
           this.cargarTurnos(true);
         }
-      }else{
+      } else {
         if (this.turnoResponse()) {
           this.cargarTurnos(false); //Manda a la funcion que ya sabe que hay turnos cargados (porque paso el if)
         }
@@ -66,29 +68,35 @@ export class CalendarComponent {
   }
 
   cargarTurnos(admin: boolean) {
-    if(!admin) {
-      const eventos = this.turnoResponse()!.map(t => ({
+
+    let eventos;
+
+    if (!admin) {
+      eventos = this.turnoResponse()!.map(t => ({
         id: t.idTurno?.toString(),
         title: t.hora,
         start: `${t.fecha}T${t.hora}:00`,
         extendedProps: t
       }));
-      this.calendarOptions = { ...this.calendarOptions, events: eventos };
     }
+
     else {
-      const eventos = this.turnoResponseAll()!.map(t => ({
+      eventos = this.turnoResponseAll()!.map(t => ({
         id: t.fields.idTurno?.toString(),
         title: t.fields.hora,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
-        extendedProps: t
+        extendedProps: t.fields
       }));
-      this.calendarOptions = { ...this.calendarOptions, events: eventos };
     }
+
+    this.calendarOptions = { ...this.calendarOptions, events: eventos };
   }
 
   agregarTurno(turno: Turno) {
     if (turno) {
       this.turnoResponse.update((t) => [...t, turno]);
+      this.cargarTurnos(this.usuarioEsAdmin);
+      window.location.reload();
     }
   }
 
@@ -121,6 +129,7 @@ export class CalendarComponent {
       error: err => {
         alert('Error al crear turno');
         console.error(err);
+        
       }
     });
   }
@@ -135,15 +144,59 @@ export class CalendarComponent {
       return;
     }
 
-    if (!turno.turnoDisponible) {
+    if (!turno.turnoDisponible && !this.usuarioEsAdmin) {
       alert("Este turno ya está reservado.");
       return;
+    }
+
+    if (this.usuarioEsAdmin) {
+
     }
 
     this.turnoSeleccionado = turno;
     this.mostrarFormulario.set(true);
   }
 
+  cancelarReserva() {
+    if (!this.turnoSeleccionado) return;
+
+    //Cancelar una reserva si esta reservada
+    if (!this.turnoSeleccionado?.turnoDisponible) {
+      if (confirm("Desea cancelar la reserva? Se le enviara una notificacion al cliente")) {
+        this.turnoClient.cancelarReservaTurno(this.turnoSeleccionado.idTurno!, Number(this.auth.getId())).subscribe((t) => {
+          alert('Turno cancelado con exito!');
+          console.log(t);
+
+          //enviar notificacion!
+
+          this.mostrarFormulario.set(false);
+          this.turnoSeleccionado = null;
+          window.location.reload();
+        });
+      }
+    }
+  }
+
+  eliminarTurno() {
+    if (!this.turnoSeleccionado) return;
+
+    if (this.auth.isAdmin()) {
+
+      //Eliminar turno
+      if (confirm("Esta seguro que desea eliminar el turno?")) {
+
+        this.turnoClient.eliminarTurno(this.turnoSeleccionado.idTurno!, Number(this.auth.getId())).subscribe((t) => {
+          alert('Turno eliminado con exito!');
+          console.log(t);
+          //Falta borrar el evento en el momento
+
+          this.mostrarFormulario.set(false);
+          this.turnoSeleccionado = null;
+          window.location.reload();
+        });
+      }
+    }
+  }
 
   confirmarTurno() {
     if (!this.turnoSeleccionado) return;
@@ -167,8 +220,9 @@ export class CalendarComponent {
       this.mostrarFormulario.set(false);
       this.tipoServicio = '';
       this.notas = '';
+      this.turnoSeleccionado = null;
 
-      this.turnoResponse.update((turnos) => [...turnos, t]);
+      window.location.reload();
     });
   }
 
@@ -176,5 +230,6 @@ export class CalendarComponent {
     this.mostrarFormulario.set(false);
     this.tipoServicio = '';
     this.notas = '';
+    this.turnoSeleccionado = null;
   }
 }

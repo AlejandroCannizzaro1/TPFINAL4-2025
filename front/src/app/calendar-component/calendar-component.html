@@ -1,6 +1,6 @@
 <div class="calendar-container">
   @if (turnoResponse()) {
-    <full-calendar [options]="calendarOptions"></full-calendar>
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
   }
 </div>
 
@@ -27,6 +27,12 @@
       <div class="botones">
         <button (click)="confirmarTurno()">Confirmar</button>
         <button class="cancelar" (click)="cancelar()">Cancelar</button>
+        @if (usuarioEsAdmin) {
+          @if (!turnoSeleccionado?.turnoDisponible) {
+            <button (click)="cancelarReserva()">Cancelar Reserva</button>
+          }
+          <button (click)="eliminarTurno()">Eliminar Turno</button>
+        }
       </div>
     </div>
   </div>
