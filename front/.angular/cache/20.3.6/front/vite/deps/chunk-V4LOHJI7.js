@@ -56,13 +56,10 @@ import {
   PendingTasksInternal,
   QUERIES,
   R3Injector,
-  REACTIVE_NODE,
   REACTIVE_TEMPLATE_CONSUMER,
   RENDERER,
   RuntimeError,
   SCHEDULE_IN_ROOT_ZONE,
-  SIGNAL,
-  SIGNAL_NODE,
   SVG_NAMESPACE,
   TVIEW,
   T_HOST,
@@ -117,12 +114,7 @@ import {
   assertTNodeForTView,
   attachInjectFlag,
   concatStringsWithSpace,
-  consumerAfterComputation,
-  consumerBeforeComputation,
-  consumerDestroy,
-  consumerPollProducersForChange,
   convertToBitFlags,
-  createComputed,
   createInjectorWithoutInjectorInstances,
   cyclicDependencyError,
   cyclicDependencyErrorWithDetails,
@@ -141,7 +133,6 @@ import {
   flatten,
   formatRuntimeError,
   forwardRef,
-  getActiveConsumer,
   getBindingIndex,
   getBindingRoot,
   getBindingsEnabled,
@@ -223,7 +214,6 @@ import {
   nextBindingIndex,
   nextContextImpl,
   noop,
-  producerAccessed,
   provideEnvironmentInitializer,
   providerToFactory,
   removeFromArray,
@@ -234,7 +224,6 @@ import {
   resolveForwardRef,
   runInInjectionContext,
   runInInjectorProfilerContext,
-  setActiveConsumer,
   setBindingIndex,
   setBindingRootForHostBindings,
   setCurrentDirectiveIndex,
@@ -248,10 +237,8 @@ import {
   setIsInCheckNoChangesMode,
   setIsRefreshingViews,
   setSelectedIndex,
-  setThrowInvalidWriteToSignalError,
   signal,
   signalAsReadonlyFn,
-  signalSetFn,
   store,
   storeCleanupWithContext,
   storeLViewOnDestroy,
@@ -278,12 +265,27 @@ import {
   ɵɵnamespaceSVG,
   ɵɵresetView,
   ɵɵrestoreView
-} from "./chunk-ISJRVSAE.js";
+} from "./chunk-BOXXQKBM.js";
 import {
   Subject,
   Subscription,
   map
 } from "./chunk-RSS3ODKE.js";
+import {
+  REACTIVE_NODE,
+  SIGNAL,
+  SIGNAL_NODE,
+  consumerAfterComputation,
+  consumerBeforeComputation,
+  consumerDestroy,
+  consumerPollProducersForChange,
+  createComputed,
+  getActiveConsumer,
+  producerAccessed,
+  setActiveConsumer,
+  setThrowInvalidWriteToSignalError,
+  signalSetFn
+} from "./chunk-M6AV3RR2.js";
 import {
   __async,
   __spreadProps,
@@ -24605,4 +24607,4 @@ export {
    * found in the LICENSE file at https://angular.dev/license
    *)
 */
-//# sourceMappingURL=chunk-S6Z6CJXB.js.map
+//# sourceMappingURL=chunk-V4LOHJI7.js.map

@@ -36,37 +36,48 @@ export class UsuarioService {
   deleteUsuario(idUsuario: number) {
     return this.http.delete(`${this.baseUrl}/${idUsuario}`);
   }
+  //http://localhost:3001/usuarios/email?value=example@gmail.com
+  getUsuarioByEmail(email: string) {
+    return this.http.get(`${this.baseUrl}/email?${email}`);
+  }
+  toggleEstadoAdmin(idUsuario: number) {
+    return this.http.patch(`${this.baseUrl}/estadoAdmin`, { idUsuario });
+  }
+
+  toggleEstadoPremium(idUsuario: number) {
+    return this.http.patch(`${this.baseUrl}/estadoPremium`, { idUsuario });
+  }
 
   //  NUEVO
   login(email: string, contrasenia: string) {
-  return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
-    map(user => {
-      if (!user) {
-        throw new Error("no_user");
-      }
-      
-      // Asegurate que el nombre del campo coincide con Airtable
-      if (user.contrasenia !== contrasenia) {
-        throw new Error("bad_password");
-      }
+    return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
+      map(user => {
+        if (!user) {
+          throw new Error("no_user");
+        }
 
-      return user; // login ok
-    })
-  );
-}
+        // Asegurate que el nombre del campo coincide con Airtable
+        if (user.contrasenia !== contrasenia) {
+          throw new Error("bad_password");
+        }
 
-checkEmail(email: string) {
-  return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
-    map(() => true), // Si encuentra el usuario → el email está en uso
-    catchError(err => {
-      // Si el backend responde 404 → el email NO existe
-      if (err.status === 404) return of(false);
+        return user; // login ok
+      })
+    );
+  }
 
-      // Si es otro error → lo relanzamos para debug
-      return of(true);
-    })
-  );
-}
-  
+  checkEmail(email: string) {
+    return this.http.get<any>(`${this.baseUrl}/email?value=${email}`).pipe(
+      map(() => true), // Si encuentra el usuario → el email está en uso
+      catchError(err => {
+        // Si el backend responde 404 → el email NO existe
+        if (err.status === 404) return of(false);
+
+        // Si es otro error → lo relanzamos para debug
+        return of(true);
+      })
+    );
+  }
+
 }
 

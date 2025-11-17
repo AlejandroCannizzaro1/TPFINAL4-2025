@@ -1,0 +1,29 @@
+.panel {
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: auto;
+}
+
+.opciones {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+button {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #145ea8;
+}

@@ -417,7 +417,7 @@ import {
   ɵɵvalidateIframeAttribute,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-S6Z6CJXB.js";
+} from "./chunk-V4LOHJI7.js";
 import {
   CONTAINER_HEADER_OFFSET,
   ChangeDetectionScheduler,
@@ -445,7 +445,6 @@ import {
   R3Injector,
   ResourceImpl,
   RuntimeError,
-  SIGNAL,
   VERSION,
   Version,
   XSS_SECURITY_URL,
@@ -477,7 +476,6 @@ import {
   resolveForwardRef,
   resource,
   runInInjectionContext,
-  setAlternateWeakRefImpl,
   setCurrentInjector,
   setInjectorProfilerContext,
   signal,
@@ -497,8 +495,12 @@ import {
   ɵɵnamespaceSVG,
   ɵɵresetView,
   ɵɵrestoreView
-} from "./chunk-ISJRVSAE.js";
+} from "./chunk-BOXXQKBM.js";
 import "./chunk-RSS3ODKE.js";
+import {
+  SIGNAL,
+  setAlternateWeakRefImpl
+} from "./chunk-M6AV3RR2.js";
 import "./chunk-WDMUDEB6.js";
 export {
   ANIMATION_MODULE_TYPE,
