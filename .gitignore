@@ -2,7 +2,7 @@
 # ========================================
 /backend/node_modules/
 /front/node_modules/
-/front/.angular
+/front/.angular/
 
 # Logs
 logs
@@ -143,3 +143,24 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+front/.angular/cache/20.3.6/front/vite/deps/_metadata.json
+front/.angular/cache/20.3.6/front/vite/deps/@angular_common_http.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_common.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_core_rxjs-interop.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_core.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_forms.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_platform-browser.js
+front/.angular/cache/20.3.6/front/vite/deps/@angular_router.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_angular.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_angular.js.map
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_daygrid.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_daygrid.js.map
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_interaction.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_interaction.js.map
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_list.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_list.js.map
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_multimonth.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_multimonth.js.map
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_timegrid.js
+front/.angular/cache/20.3.6/front/vite/deps/@fullcalendar_timegrid.js.map
+front/.angular/cache/20.3.6/front/vite/deps_ssr/_metadata.json
