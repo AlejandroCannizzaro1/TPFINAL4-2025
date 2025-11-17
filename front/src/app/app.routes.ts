@@ -11,6 +11,7 @@ import { RoleGuard } from './guards/role.guard/role.guard'; // <- IMPORTANTE
 import { TurnosDisponiblesForm } from './main-page/admin/turnos-disponibles-form/turnos-disponibles-form';
 import { FilterAdminComponent } from './main-page/admin/filter-admin/filter-admin.component';
 import { NotificacionesUsersComponent } from './main-page/mis-turnos/notificaciones-users/notificaciones-users.component'; 
+import { FichaTurno } from './main-page/ficha-turno/ficha-turno';
 
 export const routes: Routes = [
   { path: '', component: MainPage, title: 'Bienvenido' },
@@ -23,9 +24,7 @@ export const routes: Routes = [
   // Solo admin
   { path: 'admin', component: AdminPanelComponent, canActivate: [AuthGuard, RoleGuard], title: 'Panel Admin' },
   { path: 'admin/filter-admin', component: FilterAdminComponent, canActivate: [AuthGuard, RoleGuard] },
-  { path: 'admin/setting_turnos', component: TurnosDisponiblesForm, canActivate: [AuthGuard, RoleGuard], title: 'Configuracion Turnos Disponibles' }
-  
+  { path: 'admin/setting_turnos', component: TurnosDisponiblesForm, canActivate: [AuthGuard, RoleGuard], title: 'Configuracion Turnos Disponibles' },
+  { path: 'mis-turnos/:id', component: FichaTurno, canActivate: [AuthGuard], title: 'Turno'}
+
 ];
-
-
-/** Hola soy Joaco */

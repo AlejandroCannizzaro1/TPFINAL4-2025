@@ -4,14 +4,11 @@
   }
 </div>
 
-@let userId = userIdNumber;
-
 <!-- FORMULARIO EMERGENTE -->
 @if (mostrarFormulario()) {
 
   <div class="modal-fondo">
     <div class="modal-contenido">
-      <p>{{userId}}, {{turnoSeleccionado?.idUsuarioVinculado}}</p>
       @if (turnoSeleccionado?.turnoDisponible) {
         <h3>Confirmar Reserva</h3>
       }@else {

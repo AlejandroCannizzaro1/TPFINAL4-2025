@@ -78,7 +78,7 @@ export class CalendarComponent {
     if (!admin) {
       eventos = this.turnoResponse()!.map(t => ({
         id: t.idTurno?.toString(),
-        title: `cd${t.hora} hs`,
+        title: `${t.hora} hs`,
         start: `${t.fecha}T${t.hora}:00`,
         extendedProps: t,
         order: t.turnoDisponible ? 0 : 1,
@@ -89,7 +89,7 @@ export class CalendarComponent {
     else {
       eventos = this.turnoResponseAll()!.map(t => ({
         id: t.fields.idTurno?.toString(),
-        title: ` ${t.fields.hora} hs`,
+        title: `${t.fields.hora} hs`,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
         extendedProps: t,
         order: t.fields.turnoDisponible ? 0 : 1,

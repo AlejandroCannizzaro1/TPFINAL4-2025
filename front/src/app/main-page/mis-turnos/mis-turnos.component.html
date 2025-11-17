@@ -6,7 +6,7 @@
 <h1>Turnos</h1>
 <ul>
     @for (turno of turnos()?.turnos; track $index) {
-    <li (click)="verDetalles()">
+    <li (click)="verDetalles(turno.idTurno!)">
         Turno: {{turno.fecha}} | {{turno.hora}} |
     </li>
     }

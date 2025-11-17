@@ -25,7 +25,7 @@ export class TurnoService {
   }
 
   getTurnosById(idTurno: string | number) {
-    return this.http.get<Turno[]>(`${this.apiUrl}/turnos/${idTurno}`);
+    return this.http.get<Turno>(`${this.apiUrl}/turnos/${idTurno}`);
   }
 
   reservarTurno(idTurno: number, idUsuario: number): Observable<any> {

@@ -1,0 +1,12 @@
+@let turno = this.turno();
+<div class="ventana-turno">
+    @if (turno && esMiTurno()) {
+        <h1>Turno</h1>
+        <h3>{{turno.fecha}}</h3>
+        <h3>{{turno.hora}}</h3>
+        <button>Cancelar reserva</button>
+    }@else {
+        <h1>Uh oh!</h1>
+        <p>No se encontro el turno...</p>
+    } 
+</div>
