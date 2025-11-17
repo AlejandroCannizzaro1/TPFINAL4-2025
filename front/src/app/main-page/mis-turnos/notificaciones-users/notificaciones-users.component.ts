@@ -25,7 +25,6 @@ export class NotificacionesUsersComponent {
 
 
   cargarNotificaciones() {
-    if (!this.auth.isAdmin()) return;
 
     const idUsuario = Number(this.auth.getId());
     if (!idUsuario) return;
