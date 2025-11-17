@@ -76,7 +76,8 @@ export class CalendarComponent {
         id: t.idTurno?.toString(),
         title: t.hora,
         start: `${t.fecha}T${t.hora}:00`,
-        extendedProps: t
+        extendedProps: t,
+        color: 'green'
       }));
     }
 
@@ -85,7 +86,8 @@ export class CalendarComponent {
         id: t.fields.idTurno?.toString(),
         title: t.fields.hora,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
-        extendedProps: t.fields
+        extendedProps: t.fields,
+        color: t.fields.turnoDisponible ? 'green ' : 'red'
       }));
     }
 
@@ -207,13 +209,7 @@ export class CalendarComponent {
       return;
     }
 
-    const data = {
-      idUsuario: idUsuario,
-      tipoServicio: this.tipoServicio,
-      notas: this.notas
-    };
-
-    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, data).subscribe((t) => {
+    this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, idUsuario).subscribe((t) => {
       alert("Turno reservado con éxito");
 
       // limpiar formulario

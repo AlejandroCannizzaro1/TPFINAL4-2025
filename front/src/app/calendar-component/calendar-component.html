@@ -9,23 +9,31 @@
 
   <div class="modal-fondo">
     <div class="modal-contenido">
-      <h3>Confirmar Reserva</h3>
+      @if (turnoSeleccionado?.turnoDisponible) {
+        <h3>Confirmar Reserva</h3>
+      }@else {
+        <h3>Datos del turno</h3>
+      }
       <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
       <p><strong>Hora:</strong> {{ turnoSeleccionado?.hora }}</p>
-      
-      <label for="tipoServicio">Tipo de servicio:</label>
-      <select id="tipoServicio" [(ngModel)]="tipoServicio">
-        <option value="" disabled selected>Selecciona una opción</option>
-        <option value="Corte Masculino">Corte Masculino</option>
-        <option value="Corte Femenino">Corte Femenino</option>
-        <option value="Barba">Barba</option>
-      </select>
+      @if (turnoSeleccionado?.turnoDisponible) {
+
+        <label for="tipoServicio">Tipo de servicio:</label>
+        <select id="tipoServicio" [(ngModel)]="tipoServicio">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Corte Masculino">Corte Masculino</option>
+          <option value="Corte Femenino">Corte Femenino</option>
+          <option value="Barba">Barba</option>
+        </select>
+      }
       
       <label for="notas">Notas (opcional):</label>
       <textarea id="notas" rows="3" [(ngModel)]="notas"></textarea>
       
       <div class="botones">
-        <button (click)="confirmarTurno()">Confirmar</button>
+        @if (turnoSeleccionado?.turnoDisponible) {
+          <button (click)="confirmarTurno()">Confirmar</button>
+        }
         <button class="cancelar" (click)="cancelar()">Cancelar</button>
         @if (usuarioEsAdmin) {
           @if (!turnoSeleccionado?.turnoDisponible) {

@@ -33,8 +33,8 @@ export class TurnoService {
     return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
   }
 
-  reservarTurno(idTurno: number, data: { idUsuario: number, tipoServicio: string, notas: string }): Observable<any> {
-    return this.http.put<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, data);
+  reservarTurno(idTurno: number, idUsuario: number): Observable<any> {
+    return this.http.put<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, { "idUsuario": idUsuario});
   }
 
   eliminarTurno(idTurno: number, idAdmin: number) {
@@ -42,6 +42,6 @@ export class TurnoService {
   }
 
   cancelarReservaTurno(idTurno: number, idUsuario: number) {
-    return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuarioAdmin":idUsuario});
+    return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuario":idUsuario });
   }
 }
