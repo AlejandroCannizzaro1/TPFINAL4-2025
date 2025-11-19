@@ -1,9 +1,11 @@
-import { Component, inject, input, linkedSignal } from '@angular/core';
+import { Component, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { Turno } from '../../entities/turno';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TurnoService } from '../../services/turnoService';
 import { AuthService } from '../../auth.service/auth.service';
+import { UsuarioService } from '../../services/usuarioService';
+import { Usuario } from '../../entities/usuario';
 
 @Component({
   selector: 'app-ficha-turno',
@@ -15,20 +17,38 @@ export class FichaTurno {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly client = inject(TurnoService);
+  private readonly clientUsuario = inject(UsuarioService);
   private readonly auth = inject(AuthService);
+
   private readonly idUsuario = Number(this.auth.getId());
-  
+  protected readonly isAdmin = this.auth.isAdmin();
+
+
   protected readonly idTurno = Number(this.route.snapshot.paramMap.get('id'));
   protected readonly turnoSource = toSignal(this.client.getTurnosById(this.idTurno));
   protected readonly turno = linkedSignal(() => this.turnoSource());
-  protected readonly isAdmin = this.auth.isAdmin();
+
+  protected readonly turnoOwnerSource = signal<Usuario | undefined>(undefined);
+  protected readonly turnoOwner = linkedSignal(() => this.turnoOwnerSource());
+
+  constructor() {
+    effect(() => {
+      const t = this.turno();
+      if (!t || t.turnoDisponible) return; //Si no cargo, o si no esta reservado, no tocar nada
+
+      //Una vez tengo el turno dame el usuario asignado
+      this.clientUsuario.getUsuarioById(t.usuarioId).subscribe(usuario => {
+        this.turnoOwnerSource.set(usuario);
+      });
+    })
+  }
 
   esMiTurno() { //El turno esta vinculado a mi cuenta?
     return (this.turno()?.usuarioId === this.idUsuario);
   }
 
   cancelarReserva() {
-    if(confirm("Esta seguro que desea cancelar su reserva?")){
+    if (confirm("Esta seguro que desea cancelar su reserva?")) {
       this.client.cancelarReserva(this.idTurno, this.idUsuario).subscribe({
         next: (t) => {
           console.log(t);
@@ -45,7 +65,7 @@ export class FichaTurno {
   }
 
   eliminarTurno(idTurno: string | number) {
-    if(confirm('Desea eliminar el turno? no solo cancelara la reserva, tambien eliminara el turno disponible')) {
+    if (confirm('Desea eliminar el turno? no solo cancelara la reserva, tambien eliminara el turno disponible')) {
       this.client.eliminarTurno(Number(idTurno), Number(this.auth.getId())).subscribe({
         next: (t) => {
           alert("Turno eliminado con exito!");
@@ -58,4 +78,5 @@ export class FichaTurno {
       })
     }
   }
+
 }

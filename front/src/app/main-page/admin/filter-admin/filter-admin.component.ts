@@ -15,31 +15,43 @@ import { Component, inject, signal, ViewChild, ElementRef, effect } from '@angul
 export class FilterAdminComponent {
   @ViewChild('detalleUsuarioRef') detalleUsuarioRef!: ElementRef;
   
-  private usuarioService = inject(UsuarioService);
-  private turnoService = inject(TurnoService);
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly turnoService = inject(TurnoService);
   private readonly router = inject(Router);
 
+  protected readonly orden = signal<'fecha' | 'hora'>('fecha');
 
-  usuarios = signal<any[]>([]);
-  turnosUsuario = signal<any[]>([]);
-  usuarioSeleccionado = signal<any | null>(null);
+  protected usuarios = signal<any[]>([]);
+  protected turnosUsuario = signal<any[]>([]);
+  protected usuarioSeleccionado = signal<any | null>(null);
 
   constructor() {
     this.cargarUsuarios();
+    this.turnosUsuario();
+    effect(() => {
+      switch(this.orden()) {
+        case 'fecha':
+          this.ordenarPorFecha();
+          break;
+        case 'hora':
+          this.ordenarPorHora();
+          break;
+      }
+    });
   }
 
   cargarUsuarios() {
     this.usuarioService.getUsuarios().subscribe({
       next: (usuarios: any[]) => {
-        console.log("RAW USUARIOS DESDE AIRTABLE:", JSON.stringify(usuarios, null, 2));
+        //console.log("RAW USUARIOS DESDE AIRTABLE:", JSON.stringify(usuarios, null, 2));
         const lista = usuarios.map(u => ({
           idAirtable: u.id,                  // lo guardamos por si algún día lo necesitás
           idUsuario: u.fields.idUsuario,     // ESTE es el que usa el backend
-          nombre: u.fields.nombreUsuario,
+          nombre: u.fields.nombreUsuario,    // o7
           email: u.fields.email
         }));
 
-        console.log("Usuarios Normalizados:", lista);
+        //console.log("Usuarios Normalizados:", lista);
         this.usuarios.set(lista);
       },
       error: (error) => console.error(error)
@@ -71,6 +83,28 @@ export class FilterAdminComponent {
 
   navegarAdetalles(idTurno: string | number) {
     this.router.navigate(['/admin/turno', idTurno]);
+  }
+
+
+  cambiarOrden(orden: 'fecha' | 'hora') {
+    this.orden.set(orden);
+  }
+
+  ordenarPorFecha() {
+    this.turnosUsuario().sort((a, b) => {
+      const xFecha = a.fecha.localeCompare(b.fecha);
+      if(xFecha !== 0) return xFecha;
+      //else
+      return a.hora.localeCompare(b.hora);
+    });
+  }
+
+  ordenarPorHora() {
+    this.turnosUsuario().sort((a, b) => {
+      const xHora = a.hora.localeCompare(b.hora);
+      if(xHora !== 0) return xHora;
+      return a.fecha.localeCompare(b.fecha);
+    })
   }
 
   // verTurnosUsuario(idUsuario: number) {

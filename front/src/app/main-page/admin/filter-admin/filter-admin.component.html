@@ -1,16 +1,18 @@
 <h2>Lista de Usuarios</h2>
 
 <div class="usuarios-lista">
-    <div *ngFor="let usuario of usuarios()" class="usuario-card">
-        <div class="usuario-detalles">
-            <p class="usuario-nombre">{{ usuario.nombre }}</p>
+    @for (usuario of usuarios(); track $index) {
+        <div class="usuario-card">
+            <div class="usuario-detalles">
+                <p class="usuario-nombre">{{ usuario.nombre }}</p>
+            </div>
+            <div class="usuario-acciones">
+                <button class="btn-pequeno" (click)="verInfoUsuario(usuario)">
+                    Ver info
+                </button>
+            </div>
         </div>
-        <div class="usuario-acciones">
-            <button class="btn-pequeno" (click)="verInfoUsuario(usuario)">
-                Ver info
-            </button>
-        </div>
-    </div>
+    }
 </div>
 
 <!-- DETALLE DEL USUARIO -->
@@ -23,11 +25,21 @@
 
     <h2>Turnos del Usuario</h2>
     @if (turnosUsuario().length > 0) {
-        <div class="turnos-usuario">
+        <div class="turnos-container">
             <h3>Turnos Asociados</h3>
-            <ul>
+
+            <p>Ordenar por:</p>
+            <div class="orden-buttons">
+                <button (click)="cambiarOrden('fecha')" [class.activo]="orden() === 'fecha'">Fecha</button>
+                <button (click)="cambiarOrden('hora')" [class.activo]="orden() === 'hora'">Hora</button>
+            </div>
+
+            <ul class="turnos-list">
                 @for (turno of turnosUsuario(); track $index) {
-                    <li (click)="navegarAdetalles(turno.idTurno)">{{ turno.fecha }} - {{ turno.hora }}</li>
+                    <li class="turno-card" (click)="navegarAdetalles(turno.idTurno)">
+                        <div class="turno-fecha">{{ turno.fecha }}</div>
+                        <div class="turno-hora">{{ turno.hora }}</div>
+                    </li>
                 }
             </ul>
         </div>

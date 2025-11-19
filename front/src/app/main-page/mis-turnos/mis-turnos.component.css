@@ -1,0 +1,69 @@
+.turnos-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    font-family: sans-serif;
+}
+
+.orden-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.orden-buttons button {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.orden-buttons button:hover {
+    background: #e0e0e0;
+}
+
+.orden-buttons button.activo {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+} 
+
+.turnos-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.turno-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+
+    border-radius: 10px;
+    cursor: pointer;
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.turno-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.turno-fecha {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+}
+
+.turno-hora {
+    font-size: 0.95rem;
+    color: #555;
+}

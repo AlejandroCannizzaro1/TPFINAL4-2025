@@ -7,9 +7,19 @@
             <h1>Turno</h1>
             <h3>{{turno.fecha}}</h3>
             <h3>{{turno.hora}}</h3>
+
+            @let usuario = turnoOwner();
+            @if (turno.turnoDisponible) {
+                <h3 style="color: lightgreen;">Turno disponible!</h3>
+            }@else if (usuario){
+                <h3>Reservado por</h3>
+                <p>{{usuario.nombreUsuario}}</p>
+                <p>{{usuario.email}}</p>
+            }
             @if (isAdmin) {
                 <button (click)="eliminarTurno(turno.idTurno!)">Eliminar turno</button>
-            } @else {
+            } 
+            @if (esMiTurno()) {
                 <button (click)="cancelarReserva()">Cancelar reserva</button>
             }
         }@else {

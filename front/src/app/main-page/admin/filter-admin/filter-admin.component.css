@@ -110,3 +110,98 @@ h3 {
   font-style: italic;
   color: #4a7a4a;
 }
+
+
+/* ===== LISTA DE TURNOS ===== */
+
+/* Contenedor de la sección */
+.turnos-container {
+    padding: 20px;
+    max-width: 700px;
+    margin: 20px auto;
+    font-family: sans-serif;
+
+    background: #f9fff9;
+    border: 2px solid #2e7d32;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.15);
+}
+
+/* Título interno */
+.turnos-container h3 {
+    margin-top: 0;
+    color: #1b4d21;
+}
+
+/* ----- BOTONES DE ORDEN ----- */
+
+.orden-buttons {
+    display: flex;
+    gap: 12px;
+    margin: 10px 0 20px 0;
+}
+
+.orden-buttons button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 2px solid #2e7d32;
+
+    background-color: #f9fff9;
+    color: #1b4d21;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+    transition: all 0.25s ease;
+}
+
+.orden-buttons button:hover {
+    background-color: #e5f7e5;
+}
+
+.orden-buttons button.activo {
+    background-color: #2e7d32;
+    color: white;
+}
+
+/* ----- TARJETAS DE TURNOS ----- */
+
+.turnos-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.turno-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #f9fff9;
+    border: 2px solid #2e7d32;
+    padding: 18px 24px;
+    margin-bottom: 12px;
+
+    border-radius: 12px;
+    cursor: pointer;
+
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.15);
+    transition: all 0.25s ease;
+}
+
+.turno-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(46, 125, 50, 0.30);
+}
+
+.turno-fecha {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1b4d21;
+}
+
+.turno-hora {
+    font-size: 1rem;
+    color: #3b6b3b;
+}

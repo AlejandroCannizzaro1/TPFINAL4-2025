@@ -3,19 +3,28 @@
 }
 
 @if (turnos()) {
-    @if (turnos()?.turnos?.length! > 0) {
+    @if (turnos().length > 0) {
+        <div class="turnos-container">
+            <h1>Turnos</h1>
 
-        <h1>Turnos</h1>
-        <ul>
-            @for (turno of turnos()?.turnos; track $index) {
-                <li (click)="verDetalles(turno.idTurno!)">
-                    Turno: {{turno.fecha}} | {{turno.hora}} |
-                </li>
-            }
-        </ul>
-    }@else {
+            <h3>Ordenar por:</h3>
+            <div class="orden-buttons">
+                <button (click)="cambiarOrden('fecha')" [class.activo]="orden() === 'fecha'">Fecha</button>
+                <button (click)="cambiarOrden('hora')" [class.activo]="orden() === 'hora'">Hora</button>
+            </div>
+
+            <ul class="turnos-list">
+                @for (turno of turnos(); track $index) {
+                    <li class="turno-card" (click)="verDetalles(turno.idTurno!)">
+                        <div class="turno-fecha">{{ turno.fecha }}</div>
+                        <div class="turno-hora">{{ turno.hora }}</div>
+                    </li>
+                }
+            </ul>
+        </div>
+    } @else {
         <p>No tenes turnos reservados!</p>
     }
-}@else {
+} @else {
     <p>Error cargando los turnos!</p>
 }

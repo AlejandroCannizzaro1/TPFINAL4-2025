@@ -1,0 +1,87 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+
+.ventana-turno {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 28px 32px;
+
+    background: #f9fff9;
+    border: 2px solid #2e7d32;
+    border-radius: 14px;
+
+    box-shadow: 0 6px 14px rgba(46, 125, 50, 0.25);
+    text-align: center;
+
+    font-family: sans-serif;
+    color: #1b4d21;
+
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Suave aparición */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== TITULOS ===== */
+
+.ventana-turno h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #2e7d32;
+    font-weight: 700;
+}
+
+.ventana-turno h3 {
+    font-size: 1.3rem;
+    margin: 6px 0;
+    color: #1b4d21;
+}
+
+/* ===== MENSAJES DE ERROR / AVISO ===== */
+.ventana-turno p {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    color: #3f6b3f;
+}
+
+/* ===== BOTONES ===== */
+
+.ventana-turno button {
+    margin-top: 22px;
+    padding: 10px 20px;
+
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+
+    background-color: #2e7d32;
+    color: white;
+
+    cursor: pointer;
+
+    box-shadow: 0 3px 8px rgba(46, 125, 50, 0.35);
+    transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.ventana-turno button:hover {
+    background-color: #1b4d21;
+    transform: translateY(-2px);
+}
+
+.ventana-turno button:active {
+    transform: scale(0.98);
+}
+
+/* ==== BOTÓN ESPECIAL PARA ADMIN (ELIMINAR) ==== */
+
+.ventana-turno button:nth-child(4) {
+    background-color: #c62828;     /* rojo suave */
+    box-shadow: 0 3px 8px rgba(198, 40, 40, 0.3);
+}
+
+.ventana-turno button:nth-child(4):hover {
+    background-color: #8e1f1f;
+}
