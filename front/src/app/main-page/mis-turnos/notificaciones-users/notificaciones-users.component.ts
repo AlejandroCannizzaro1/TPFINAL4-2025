@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, linkedSignal, effect } from '@angular/core';
 import { AuthService } from '../../../auth.service/auth.service';
 import { NotificacionService } from '../../../services/notificacion-service.service';
 import { Notificacion } from '../../../entities/notificacion';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-notificaciones-users',
@@ -11,36 +12,21 @@ import { CommonModule } from '@angular/common';
   styleUrl: './notificaciones-users.component.css'
 })
 export class NotificacionesUsersComponent {
-  auth = inject(AuthService);
-  notiService = inject(NotificacionService);
-  cargando = signal(true);
+  private readonly auth = inject(AuthService);
+  private readonly notiService = inject(NotificacionService);
+  protected readonly cargando = signal(true);
+  private readonly idUsuario = Number(this.auth.getId());
 
+  private readonly notificacionesSource = toSignal(this.notiService.getNotificacionesByUsuario(this.idUsuario));
+  protected readonly notificaciones = linkedSignal(() => this.notificacionesSource());
+  protected readonly notificacionSeleccionada = signal<Notificacion | null>(null);
 
-  notificaciones = signal<Notificacion[]>([]);
-  notificacionSeleccionada = signal<Notificacion | null>(null);
-
-  ngOnInit() {
-    this.cargarNotificaciones();
-  }
-
-
-  cargarNotificaciones() {
-
-    const idUsuario = Number(this.auth.getId());
-    if (!idUsuario) return;
-
-    this.cargando.set(true);
-
-    this.notiService.getNotificacionesByUsuario(idUsuario).subscribe({
-      next: (data) => {
-        this.notificaciones.set(data);
-        this.cargando.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar notificaciones:', err);
+  constructor() {
+    effect(() => {
+      if(this.notificaciones()){
         this.cargando.set(false);
       }
-    });
+    })
   }
 
   seleccionarNotificacion(noti: Notificacion) {

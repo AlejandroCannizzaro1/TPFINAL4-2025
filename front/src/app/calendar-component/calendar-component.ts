@@ -81,7 +81,7 @@ export class CalendarComponent {
         title: `${t.hora} hs`,
         start: `${t.fecha}T${t.hora}:00`,
         extendedProps: t,
-        order: t.turnoDisponible ? 0 : 1,
+        order: t.turnoDisponible ? 0 : 1, 
         color: 'green'
       }));
     }
@@ -95,10 +95,9 @@ export class CalendarComponent {
         order: t.fields.turnoDisponible ? 0 : 1,
         color: t.fields.turnoDisponible ? 'green ' : 'red'
       }));
-      console.log(eventos);
     }
 
-    this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: 'order' };
+    this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: ['order', 'start'] }; //Le agrego Start asi ademas del orden por disponibilidad, se ordena por horario
   }
 
   agregarTurno(turno: Turno) {
@@ -134,7 +133,11 @@ export class CalendarComponent {
     const nuevoTurno = { fecha, hora, turnoDisponible: true, tipoServicio: 'Servicio estándar', notas: '' };
 
     this.turnoClient.crearTurnoAdmin(idAdmin, nuevoTurno).subscribe({ //No se carga el turno reactivamente
-      next: (t) => this.agregarTurno(t),//this.cargarTurnos(),
+      next: (t) => {
+        this.agregarTurno(t);
+        window.location.reload(); //Perdon por esto profes, sabemos que no cumple reactividad pero no pudimos hacer que fullCalendar actualice los eventos
+                                  // de ninguna otra manera :(
+      },
       error: (err) => {
         alert('Error al crear turno');
         console.error(err);
