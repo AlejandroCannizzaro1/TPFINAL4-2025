@@ -4,9 +4,7 @@
   }
 </div>
 
-<!-- FORMULARIO EMERGENTE -->
 @if (mostrarFormulario()) {
-
   <div class="modal-fondo">
     <div class="modal-contenido">
       @if (turnoSeleccionado?.turnoDisponible) {
@@ -17,31 +15,38 @@
       <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
       <p><strong>Hora:</strong> {{ turnoSeleccionado?.hora }}</p>
       @if (turnoSeleccionado?.turnoDisponible) {
-
-        <label for="tipoServicio">Tipo de servicio:</label>
-        <select id="tipoServicio" [(ngModel)]="tipoServicio">
-          <option value="" disabled selected>Selecciona una opción</option>
-          <option value="Corte Masculino">Corte Masculino</option>
-          <option value="Corte Femenino">Corte Femenino</option>
-          <option value="Barba">Barba</option>
-        </select>
+        <form [formGroup]="form" (ngSubmit)="confirmarTurno()">
+          <label for="tipoServicio">Tipo de servicio:</label>
+          <select id="tipoServicio" formControlName="tipoServicio">
+            <option value="" disabled selected>Selecciona una opción</option>
+            @for (servicio of servicios; track $index) {
+              <option [value]="servicio">{{servicio}}</option>
+            }
+          </select>
+          @if (tipoServicio.dirty || tipoServicio.touched) {
+            @if (tipoServicio.hasError('required')) {
+              <p style="color: red;">El tipo de servicio es requerido!</p>
+            }
+          }
+          
+          <label for="notas">Notas (opcional):</label>
+          <textarea id="notas" rows="3" formControlName="notas"></textarea>
+          
+          <div class="botones">
+            @if (turnoSeleccionado?.turnoDisponible) {
+              <button type="submit">Confirmar</button>
+              <button type="reset">Limpiar</button>
+            }
+            @if (!usuarioEsAdmin && (turnoSeleccionado?.usuarioId === idPropio)) {
+              <button (click)="cancelarReserva()">Cancelar Reserva</button>
+            }
+            @if (usuarioEsAdmin) {
+              <button (click)="eliminarTurno()">Eliminar Turno</button>
+            }
+            <button class="cancelar" (click)="cancelar()">Cancelar</button>
+          </div>
+        </form>
       }
-      
-      <label for="notas">Notas (opcional):</label>
-      <textarea id="notas" rows="3" [(ngModel)]="notas"></textarea>
-      
-      <div class="botones">
-        @if (turnoSeleccionado?.turnoDisponible) {
-          <button (click)="confirmarTurno()">Confirmar</button>
-        }
-        <button class="cancelar" (click)="cancelar()">Cancelar</button>
-        @if (!usuarioEsAdmin) {
-          <button (click)="cancelarReserva()">Cancelar Reserva</button>
-        }
-        @if (usuarioEsAdmin) {
-          <button (click)="eliminarTurno()">Eliminar Turno</button>
-        }
-      </div>
     </div>
   </div>
 }
