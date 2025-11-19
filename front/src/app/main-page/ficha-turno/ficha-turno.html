@@ -7,6 +7,10 @@
             <h1>Turno</h1>
             <h3>{{turno.fecha}}</h3>
             <h3>{{turno.hora}}</h3>
+            <p>{{turno.tipoServicio}}</p>
+            @if (turno.notas?.trim() != '') {
+                <p>{{turno.notas}}</p>
+            }
 
             @let usuario = turnoOwner();
             @if (turno.turnoDisponible) {

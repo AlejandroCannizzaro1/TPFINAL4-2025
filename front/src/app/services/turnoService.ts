@@ -28,8 +28,8 @@ export class TurnoService {
     return this.http.get<Turno>(`${this.apiUrl}/turnos/${idTurno}`);
   }
 
-  reservarTurno(idTurno: number, idUsuario: number): Observable<any> {
-    return this.http.post<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, { "idUsuario": idUsuario });
+  reservarTurno(idTurno: number, idUsuario: number, tipoServicio: string, notas: string ): Observable<any> {
+    return this.http.post<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, {idUsuario, tipoServicio,notas});
   }
 
   //rep a

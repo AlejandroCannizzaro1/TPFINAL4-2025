@@ -9,7 +9,8 @@ const {
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
     obtenerTurnosPorUsuarioAirtable,
-    
+    reservarTurnoDAO
+
 } = require('../DAO-Repository/airtableRepositoryTurnos');
 
 const { obtenerUsuarioByIdAirtable, obtenerIdAirtablePorIdUsuario } = require('../DAO-Repository/airtableRepositoryUsuarios');
@@ -172,6 +173,62 @@ async function editarTurnoByAdminService(idTurno, idUsuarioAdmin, cambios) {
         message: `Turno ${idTurno} modificado correctamente`,
         data: resultado
     };
+}
+
+async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, notas) {
+
+    const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
+    if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
+
+    const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
+    if (!turno.fields.turnoDisponible) {
+        throw new Error(`El turno ${idTurno} ya está reservado`);
+    }
+
+    const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
+    if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
+
+    const nuevosDatos = {
+        turnoDisponible: false,
+        idUsuarioVinculado: [idAirtableUsuario], // relación directa con la tabla Usuarios
+        tipoServicio: tipoServicio,
+        notas: notas ?? ""
+    };
+
+    const resultado = await reservarTurnoDAO(idAirtableTurno, nuevosDatos);
+
+    // 6️ Manejar error de Airtable
+    if (resultado.error) {
+        console.error(" Error en Airtable:", resultado.error);
+        throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
+    }
+
+    // 7) Notificar a usuario y admins
+    await notificarReservaService(idAirtableTurno, idAirtableUsuario);
+
+    console.log(" Turno reservado correctamente:", resultado);
+    return {
+        message: `Turno ${idTurno} reservado correctamente`,
+        data: resultado
+    };
+    /*if (!turno) {
+        throw new Error("Turno no encontrado");
+    }
+
+    if (!turno.fields.turnoDisponible) {
+        throw new Error("El turno ya está reservado");
+    }
+
+    const data = {
+        turnoDisponible: false,
+        idUsuarioVinculado: idUsuario,
+        tipoServicio: tipoServicio,
+        notas: notas ?? ""
+    };
+
+    const actualizado = await reservarTurnoDAO(turno.id, data);
+
+    return actualizado;*/
 }
 
 //  Reservar un turno
@@ -349,6 +406,8 @@ async function obtenerTurnosPorUsuarioService(idUsuario) {
 
 
 
+
+
 //Funciones Auxiliares
 //Validar fecha 
 function validarFechaService(fecha) {
@@ -399,6 +458,7 @@ module.exports = {
     getTurnoByIdService,
     crearTurnoService,
     reservarTurnoService,
+    reservarTurnoServiceConCambios,
     cancelarReservaService,
     limpiarTurnosPasadosService,
     eliminarTurnoByAdminService,

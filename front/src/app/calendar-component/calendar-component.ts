@@ -187,15 +187,14 @@ export class CalendarComponent {
     }
 
     if (confirm('Desea reservar el turno?')) {
-      const data = {
-        idUsuario: this.idPropio,
-        tipoServicio: this.form.controls.tipoServicio,
-        notas: this.form.controls.notas
-      };
+      const tipoServicio = this.form.value.tipoServicio;
+      const notas = this.form.value.notas;
+      
 
-      this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, this.idPropio).subscribe({
-        next: () => {
+      this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, this.idPropio, tipoServicio!, notas!).subscribe({
+        next: (t) => {
           alert("Turno reservado con éxito");
+          console.log(t);
 
           // limpiar formulario
           this.mostrarFormulario.set(false);
@@ -203,12 +202,12 @@ export class CalendarComponent {
 
           window.location.reload();
         },
-        error: () => {
+        error: (e) => {
           alert('Error!');
+          console.log(e);
           this.mostrarFormulario.set(false);
           this.turnoSeleccionado = null;
 
-          window.location.reload();
         }
       });
     }
@@ -254,7 +253,6 @@ export class CalendarComponent {
       }
     }
   }
-
 
 
   cancelar() {

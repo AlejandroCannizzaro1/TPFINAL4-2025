@@ -5,12 +5,13 @@ const {
     editarTurno,
     eliminarTurno,
     obtenerTurnoByIdNormal,
-    obtenerIdAirtablePorIdTurno, 
+    obtenerIdAirtablePorIdTurno,
     obtenerTurnosDisponibles
 } = require('../MODEL/DAO-Repository/airtableRepositoryTurnos');
 
 const {
     reservarTurnoService,
+    reservarTurnoServiceConCambios,
     cancelarReservaService,
     limpiarTurnosPasadosService,
     eliminarTurnoByAdminService,
@@ -128,10 +129,10 @@ async function manejarSolicitudesTurnos(req, res) {
                 }
 
                 if (cleanUrl.includes('/reservar')) {
-                    const { idUsuario } = body;
-                    const resultado = await reservarTurnoService(idTurno, idUsuario);
+                    const { idUsuario, tipoServicio, notas } = body;
+                    const resultado = await reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, notas);
                     const status = resultado?.error ? 400 : 200;
-                    res.writeHead(status, { 'Content-Type': 'application/json' });
+                    res.writeHead(status, { "Content-Type": "application/json" });
                     res.end(JSON.stringify(resultado));
                     break;
                 }

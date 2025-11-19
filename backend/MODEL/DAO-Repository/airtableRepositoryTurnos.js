@@ -105,7 +105,19 @@ async function obtenerTurnosPorUsuarioAirtable(idAirtableUsuario) {
   return turnosFiltrados;
 }
 
-
+async function reservarTurnoDAO(idTurno, data) {
+  try {
+    const res = await fetch(`${AIRTABLE_BASE_URL}/${idTurno}`, {
+        method: 'PATCH',
+        headers: HEADERS,
+        body: JSON.stringify({fields: data})
+    });
+    return res.json();
+  } catch (err) {
+    console.error("Error DAO reservando turno:", err);
+    throw err;
+  }
+}
 
 
 
@@ -126,5 +138,6 @@ module.exports = {
     obtenerTurnoByIdAirtable,
     obtenerIdAirtablePorIdTurno,
     obtenerTurnosPorUsuarioAirtable,
-    obtenerTurnosDisponibles
+    obtenerTurnosDisponibles,
+    reservarTurnoDAO
 };

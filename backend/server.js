@@ -6,7 +6,7 @@ const http = require('http');
 const url = require('url');
 const { manejarSolicitudesTurnos } = require('./Controller/controladorTurnos');
 const { manejarSolicitudesUsuarios } = require('./Controller/controladorUsuarios');
-const { manejarSolicitudesNotificaciones } = require("./Controller/controllerNotificaciones");
+const { manejarSolicitudesNotificaciones } = require('./Controller/controllerNotificaciones');
 
 
 //Configuracion basica del servidor
