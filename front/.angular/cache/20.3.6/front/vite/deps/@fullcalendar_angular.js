@@ -1,8 +1,4 @@
 import {
-  Calendar,
-  CustomRenderingStore
-} from "./chunk-ZI2LOPFC.js";
-import {
   CommonModule,
   NgClass,
   NgForOf,
@@ -45,6 +41,10 @@ import {
   ɵɵdefineInjector
 } from "./chunk-SNF4ZOLK.js";
 import "./chunk-RSS3ODKE.js";
+import {
+  Calendar,
+  CustomRenderingStore
+} from "./chunk-ZI2LOPFC.js";
 import {
   __spreadValues
 } from "./chunk-WDMUDEB6.js";

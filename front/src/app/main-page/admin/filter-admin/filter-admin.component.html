@@ -14,23 +14,26 @@
 </div>
 
 <!-- DETALLE DEL USUARIO -->
-<div *ngIf="usuarioSeleccionado()" #detalleUsuarioRef class="detalle-usuario">
-    <h3>Detalles del Usuario</h3>
-    <p><strong>Nombre:</strong> {{ usuarioSeleccionado().nombre }}</p>
-    <p><strong>Email:</strong> {{ usuarioSeleccionado().email }}</p>
-</div>
+@if (usuarioSeleccionado()) {
+    <div #detalleUsuarioRef class="detalle-usuario">
+        <h3>Detalles del Usuario</h3>
+        <p><strong>Nombre:</strong> {{ usuarioSeleccionado().nombre }}</p>
+        <p><strong>Email:</strong> {{ usuarioSeleccionado().email }}</p>
+    </div>
 
-<h2 *ngIf="usuarioSeleccionado()">Turnos del Usuario</h2>
-
-<div *ngIf="turnosUsuario().length > 0" class="turnos-usuario">
-    <h3>Turnos Asociados</h3>
-    <ul>
-        <li *ngFor="let turno of turnosUsuario()">
-            {{ turno.fecha }} - {{ turno.hora }}
-        </li>
-    </ul>
-</div>
-
-<div *ngIf="turnosUsuario().length === 0 && usuarioSeleccionado()" class="sin-turnos">
-    No hay turnos para este usuario.
-</div>
+    <h2>Turnos del Usuario</h2>
+    @if (turnosUsuario().length > 0) {
+        <div class="turnos-usuario">
+            <h3>Turnos Asociados</h3>
+            <ul>
+                @for (turno of turnosUsuario(); track $index) {
+                    <li (click)="navegarAdetalles(turno.idTurno)">{{ turno.fecha }} - {{ turno.hora }}</li>
+                }
+            </ul>
+        </div>
+    }@else {   
+        <div class="sin-turnos">
+            No hay turnos para este usuario.
+        </div>
+    }
+}

@@ -13,9 +13,11 @@ import { Component, inject, signal, ViewChild, ElementRef, effect } from '@angul
   styleUrls: ['./filter-admin.component.css']
 })
 export class FilterAdminComponent {
+  @ViewChild('detalleUsuarioRef') detalleUsuarioRef!: ElementRef;
+  
   private usuarioService = inject(UsuarioService);
   private turnoService = inject(TurnoService);
-    @ViewChild('detalleUsuarioRef') detalleUsuarioRef!: ElementRef;
+  private readonly router = inject(Router);
 
 
   usuarios = signal<any[]>([]);
@@ -45,14 +47,13 @@ export class FilterAdminComponent {
   }
 
 
-verInfoUsuario(usuario: any) {
+  verInfoUsuario(usuario: any) {
     this.usuarioSeleccionado.set(usuario);
 
     this.turnoService.getTurnosByIdUsuario(usuario.idUsuario).subscribe({
       next: (respuesta) => {
         this.turnosUsuario.set(respuesta.turnos || []);
 
-        // 🔥 Scroll automático cuando los turnos están cargados
         setTimeout(() => {
           if (this.detalleUsuarioRef) {
             this.detalleUsuarioRef.nativeElement.scrollIntoView({
@@ -68,24 +69,28 @@ verInfoUsuario(usuario: any) {
     });
   }
 
-// verTurnosUsuario(idUsuario: number) {
-//   this.usuarioSeleccionado.set(
-//     this.usuarios().find(u => u.idUsuario === idUsuario) || null
-//   );
+  navegarAdetalles(idTurno: string | number) {
+    this.router.navigate(['/admin/turno', idTurno]);
+  }
 
-//   console.log("Buscando usuario con ID:", idUsuario);
-//   console.log("Usuarios:", this.usuarios());
+  // verTurnosUsuario(idUsuario: number) {
+  //   this.usuarioSeleccionado.set(
+  //     this.usuarios().find(u => u.idUsuario === idUsuario) || null
+  //   );
 
-//   this.turnoService.getTurnosByIdUsuario(idUsuario).subscribe({
-//     next: (turnosResponse) => {
-//       console.log("Turnos recibidos:", turnosResponse);
-//       this.turnosUsuario.set(turnosResponse.turnos || []);
-//     },
-//     error: (err) => {
-//       console.error('Error al obtener turnos', err);
-//       this.turnosUsuario.set([]);
-//     },
-//   });
-//}
+  //   console.log("Buscando usuario con ID:", idUsuario);
+  //   console.log("Usuarios:", this.usuarios());
+
+  //   this.turnoService.getTurnosByIdUsuario(idUsuario).subscribe({
+  //     next: (turnosResponse) => {
+  //       console.log("Turnos recibidos:", turnosResponse);
+  //       this.turnosUsuario.set(turnosResponse.turnos || []);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error al obtener turnos', err);
+  //       this.turnosUsuario.set([]);
+  //     },
+  //   });
+  //}
 
 }

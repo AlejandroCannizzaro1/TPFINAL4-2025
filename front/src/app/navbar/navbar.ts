@@ -3,16 +3,17 @@ import { AuthService } from '../auth.service/auth.service';
 import { Router, RouterLink } from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { NotificacionService } from '../services/notificacion-service.service';
+import { MatIconModule, MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, MatIcon],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
 export class Navbar {
-
+  
   auth = inject(AuthService);
   router = inject(Router);
 

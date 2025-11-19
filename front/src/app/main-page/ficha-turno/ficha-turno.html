@@ -3,14 +3,18 @@
 }@else {   
     @let turno = this.turno();
     <div class="ventana-turno">
-        @if (turno && esMiTurno()) {
+        @if (turno && (esMiTurno() || isAdmin)) {
             <h1>Turno</h1>
             <h3>{{turno.fecha}}</h3>
             <h3>{{turno.hora}}</h3>
-            <button (click)="cancelarReserva()">Cancelar reserva</button>
+            @if (isAdmin) {
+                <button (click)="eliminarTurno(turno.idTurno!)">Eliminar turno</button>
+            } @else {
+                <button (click)="cancelarReserva()">Cancelar reserva</button>
+            }
         }@else {
             <h1>Uh oh!</h1>
-            @if (!esMiTurno()) {
+            @if (!esMiTurno() || !isAdmin) {
                 <p>Este turno no lo reservaste!</p>
             }@else {
                 <p>No se encontro el turno...</p>

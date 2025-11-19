@@ -21,10 +21,11 @@ export const routes: Routes = [
   { path: 'notificaciones', component: NotificacionesUsersComponent, canActivate: [AuthGuard]},
   // Usuario normal
   { path: 'mis-turnos', component: MisTurnosComponent, canActivate: [AuthGuard], title: 'Mis Turnos' },
+  { path: 'mis-turnos/:id', component: FichaTurno, canActivate: [AuthGuard], title: 'Detalle Turno'},
   // Solo admin
   { path: 'admin', component: AdminPanelComponent, canActivate: [AuthGuard, RoleGuard], title: 'Panel Admin' },
   { path: 'admin/filter-admin', component: FilterAdminComponent, canActivate: [AuthGuard, RoleGuard] },
+  { path: 'admin/turno/:id', component: FichaTurno, canActivate:[AuthGuard, RoleGuard], title: 'Detalle Turno'},
   { path: 'admin/setting_turnos', component: TurnosDisponiblesForm, canActivate: [AuthGuard, RoleGuard], title: 'Configuracion Turnos Disponibles' },
-  { path: 'mis-turnos/:id', component: FichaTurno, canActivate: [AuthGuard], title: 'Turno'}
 
 ];

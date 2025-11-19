@@ -32,10 +32,12 @@ export class TurnoService {
     return this.http.post<Turno>(`${this.apiUrl}/turnos/reservar/${idTurno}`, { "idUsuario": idUsuario });
   }
 
+  //rep a
   eliminarTurno(idTurno: number, idAdmin: number) {
     return this.http.post<any>(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { "idUsuarioAdmin": idAdmin });
   }
 
+  //rep b
   cancelarReservaTurno(idTurno: number, idUsuario: number) {
     return this.http.post<any>(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { "idUsuario": idUsuario });
   }
@@ -48,10 +50,12 @@ export class TurnoService {
     return this.http.post<any>(`${this.apiUrl}/turnos/admin`, { idAdmin, datosTurno });
   }
 
+  //rep b
   cancelarReserva(idTurno: number, idUsuario: number) {
     return this.http.post(`${this.apiUrl}/turnos/cancelar/${idTurno}`, { idUsuario });
   }
 
+  //rep a
   eliminarTurnoAdmin(idTurno: number, idUsuarioAdmin: number) {
     return this.http.post(`${this.apiUrl}/turnos/eliminar/${idTurno}`, { idUsuarioAdmin });
   }

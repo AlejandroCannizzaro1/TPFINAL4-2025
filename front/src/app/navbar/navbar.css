@@ -62,6 +62,15 @@
   opacity: 0.9;
 }
 
+.mat-icon {
+  transition: color 0.3s ease; 
+  cursor: pointer;             
+}
+
+.mat-icon:hover {
+  color: #d4a373; 
+}
+
 /* --- Responsive --- */
 @media (max-width: 700px) {
   .navbar {

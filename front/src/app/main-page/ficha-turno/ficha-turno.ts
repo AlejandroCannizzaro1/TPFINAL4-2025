@@ -21,6 +21,7 @@ export class FichaTurno {
   protected readonly idTurno = Number(this.route.snapshot.paramMap.get('id'));
   protected readonly turnoSource = toSignal(this.client.getTurnosById(this.idTurno));
   protected readonly turno = linkedSignal(() => this.turnoSource());
+  protected readonly isAdmin = this.auth.isAdmin();
 
   esMiTurno() { //El turno esta vinculado a mi cuenta?
     return (this.turno()?.usuarioId === this.idUsuario);
@@ -40,6 +41,21 @@ export class FichaTurno {
           this.router.navigateByUrl('/mis-turnos');
         }
       });
+    }
+  }
+
+  eliminarTurno(idTurno: string | number) {
+    if(confirm('Desea eliminar el turno? no solo cancelara la reserva, tambien eliminara el turno disponible')) {
+      this.client.eliminarTurno(Number(idTurno), Number(this.auth.getId())).subscribe({
+        next: (t) => {
+          alert("Turno eliminado con exito!");
+          this.router.navigateByUrl('/admin/filter-admin');
+        },
+        error: (e) => {
+          alert("Error!");
+          console.log(e);
+        }
+      })
     }
   }
 }
