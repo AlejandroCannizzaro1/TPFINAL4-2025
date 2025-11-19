@@ -1,4 +1,4 @@
-/* ===== TITULOS ===== */
+
 
 h2 {
   margin-top: 40px;
@@ -17,7 +17,6 @@ h3 {
   color: #1b4d21;
 }
 
-/* ===== LISTA DE USUARIOS ===== */
 
 .usuarios-lista {
   margin-top: 20px;
@@ -57,7 +56,6 @@ h3 {
   margin: 0;
 }
 
-/* ===== BOTONES ===== */
 
 .usuario-acciones {
   display: flex;
@@ -83,7 +81,6 @@ h3 {
   background-color: #1b4d21;
 }
 
-/* ===== DETALLES Y TURNOS ===== */
 
 .detalle-usuario,
 .turnos-usuario,
@@ -112,9 +109,7 @@ h3 {
 }
 
 
-/* ===== LISTA DE TURNOS ===== */
 
-/* Contenedor de la sección */
 .turnos-container {
     padding: 20px;
     max-width: 700px;
@@ -128,13 +123,12 @@ h3 {
     box-shadow: 0 4px 10px rgba(46, 125, 50, 0.15);
 }
 
-/* Título interno */
+
 .turnos-container h3 {
     margin-top: 0;
     color: #1b4d21;
 }
 
-/* ----- BOTONES DE ORDEN ----- */
 
 .orden-buttons {
     display: flex;
@@ -165,7 +159,7 @@ h3 {
     color: white;
 }
 
-/* ----- TARJETAS DE TURNOS ----- */
+
 
 .turnos-list {
     list-style: none;

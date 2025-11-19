@@ -1,4 +1,3 @@
-/* ===== CONTENEDOR PRINCIPAL ===== */
 
 .ventana-turno {
     max-width: 600px;
@@ -18,13 +17,10 @@
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Suave aparición */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-/* ===== TITULOS ===== */
 
 .ventana-turno h1 {
     font-size: 2rem;
@@ -38,15 +34,11 @@
     margin: 6px 0;
     color: #1b4d21;
 }
-
-/* ===== MENSAJES DE ERROR / AVISO ===== */
 .ventana-turno p {
     margin-top: 12px;
     font-size: 1.1rem;
     color: #3f6b3f;
 }
-
-/* ===== BOTONES ===== */
 
 .ventana-turno button {
     margin-top: 22px;
@@ -74,8 +66,6 @@
 .ventana-turno button:active {
     transform: scale(0.98);
 }
-
-/* ==== BOTÓN ESPECIAL PARA ADMIN (ELIMINAR) ==== */
 
 .ventana-turno button:nth-child(4) {
     background-color: #c62828;     /* rojo suave */
