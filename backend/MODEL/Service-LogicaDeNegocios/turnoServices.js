@@ -53,7 +53,7 @@ async function getTurnoByIdService(idTurno) {
 
 //  Crear un nuevo turno by el admin 
 async function crearTurnoService(idUsuarioAdmin, datosTurno) {
-    // 1️ Validar que sea admin
+
     const adminValido = await validarAdminService(idUsuarioAdmin);
     if (!adminValido) {
         throw new Error('No tenés permisos para crear turnos (solo admin)');
@@ -61,38 +61,37 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
 
     const { fecha, hora, tipoServicio = '', notas = '' } = datosTurno;
 
-    // 2️ Validar campos obligatorios
+
     if (!fecha || !hora) {
         throw new Error('Faltan datos obligatorios: fecha y hora');
     }
 
-    // 3️ Validar formato de hora
+
     if (!validarHoraService(hora)) {
         throw new Error('Formato de hora inválido. Usa HH:MM (00:00 a 23:59)');
     }
 
-    // 4️ Validar fecha
+
     if (!validarFechaService(fecha)) {
         throw new Error('Fecha inválida');
     }
 
-    // 5️-a Evitar duplicados
+
     const existeTurno = await esTurnoDuplicado(fecha, hora);
     if (existeTurno) {
         throw new Error(`Ya existe un turno en la fecha ${fecha} a la hora ${hora}`);
     }
 
-    // 6 Nueva validación para evitar turnos con menos de 1 hora de diferencia
-    //compara contra todos los turnos del día, y determina si cualquiera está a menos de 59 minutos
+
     const conflicto = await hayConflictoDeHorario(fecha, hora);
     if (conflicto) {
         throw new Error(`No se puede crear el turno. Debe haber al menos 1 hora entre turnos en la misma fecha.`);
     }
 
-    // 7 Generar ID
+
     const nuevoId = await obtenerProximoIdTurnoService();
 
-    // 7 Crear objeto del turno
+
     const fechaTurno = new Date(fecha);
     const nuevoTurno = {
         idTurno: nuevoId,
@@ -104,7 +103,7 @@ async function crearTurnoService(idUsuarioAdmin, datosTurno) {
         idUsuarioVinculado: []
     };
 
-    // 9 Guardar en Airtable
+
     const resultado = await crearTurno(nuevoTurno);
 
     if (resultado.error) {
@@ -197,13 +196,13 @@ async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, 
 
     const resultado = await reservarTurnoDAO(idAirtableTurno, nuevosDatos);
 
-    // 6️ Manejar error de Airtable
+
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
         throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
     }
 
-    // 7) Notificar a usuario y admins
+
     await notificarReservaService(idAirtableTurno, idAirtableUsuario);
 
     console.log(" Turno reservado correctamente:", resultado);
@@ -211,51 +210,29 @@ async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, 
         message: `Turno ${idTurno} reservado correctamente`,
         data: resultado
     };
-    /*if (!turno) {
-        throw new Error("Turno no encontrado");
-    }
-
-    if (!turno.fields.turnoDisponible) {
-        throw new Error("El turno ya está reservado");
-    }
-
-    const data = {
-        turnoDisponible: false,
-        idUsuarioVinculado: idUsuario,
-        tipoServicio: tipoServicio,
-        notas: notas ?? ""
-    };
-
-    const actualizado = await reservarTurnoDAO(turno.id, data);
-
-    return actualizado;*/
+    
 }
 
 //  Reservar un turno
 async function reservarTurnoService(idTurno, idUsuario) {
     console.log(` Reservando turno ${idTurno} para usuario ${idUsuario}`);
 
-    // 1️ Buscar ID interno del turno
     const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
     if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
 
-    // 2️ Traer el turno actual para verificar disponibilidad
     const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
     if (!turno.fields.turnoDisponible) {
         throw new Error(`El turno ${idTurno} ya está reservado`);
     }
 
-    // 3️ Buscar el record ID del usuario (interno de Airtable)
     const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
 
-    // 4️ Armar los datos para actualizar el turno
     const nuevosDatos = {
         turnoDisponible: false,
         idUsuarioVinculado: [idAirtableUsuario], // relación directa con la tabla Usuarios
     };
 
-    // 5️ Ejecutar PATCH en Airtable
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
 
     // luego de editarTurno()
@@ -263,13 +240,12 @@ async function reservarTurnoService(idTurno, idUsuario) {
     console.log('Turno después de reservar:', JSON.stringify(turnoActualizado.fields.idUsuarioVinculado));
 
 
-    // 6️ Manejar error de Airtable
     if (resultado.error) {
         console.error(" Error en Airtable:", resultado.error);
         throw new Error(`Error editando turno ${idAirtableTurno}: ${resultado.error.message}`);
     }
 
-    // 7) Notificar a usuario y admins
+    // Notificar a usuario y admins
     await notificarReservaService(idAirtableTurno, idAirtableUsuario);
 
     console.log(" Turno reservado correctamente:", resultado);
@@ -283,14 +259,13 @@ async function reservarTurnoService(idTurno, idUsuario) {
 async function cancelarReservaService(idTurno, idUsuario) {
     console.log(` Cancelando reserva del turno ${idTurno} para usuario ${idUsuario}`);
 
-    // 1️ Buscar IDs internos
+
     const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
     const idAirtableUsuario = await obtenerIdAirtablePorIdUsuario(idUsuario);
 
     if (!idAirtableTurno) throw new Error(`No se encontró el turno ${idTurno}`);
     if (!idAirtableUsuario) throw new Error(`No se encontró el usuario ${idUsuario}`);
 
-    // 2️ Traer el turno para verificar que le pertenece al usuario
     const turno = await obtenerTurnoByIdAirtable(idAirtableTurno);
 
     const usuarioActual = turno.fields.idUsuarioVinculado?.[0];
@@ -298,13 +273,13 @@ async function cancelarReservaService(idTurno, idUsuario) {
         throw new Error(`El turno ${idTurno} no pertenece al usuario ${idUsuario}`);
     }
 
-    // 3️ Liberar el turno
+
     const nuevosDatos = {
         turnoDisponible: true,
         idUsuarioVinculado: [], // se desasocia el usuario
     };
 
-    // 4️ Ejecutar PATCH en Airtable
+
     const resultado = await editarTurno(idAirtableTurno, nuevosDatos);
 
     //  ACA es donde corregimos: Se notifica al usuario y al Admin 

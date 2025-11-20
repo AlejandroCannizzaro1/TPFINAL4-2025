@@ -116,13 +116,13 @@ async function obtenerUsuarioService(idUsuario) {
 async function actualizarUsuarioService(idUsuario, nuevosDatos) {
     console.log(" [actualizarUsuarioService] Actualizando usuario con idUsuario:", idUsuario);
 
-    // 1️ Buscar ID interno de Airtable a partir del idUsuario manual
+    // 1 Buscar ID interno de Airtable a partir del idUsuario manual
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} no encontrado.` };
     }
 
-    // 2️ Validar que no intenten modificar el idUsuario
+    // 2 Validar que no intenten modificar el idUsuario
     if ('idUsuario' in nuevosDatos) {
         if (Number(nuevosDatos.idUsuario) !== Number(idUsuario)) {
             return { error: ` El campo 'idUsuario' es inmutable y no puede ser modificado.` };
@@ -131,7 +131,7 @@ async function actualizarUsuarioService(idUsuario, nuevosDatos) {
         delete nuevosDatos.idUsuario;
     }
 
-    // 3️ Filtrar solo los campos válidos que Airtable acepta
+    // 3 Filtrar solo los campos válidos que Airtable acepta
     const camposPermitidos = [
         "nombreUsuario",
         "email",
@@ -148,21 +148,21 @@ async function actualizarUsuarioService(idUsuario, nuevosDatos) {
         }
     }
 
-    // 4️ Verificar que haya al menos un campo válido para actualizar
+    // 4 Verificar que haya al menos un campo válido para actualizar
     if (Object.keys(datosFiltrados).length === 0) {
         return { error: "[]No se proporcionaron campos válidos para actualizar." };
     }
 
-    // 5️ Agregar idUsuario original (para mantener coherencia en el registro)
+    // 5 Agregar idUsuario original (para mantener coherencia en el registro)
     const datosCompletos = {
         ...datosFiltrados,
         idUsuario: Number(idUsuario)
     };
 
-    // 6️ Enviar actualización a Airtable
+    // 6 Enviar actualización a Airtable
     const resultado = await actualizarUsuario(idAirtable, datosCompletos);
 
-    // 7️ Manejar posibles errores de Airtable (422 u otros)
+    // 7 Manejar posibles errores de Airtable (422 u otros)
     if (resultado.error) {
         return {
             error: `Error desde Airtable: ${resultado.error.message || "Error desconocido"}`,
@@ -181,18 +181,18 @@ async function editarUsuarioService(idUsuario, cambios) {
     console.log(`[Service PATCH] Actualizando usuario con idUsuario=${idUsuario}`);
     console.log("[Service PATCH] Body recibido:", cambios);
 
-    // 1️ Buscar ID interno de Airtable
+    // 1 Buscar ID interno de Airtable
     const idAirtable = await obtenerIdAirtablePorIdUsuario(idUsuario);
     if (!idAirtable) {
         return { error: `Usuario con ID ${idUsuario} NO ENCONTRADO` };
     }
 
-    // 2️ Validar intento de modificar idUsuario
+    // 2 Validar intento de modificar idUsuario
     if ("idUsuario" in cambios && Number(cambios.idUsuario) !== Number(idUsuario)) {
         return { error: `El campo idUsuario es inmutable y no puede ser modificado.` };
     }
 
-    // 3️ Filtrar solo campos válidos
+    // 3 Filtrar solo campos válidos
     const camposPermitidos = [
         "nombreUsuario",
         "email",
@@ -209,15 +209,15 @@ async function editarUsuarioService(idUsuario, cambios) {
         }
     }
 
-    // 4️ Verificar si hay algo que actualizar
+    // 4 Verificar si hay algo que actualizar
     if (Object.keys(datosFiltrados).length === 0) {
         return { error: `No se proporcionaron campos válidos para actualizar.` };
     }
 
-    // 5️ Llamar el PATCH del repo
+    // 5 Llamar el PATCH del repo
     const resultado = await editarUsuario(idAirtable, datosFiltrados);
 
-    // 6️ Respuesta uniforme
+    // 6 Respuesta uniforme
     return {
         message: `Usuario con idUsuario=${idUsuario} editado, de forma parcial,correctamente.`,
         data: resultado
