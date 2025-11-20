@@ -34,11 +34,21 @@
         </div>
 
         <h3>Detalle Notificación</h3>
-        <p><strong>Mensaje:</strong> {{ notificacionSeleccionada()?.mensaje }}</p>
-        <p><strong>Fecha turno:</strong> {{ notificacionSeleccionada()?.fecha }}</p>
-        <p><strong>Hora turno:</strong> {{ notificacionSeleccionada()?.hora }}</p>
-        <p><strong>Servicio:</strong> {{ notificacionSeleccionada()?.servicio }}</p>
-        <p><strong>ID Turno:</strong> {{ notificacionSeleccionada()?.idTurno }}</p>
+        @if (notificacionSeleccionada()?.mensaje) {
+          <p><strong>Mensaje:</strong> {{ notificacionSeleccionada()?.mensaje }}</p>
+        }
+        @if (notificacionSeleccionada()?.fecha) {
+          <p><strong>Fecha turno:</strong> {{ notificacionSeleccionada()?.fecha }}</p>
+        }
+        @if (notificacionSeleccionada()?.hora) {        
+          <p><strong>Hora turno:</strong> {{ notificacionSeleccionada()?.hora }}</p>
+        }
+        @if (notificacionSeleccionada()?.servicio) {
+          <p><strong>Servicio:</strong> {{ notificacionSeleccionada()?.servicio }}</p>
+        }
+        @if (notificacionSeleccionada()?.idTurno) {
+          <p><strong>ID Turno:</strong> {{ notificacionSeleccionada()?.idTurno }}</p>
+        }
       </div>
   }
   }

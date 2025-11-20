@@ -7,14 +7,14 @@
 @if (mostrarFormulario()) {
   <div class="modal-fondo">
     <div class="modal-contenido">
-      @if (turnoSeleccionado?.turnoDisponible) {
+      @if (turnoSeleccionado()?.turnoDisponible) {
         <h3>Confirmar Reserva</h3>
       }@else {
         <h3>Datos del turno</h3>
       }
-      <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
-      <p><strong>Hora:</strong> {{ turnoSeleccionado?.hora }}</p>
-      @if (turnoSeleccionado?.turnoDisponible) {
+      <p><strong>Fecha:</strong> {{ turnoSeleccionado()?.fecha }}</p>
+      <p><strong>Hora:</strong> {{ turnoSeleccionado()?.hora }}</p>
+      @if (turnoSeleccionado()?.turnoDisponible) {
         <form [formGroup]="form" (ngSubmit)="confirmarTurno()">
           <label for="tipoServicio">Tipo de servicio:</label>
           <select id="tipoServicio" formControlName="tipoServicio">
@@ -32,21 +32,20 @@
           <label for="notas">Notas (opcional):</label>
           <textarea id="notas" rows="3" formControlName="notas"></textarea>
           
+        </form>
+        }
           <div class="botones">
-            @if (turnoSeleccionado?.turnoDisponible) {
-              <button type="submit">Confirmar</button>
-              <button type="reset">Limpiar</button>
-            }
-            @if (!usuarioEsAdmin && (turnoSeleccionado?.usuarioId === idPropio)) {
+            @if (turnoSeleccionado()?.turnoDisponible) {
+              <button (click)="confirmarTurno()">Confirmar</button>
+              <button (click)="form.reset()">Limpiar</button>
+            } @else if (turnoSeleccionado()?.usuarioId === idPropio) {
               <button (click)="cancelarReserva()">Cancelar Reserva</button>
             }
             @if (usuarioEsAdmin) {
               <button (click)="eliminarTurno()">Eliminar Turno</button>
             }
-            <button class="cancelar" (click)="cancelar()">Cancelar</button>
           </div>
-        </form>
-      }
+      <button class="cancelar" (click)="cancelar()">Cancelar</button>
     </div>
   </div>
 }

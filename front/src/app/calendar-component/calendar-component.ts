@@ -31,14 +31,15 @@ export class CalendarComponent {
   private auth = inject(AuthService);
   protected readonly idPropio = Number(this.auth.getId());
 
+  mostrarFormulario = signal(false);
+  turnoSeleccionado = signal<Turno | null>(null);
+  
   private readonly fb = inject(FormBuilder);
   protected readonly servicios = ['Corte masculino', 'Corte femenino', 'Barba', 'Corte + Barba'];
   protected readonly form = this.fb.nonNullable.group({
     tipoServicio: ['', [Validators.required]],
     notas: ['']
   })
-  mostrarFormulario = signal(false);
-  turnoSeleccionado: Turno | null = null;
 
 
   protected readonly turnoResponseSource = toSignal(this.turnoClient.getTurnosDisponibles());
@@ -103,12 +104,11 @@ export class CalendarComponent {
         id: t.fields.idTurno?.toString(),
         title: `${t.fields.hora} hs`,
         start: `${t.fields.fecha}T${t.fields.hora}:00`,
-        extendedProps: t,
+        extendedProps: t.fields,
         order: t.fields.turnoDisponible ? 0 : 1,
         color: t.fields.turnoDisponible ? 'green ' : 'red'
       }));
     }
-
     this.calendarOptions = { ...this.calendarOptions, events: eventos, eventOrder: ['order', 'start'] }; //Le agrego Start asi ademas del orden por disponibilidad, se ordena por horario
   }
 
@@ -140,6 +140,7 @@ export class CalendarComponent {
     this.turnoClient.crearTurnoAdmin(idAdmin, nuevoTurno).subscribe({ //No se carga el turno reactivamente
       next: (t) => {
         this.agregarTurno(t);
+        alert("Turno creado con exito");
         window.location.reload(); //Perdon por esto profes, sabemos que no cumple reactividad pero no pudimos hacer que fullCalendar actualice los eventos
         // de ninguna otra manera :(
       },
@@ -164,8 +165,9 @@ export class CalendarComponent {
       return;
     }
 
-    this.turnoSeleccionado = turno;
+    this.turnoSeleccionado.set(turno);
     this.mostrarFormulario.set(true);
+
   }
 
   agregarTurno(turno: Turno) {
@@ -177,7 +179,7 @@ export class CalendarComponent {
   }
 
   confirmarTurno() {
-    if (!this.turnoSeleccionado) return;
+    if (!this.turnoSeleccionado()) return;
 
     if (this.form.invalid) return;
 
@@ -191,14 +193,14 @@ export class CalendarComponent {
       const notas = this.form.value.notas;
       
 
-      this.turnoClient.reservarTurno(this.turnoSeleccionado.idTurno!, this.idPropio, tipoServicio!, notas!).subscribe({
+      this.turnoClient.reservarTurno(this.turnoSeleccionado()?.idTurno!, this.idPropio, tipoServicio!, notas!).subscribe({
         next: (t) => {
           alert("Turno reservado con éxito");
           console.log(t);
 
           // limpiar formulario
           this.mostrarFormulario.set(false);
-          this.turnoSeleccionado = null;
+          this.turnoSeleccionado.set(null);
 
           window.location.reload();
         },
@@ -206,7 +208,7 @@ export class CalendarComponent {
           alert('Error!');
           console.log(e);
           this.mostrarFormulario.set(false);
-          this.turnoSeleccionado = null;
+          this.turnoSeleccionado.set(null);
 
         }
       });
@@ -214,20 +216,20 @@ export class CalendarComponent {
   }
 
   eliminarTurno() {
-    if (!this.turnoSeleccionado) return;
+    if (!this.turnoSeleccionado()) return;
 
     if (this.auth.isAdmin()) {
 
       //Eliminar turno
       if (confirm("Esta seguro que desea eliminar el turno?")) {
 
-        this.turnoClient.eliminarTurno(this.turnoSeleccionado.idTurno!, this.idPropio).subscribe((t) => {
+        this.turnoClient.eliminarTurno(this.turnoSeleccionado()?.idTurno!, this.idPropio).subscribe((t) => {
           alert('Turno eliminado con exito!');
           console.log(t);
           //Falta borrar el evento en el momento
 
           this.mostrarFormulario.set(false);
-          this.turnoSeleccionado = null;
+          this.turnoSeleccionado.set(null);
           window.location.reload();
         });
       }
@@ -235,20 +237,20 @@ export class CalendarComponent {
   }
 
   cancelarReserva() {
-    if (!this.turnoSeleccionado) return;
+    if (!this.turnoSeleccionado()) return;
 
     //Cancelar una reserva si esta reservada
-    if (!this.turnoSeleccionado?.turnoDisponible) {
+    if (!this.turnoSeleccionado()?.turnoDisponible) {
       if (confirm("Desea cancelar la reserva? Se le enviara una notificacion al cliente")) {
-        this.turnoClient.cancelarReservaTurno(this.turnoSeleccionado.idTurno!, this.idPropio).subscribe((t) => {
+        this.turnoClient.cancelarReservaTurno(this.turnoSeleccionado()?.idTurno!, this.idPropio).subscribe((t) => {
           alert('Turno cancelado con exito!');
           console.log(t);
 
           //enviar notificacion!
 
-          this.mostrarFormulario.set(false);
-          this.turnoSeleccionado = null;
           window.location.reload();
+          this.mostrarFormulario.set(false);
+          this.turnoSeleccionado.set(null);
         });
       }
     }
@@ -257,7 +259,7 @@ export class CalendarComponent {
 
   cancelar() {
     this.mostrarFormulario.set(false);
-    this.turnoSeleccionado = null;
+    this.turnoSeleccionado.set(null);
     this.form.reset();
   }
 }

@@ -41,8 +41,9 @@
 }
 
 .ventana-turno button {
-    margin-top: 22px;
+    margin: 22px;
     padding: 10px 20px;
+    
 
     font-size: 1rem;
     font-weight: 600;
