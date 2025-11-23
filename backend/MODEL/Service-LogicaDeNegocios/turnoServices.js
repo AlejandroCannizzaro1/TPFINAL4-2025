@@ -174,6 +174,7 @@ async function editarTurnoByAdminService(idTurno, idUsuarioAdmin, cambios) {
     };
 }
 
+// Nueva funcion que hizo Manu para reservar turno incluyendo el tipo de servicio y las notas que el usuario llena en el formulario 
 async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, notas) {
 
     const idAirtableTurno = await obtenerIdAirtablePorIdTurno(idTurno);
@@ -191,7 +192,7 @@ async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, 
         turnoDisponible: false,
         idUsuarioVinculado: [idAirtableUsuario], // relación directa con la tabla Usuarios
         tipoServicio: tipoServicio,
-        notas: notas ?? ""
+        notas: notas ?? "" // ?? : Si notas es null o undefined, usar "" (string vacío).
     };
 
     const resultado = await reservarTurnoDAO(idAirtableTurno, nuevosDatos);
@@ -213,7 +214,7 @@ async function reservarTurnoServiceConCambios(idTurno, idUsuario, tipoServicio, 
     
 }
 
-//  Reservar un turno
+//  Reservar un turno. Este ya no se usa porque no incluia notas ni tipo de servicio a la hora de reservar 
 async function reservarTurnoService(idTurno, idUsuario) {
     console.log(` Reservando turno ${idTurno} para usuario ${idUsuario}`);
 
