@@ -33,7 +33,6 @@ async function obtenerTurnoByIdNormal(idTurno) {
 
 //  Obtener ID interno de Airtable a partir del idTurno NORMAL
 async function obtenerIdAirtablePorIdTurno(idTurno) {
-    // Si es numérico, usa comparación directa; si es string, comillas
     const condicion =
         typeof idTurno === "number"
             ? `{idTurno}=${idTurno}`
@@ -42,7 +41,21 @@ async function obtenerIdAirtablePorIdTurno(idTurno) {
     const formula = `filterByFormula=${encodeURIComponent(condicion)}`;
     const res = await fetch(`${AIRTABLE_BASE_URL}?${formula}`, { headers: HEADERS });
 
+    if (!res.ok) {
+        console.error(`Error en fetch Airtable: ${res.status} ${res.statusText}`);
+        return null;
+    }
+
     const data = await res.json();
+
+    // Log para debug
+    console.log("Respuesta Airtable obtenerIdAirtablePorIdTurno:", JSON.stringify(data));
+
+    if (!data || !Array.isArray(data.records)) {
+        console.error("Respuesta Airtable inesperada en obtenerIdAirtablePorIdTurno:", data);
+        return null;
+    }
+
     return data.records.length > 0 ? data.records[0].id : null;
 }
 
