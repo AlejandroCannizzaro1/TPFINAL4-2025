@@ -5,11 +5,13 @@ import { AuthService } from '../../auth.service/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+
 @Component({
   selector: 'app-mis-turnos',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './mis-turnos.component.html',
-  styleUrl: './mis-turnos.component.css'
+  styleUrls: ['./mis-turnos.component.css']
 })
 export class MisTurnosComponent {
   

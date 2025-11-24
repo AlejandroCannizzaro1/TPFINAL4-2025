@@ -5,10 +5,11 @@ import { CommonModule } from '@angular/common';
 import { NotificacionService } from '../services/notificacion-service.service';
 import { MatIconModule, MatIcon } from '@angular/material/icon';
 
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, CommonModule, MatIcon],
+  imports: [RouterLink, CommonModule, MatIconModule ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
