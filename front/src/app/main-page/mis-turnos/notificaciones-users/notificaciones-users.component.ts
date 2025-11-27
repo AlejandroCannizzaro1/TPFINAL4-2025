@@ -18,7 +18,13 @@ export class NotificacionesUsersComponent {
   private readonly idUsuario = Number(this.auth.getId());
 
   private readonly notificacionesSource = toSignal(this.notiService.getNotificacionesByUsuario(this.idUsuario));
-  protected readonly notificaciones = linkedSignal(() => this.notificacionesSource());
+  protected readonly notificaciones = linkedSignal(() => {
+    if(this.notificacionesSource()){
+      const lista = this.notificacionesSource(); 
+      return [...lista!].sort((a,b) => b.idNotificacion - a.idNotificacion);
+    }
+    return null;
+  });
   protected readonly notificacionSeleccionada = signal<Notificacion | null>(null);
 
   constructor() {

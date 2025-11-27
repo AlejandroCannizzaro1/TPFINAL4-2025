@@ -10,7 +10,7 @@
     <!-- Estado cargado -->
     @if (notificaciones()!.length > 0) {
       <ul class="lista-notificaciones">
-        @for (noti of notificaciones(); track $index) {
+        @for (noti of notificaciones(); track noti.idNotificacion) {
           <li (click)="seleccionarNotificacion(noti)"
             [class.seleccionada]="noti.idNotificacion === notificacionSeleccionada()?.idNotificacion">
             Notificación {{ $index + 1 }}
