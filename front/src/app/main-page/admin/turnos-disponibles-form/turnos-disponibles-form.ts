@@ -51,7 +51,14 @@ export class TurnosDisponiblesForm {
     return this.form.controls.fechaInicio;
   }
 
-  
+  formatLocalDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const d = date.getDate().toString().padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+
   async handleSubmit() {
     if (this.form.invalid) {
       alert("El formulario está incompleto!");
@@ -95,8 +102,10 @@ export class TurnosDisponiblesForm {
     this.loading = true;
 
     // Convertir fechas a string para filtrar turnos
-    const fechaInicioStr = fechaInicioObj.toISOString().slice(0, 10);
-    const fechaFinStr = fechaFinObj.toISOString().slice(0, 10);
+    //const fechaInicioStr = fechaInicioObj.toISOString().slice(0, 10);  -- error
+    const fechaInicioStr = this.formatLocalDate(fechaInicioObj);
+    //const fechaFinStr = fechaFinObj.toISOString().slice(0, 10);        --error
+    const fechaFinStr = this.formatLocalDate(fechaFinObj);
 
     let turnosExistentes: Turno[] = [];
     try {
@@ -114,7 +123,9 @@ export class TurnosDisponiblesForm {
     const creaciones: Promise<any>[] = [];
 
     // Recorrer desde fechaInicio a fechaFin
-    for (let fecha = new Date(fechaInicioObj); fecha <= fechaFinObj; fecha.setDate(fecha.getDate() + 1)) {
+    for (let fecha = new Date(fechaInicioObj.getFullYear(), fechaInicioObj.getMonth(), fechaInicioObj.getDate());
+      fecha <= fechaFinObj;
+      fecha.setDate(fecha.getDate() + 1)) {
       const diaSemana = fecha.getDay();
       if (diaSemana === 0 || diaSemana === 6) continue; // saltar fines de semana
 
@@ -145,6 +156,7 @@ export class TurnosDisponiblesForm {
           notas: ''
         };
 
+        console.log(`Intentando crear turno ${datosTurno}`);
         const prom = firstValueFrom(this.client.crearTurnoAdmin(idAdmin, datosTurno))
           .then(res => console.log('Turno creado:', res))
           .catch(err => console.error('Error creando turno:', err));
@@ -158,6 +170,6 @@ export class TurnosDisponiblesForm {
     this.loading = false;
     alert('Se crearon todos los turnos disponibles correctamente!');
   }
- 
+
 
 }
